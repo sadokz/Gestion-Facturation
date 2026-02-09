@@ -103,6 +103,16 @@ const SortableProjectRow = ({
   
   const resteAPayeTTC = totalTTC - totalPayeTTC;
 
+  // Calcul automatique du statut
+  let calculatedStatus = "Non facturé";
+  if (totalFactureHT > 0) {
+    if (totalFactureHT < totalHT) {
+      calculatedStatus = "Partiellement Facturé";
+    } else if (totalFactureHT >= totalHT) {
+      calculatedStatus = resteAPayeTTC <= 0.001 ? "Soldé" : "Totalement Facturé";
+    }
+  }
+
   return (
     <React.Fragment>
       <TableRow 
@@ -146,7 +156,7 @@ const SortableProjectRow = ({
         <TableCell className="text-right text-blue-600 font-bold">{formatCurrencyDT(totalFactureHT)}</TableCell>
         <TableCell className="text-right text-emerald-600 font-bold">{formatCurrencyDT(totalPayeTTC)}</TableCell>
         <TableCell className="text-right text-rose-600 font-black">{formatCurrencyDT(resteAPayeTTC)}</TableCell>
-        <TableCell>{getStatusBadge(project.statut)}</TableCell>
+        <TableCell>{getStatusBadge(calculatedStatus)}</TableCell>
         <TableCell>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -224,7 +234,6 @@ const Projects = () => {
           montant_total_ht: 50000, 
           montant_avenant_ht: 5000,
           tva_pct: 19,
-          statut: "Partiellement Facturé",
           invoices: [
             { id: 101, numero_facture: "FV-2026-001", date_facture: "2026-01-10", montant_ht: 5000, tva_pct: 19, statut: "Payé", type_facture: "Acompte" },
             { id: 102, numero_facture: "FV-2026-002", date_facture: "2026-02-15", montant_ht: 10000, tva_pct: 19, statut: "Payement En Attente", type_facture: "Situation n°1" },
@@ -238,7 +247,6 @@ const Projects = () => {
           montant_total_ht: 120000, 
           montant_avenant_ht: 0,
           tva_pct: 19,
-          statut: "Totalement facturé",
           invoices: [
             { id: 201, numero_facture: "FV-2026-005", date_facture: "2026-03-01", montant_ht: 120000, tva_pct: 19, statut: "Payé", type_facture: "Unique" },
           ]
@@ -276,9 +284,10 @@ const Projects = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "Totalement facturé": return <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">Totalement facturé</Badge>;
+      case "Soldé": return <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">Soldé</Badge>;
+      case "Totalement Facturé": return <Badge className="bg-indigo-100 text-indigo-700 border-indigo-200">Totalement Facturé</Badge>;
       case "Partiellement Facturé": return <Badge className="bg-blue-100 text-blue-700 border-blue-200">Partiellement Facturé</Badge>;
-      case "Facturé": return <Badge className="bg-amber-100 text-amber-700 border-amber-200">Facturé</Badge>;
+      case "Non facturé": return <Badge className="bg-slate-100 text-slate-500 border-slate-200">Non facturé</Badge>;
       default: return <Badge variant="outline">{status}</Badge>;
     }
   };
@@ -331,9 +340,10 @@ const Projects = () => {
                   onChange={(e) => setStatusFilter(e.target.value)}
                 >
                   <option value="all">Tous les statuts</option>
-                  <option value="Facturé">Facturé</option>
+                  <option value="Soldé">Soldé</option>
+                  <option value="Totalement Facturé">Totalement Facturé</option>
                   <option value="Partiellement Facturé">Partiellement Facturé</option>
-                  <option value="Totalement facturé">Totalement facturé</option>
+                  <option value="Non facturé">Non facturé</option>
                 </select>
               </div>
             </div>
