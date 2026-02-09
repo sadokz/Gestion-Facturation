@@ -35,6 +35,7 @@ const invoiceSchema = z.object({
   date_payement: z.string().optional(),
   type_facture: z.string().default("Mission S0"),
   montant_ht: z.coerce.number().min(0),
+  montant_retenue: z.coerce.number().min(0).default(0),
   tva_pct: z.coerce.number().default(19),
   statut: z.string().default("Non facturé"),
   note: z.string().optional(),
@@ -59,6 +60,7 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
       date_payement: "",
       type_facture: "Mission S0",
       montant_ht: 0,
+      montant_retenue: 0,
       tva_pct: 19,
       statut: "Non facturé",
       note: "",
@@ -73,6 +75,7 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
         date_payement: initialData?.date_payement || "",
         type_facture: initialData?.type_facture || "Mission S0",
         montant_ht: initialData?.montant_ht || 0,
+        montant_retenue: initialData?.montant_retenue || 0,
         tva_pct: initialData?.tva_pct || 19,
         statut: initialData?.statut || "Non facturé",
         note: initialData?.note || "",
@@ -198,19 +201,34 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="montant_ht"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Montant HT (DT)</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.001" {...field} className="rounded-xl" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="montant_ht"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Montant HT (DT)</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.001" {...field} className="rounded-xl" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="montant_retenue"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Retenue à la source (DT)</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.001" {...field} className="rounded-xl" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             
             <div className="space-y-3 border-t pt-4 mt-4">
               <h4 className="text-sm font-bold text-slate-700">Documents joints</h4>
@@ -232,7 +250,6 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
                               className="hidden" 
                               id={fieldName} 
                               onChange={(e) => onChange(e.target.files?.[0])} 
-                              // On ne passe pas field.value ici car les inputs file ne supportent pas les objets File comme value
                             />
                             <label 
                               htmlFor={fieldName} 

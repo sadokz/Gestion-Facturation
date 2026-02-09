@@ -1,5 +1,5 @@
 import React from "react";
-import { Receipt, Plus, Edit, CalendarCheck, CalendarDays, FileText, UploadCloud, CheckCircle2 } from "lucide-react";
+import { Receipt, Plus, Edit, CalendarCheck, CalendarDays, FileText, UploadCloud, CheckCircle2, ShieldAlert } from "lucide-react";
 import { formatCurrencyDT, formatDateFR } from "@/utils/formatters";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -117,9 +117,13 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
               
               {/* Montant & Statut */}
               <div className="flex items-center gap-6 w-[30%] justify-end">
-                <div className="text-right">
+                <div className="text-right flex flex-col items-end">
                   <p className="text-sm font-black text-slate-900">{formatCurrencyDT(inv.montant_ht)}</p>
-                  <p className="text-[10px] text-slate-400">HT</p>
+                  {inv.montant_retenue > 0 && (
+                    <p className="text-[9px] text-rose-500 font-bold flex items-center gap-1">
+                      <ShieldAlert size={10} /> Retenue: {formatCurrencyDT(inv.montant_retenue)}
+                    </p>
+                  )}
                 </div>
                 <Badge variant="outline" className={cn(
                   "text-[10px] font-bold px-2 py-0 whitespace-nowrap min-w-[80px] justify-center",
