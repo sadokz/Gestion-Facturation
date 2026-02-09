@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -26,6 +26,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { fetcher } from "@/api/config";
+import { useYear } from "@/context/YearContext";
 
 const purchaseSchema = z.object({
   fournisseur: z.string().min(1, "Le fournisseur est requis"),
@@ -35,6 +37,7 @@ const purchaseSchema = z.object({
   montant_ht: z.coerce.number().min(0),
   tva_pct: z.coerce.number().default(19),
   statut: z.string().default("À payer"),
+  projet_id: z.string().optional(),
   note: z.string().optional(),
 });
 
@@ -46,6 +49,9 @@ interface PurchaseModalProps {
 }
 
 export const PurchaseModal: React.FC<PurchaseModalProps> = ({ isOpen, onClose, onSubmit, initialData }) => {
+  const { selectedYear } = useYear();
+  const [projects, setProjects] = useState<any[]>([]);
+
   const form = useForm({
     resolver: zodResolver(purchaseSchema),
     defaultValues: initialData || {
@@ -56,9 +62,27 @@ export const PurchaseModal: React.FC<PurchaseModalProps> = ({ isOpen, onClose, o
       montant_ht: 0,
       tva_pct: 19,
       statut: "À payer",
+      projet_id: "",
       note: "",
     },
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      const loadProjects = async () => {
+        try {
+          const data = await fetcher(`/projects?year=${selectedYear}`);
+          setProjects(data);
+        } catch (err) {
+          setProjects([
+            { id: 1, reference_projet: "PRJ-2026-001", nom_projet: "Eclairage Avenue" },
+            { id: 2, reference_projet: "PRJ-2026-002", nom_projet: "Rénovation Pont" },
+          ]);
+        }
+      };
+      loadProjects();
+    }
+  }, [isOpen, selectedYear]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -138,6 +162,46 @@ export const PurchaseModal: React.FC<PurchaseModalProps> = ({ isOpen, onClose, o
               />
               <FormField
                 control={form.control}
+                name="projet_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Projet lié (Optionnel)</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder="Choisir un projet" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="none">Aucun</SelectItem>
+                        {projects.map(p => (
+                          <SelectItem key={p.id} value={p.id.toString()}>
+                            {p.reference_projet} - {p.nom_projet}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="montant_ht"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Montant HT (DT)</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.001" {...field} className="rounded-xl" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="statut"
                 render={({ field }) => (
                   <FormItem>
@@ -158,19 +222,6 @@ export const PurchaseModal: React.FC<PurchaseModalProps> = ({ isOpen, onClose, o
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="montant_ht"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Montant HT (DT)</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.001" {...field} className="rounded-xl" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="note"

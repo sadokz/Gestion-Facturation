@@ -9,10 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { formatCurrencyDT, formatDateFR } from "@/utils/formatters";
 import { fetcher } from "@/api/config";
-import { Plus, FileText, Receipt, Trash2 } from "lucide-react";
+import { Plus, FileText, Trash2, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { SalesInvoiceModal } from "./SalesInvoiceModal";
+import { showSuccess, showError } from "@/utils/toast";
 
 interface ProjectDetailProps {
   project: any;
@@ -23,6 +25,8 @@ interface ProjectDetailProps {
 export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, onClose }) => {
   const [invoices, setInvoices] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
 
   useEffect(() => {
     if (isOpen && project) {
@@ -36,13 +40,23 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
       const data = await fetcher(`/projects/${project.id}/sales-invoices`);
       setInvoices(data);
     } catch (err) {
-      // Mock data
       setInvoices([
         { id: 1, numero_facture: "FV-2026-001", date_facture: "2026-03-10", montant_ht: 5000, tva_pct: 19, statut: "Payée", note: "Avancement 10%" },
         { id: 2, numero_facture: "FV-2026-002", date_facture: "2026-04-15", montant_ht: 10000, tva_pct: 19, statut: "Émise", note: "Phase 2" },
       ]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddInvoice = async (data: any) => {
+    try {
+      // await fetcher(`/projects/${project.id}/sales-invoices`, { method: 'POST', body: JSON.stringify(data) });
+      showSuccess("Facture ajoutée");
+      setIsInvoiceModalOpen(false);
+      loadInvoices();
+    } catch (err) {
+      showError("Erreur lors de l'ajout");
     }
   };
 
@@ -115,7 +129,11 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
           <TabsContent value="invoices">
             <div className="flex justify-between items-center mb-4">
               <h4 className="font-bold text-slate-800">Liste des factures</h4>
-              <Button size="sm" className="gap-2 rounded-lg">
+              <Button 
+                size="sm" 
+                className="gap-2 rounded-lg"
+                onClick={() => { setSelectedInvoice(null); setIsInvoiceModalOpen(true); }}
+              >
                 <Plus size={14} /> Ajouter
               </Button>
             </div>
@@ -128,7 +146,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
                     <TableHead className="text-xs">Date</TableHead>
                     <TableHead className="text-xs text-right">Montant HT</TableHead>
                     <TableHead className="text-xs">Statut</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
+                    <TableHead className="w-[80px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -143,9 +161,19 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-rose-500">
-                          <Trash2 size={12} />
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7 text-slate-400 hover:text-primary"
+                            onClick={() => { setSelectedInvoice(inv); setIsInvoiceModalOpen(true); }}
+                          >
+                            <Edit size={12} />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-rose-500">
+                            <Trash2 size={12} />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -161,6 +189,13 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
             </div>
           </TabsContent>
         </Tabs>
+
+        <SalesInvoiceModal 
+          isOpen={isInvoiceModalOpen}
+          onClose={() => setIsInvoiceModalOpen(false)}
+          onSubmit={handleAddInvoice}
+          initialData={selectedInvoice}
+        />
       </SheetContent>
     </Sheet>
   );
