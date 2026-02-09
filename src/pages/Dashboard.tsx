@@ -6,9 +6,9 @@ import {
   ShoppingBag,
   TrendingUp,
   PieChart as PieChartIcon,
-  ArrowUpRight,
+  Activity,
   Users,
-  Activity
+  Briefcase
 } from "lucide-react";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { useYear } from "@/context/YearContext";
@@ -29,7 +29,7 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrencyDT, formatDateFR } from "@/utils/formatters";
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
@@ -38,18 +38,17 @@ const Dashboard = () => {
   const [summary, setSummary] = useState<any>(null);
   const [monthlyData, setMonthlyData] = useState<any[]>([]);
   const [categoryData, setCategoryData] = useState<any[]>([]);
-  const [recentProjects, setRecentProjects] = useState<any[]>([]);
+  const [statusData, setStatusData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const [s, m, c, p] = await Promise.all([
+        const [s, m, c] = await Promise.all([
           fetcher(`/dashboard/summary?year=${selectedYear}`),
           fetcher(`/dashboard/monthly?year=${selectedYear}`),
-          fetcher(`/dashboard/purchases-by-category?year=${selectedYear}`),
-          fetcher(`/projects?year=${selectedYear}&limit=5`)
+          fetcher(`/dashboard/purchases-by-category?year=${selectedYear}`)
         ]);
         setSummary(s);
         setMonthlyData(m.map((d: any) => ({
@@ -57,9 +56,7 @@ const Dashboard = () => {
           name: new Date(2000, d.month - 1).toLocaleString('fr-FR', { month: 'short' })
         })));
         setCategoryData(c);
-        setRecentProjects(p);
       } catch (err) {
-        console.error(err);
         // Fallback mock data
         setSummary({
           totalContractsHT: 125000,
@@ -81,9 +78,10 @@ const Dashboard = () => {
           { category: 'Logiciels', amountHT: 3500 },
           { category: 'Divers', amountHT: 2000 },
         ]);
-        setRecentProjects([
-          { id: 1, reference_projet: "PRJ-2026-001", nom_projet: "Eclairage Avenue", client: "Commune X", montant_total_ht: 50000, statut: "En cours" },
-          { id: 2, reference_projet: "PRJ-2026-002", nom_projet: "Rénovation Pont", client: "Ministère Y", montant_total_ht: 120000, statut: "Terminé" },
+        setStatusData([
+          { name: 'En cours', value: 12 },
+          { name: 'Terminé', value: 8 },
+          { name: 'En attente', value: 5 },
         ]);
       } finally {
         setLoading(false);
@@ -113,39 +111,13 @@ const Dashboard = () => {
         <p className="text-slate-500">Aperçu de la performance pour l'exercice {selectedYear}</p>
       </div>
 
-      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard 
-          title="Total Contrats (HT)" 
-          value={summary?.totalContractsHT || 0} 
-          icon={FileText} 
-          color="bg-indigo-500" 
-          description="Signés"
-        />
-        <KPICard 
-          title="Total Facturé (HT)" 
-          value={summary?.totalInvoicedHT || 0} 
-          icon={CheckCircle2} 
-          color="bg-emerald-500" 
-          description="Ventes"
-        />
-        <KPICard 
-          title="Reste à Facturer (HT)" 
-          value={summary?.totalRemainingHT || 0} 
-          icon={Clock} 
-          color="bg-amber-500" 
-          description="En attente"
-        />
-        <KPICard 
-          title="Total Achats (HT)" 
-          value={summary?.totalPurchasesHT || 0} 
-          icon={ShoppingBag} 
-          color="bg-rose-500" 
-          description="Dépenses"
-        />
+        <KPICard title="Total Contrats (HT)" value={summary?.totalContractsHT || 0} icon={FileText} color="bg-indigo-500" description="Signés" />
+        <KPICard title="Total Facturé (HT)" value={summary?.totalInvoicedHT || 0} icon={CheckCircle2} color="bg-emerald-500" description="Ventes" />
+        <KPICard title="Reste à Facturer (HT)" value={summary?.totalRemainingHT || 0} icon={Clock} color="bg-amber-500" description="En attente" />
+        <KPICard title="Total Achats (HT)" value={summary?.totalPurchasesHT || 0} icon={ShoppingBag} color="bg-rose-500" description="Dépenses" />
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 border-none shadow-md overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50">
@@ -161,10 +133,7 @@ const Dashboard = () => {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                    cursor={{ fill: '#f8fafc' }}
-                  />
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} cursor={{ fill: '#f8fafc' }} />
                   <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
                   <Bar dataKey="invoicedHT" name="Facturé HT" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={30} />
                   <Bar dataKey="purchasesHT" name="Achats HT" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={30} />
@@ -178,30 +147,19 @@ const Dashboard = () => {
           <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50">
             <div className="flex items-center gap-2">
               <PieChartIcon size={18} className="text-primary" />
-              <CardTitle className="text-lg font-bold">Achats par Catégorie</CardTitle>
+              <CardTitle className="text-lg font-bold">Statut des Projets</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="p-6">
             <div className="h-[350px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={categoryData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={70}
-                    outerRadius={100}
-                    paddingAngle={5}
-                    dataKey="amountHT"
-                    nameKey="category"
-                  >
-                    {categoryData.map((entry, index) => (
+                  <Pie data={statusData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                    {statusData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                  />
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
                   <Legend verticalAlign="bottom" iconType="circle" />
                 </PieChart>
               </ResponsiveContainer>
@@ -210,7 +168,6 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* Bottom Section: Recent Activity & Top Clients */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 border-none shadow-md overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50">
@@ -278,10 +235,7 @@ const Dashboard = () => {
                     <div className="flex justify-between items-center">
                       <span className="text-xs text-slate-500">{client.count} projets</span>
                       <div className="w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-primary rounded-full" 
-                          style={{ width: `${(client.total / 100000) * 100}%` }} 
-                        />
+                        <div className="h-full bg-primary rounded-full" style={{ width: `${(client.total / 100000) * 100}%` }} />
                       </div>
                     </div>
                   </div>

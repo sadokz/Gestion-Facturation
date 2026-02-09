@@ -15,6 +15,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { SalesInvoiceModal } from "./SalesInvoiceModal";
 import { showSuccess, showError } from "@/utils/toast";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { cn } from "@/lib/utils";
 
 interface ProjectDetailProps {
   project: any;
@@ -45,7 +47,6 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
       setInvoices(invData);
       setPurchases(purData);
     } catch (err) {
-      // Mock data
       setInvoices([
         { id: 1, numero_facture: "FV-2026-001", date_facture: "2026-03-10", montant_ht: 5000, tva_pct: 19, statut: "Payée", note: "Avancement 10%" },
         { id: 2, numero_facture: "FV-2026-002", date_facture: "2026-04-15", montant_ht: 10000, tva_pct: 19, statut: "Émise", note: "Phase 2" },
@@ -60,7 +61,6 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
 
   const handleAddInvoice = async (data: any) => {
     try {
-      // await fetcher(`/projects/${project.id}/sales-invoices`, { method: 'POST', body: JSON.stringify(data) });
       showSuccess("Facture ajoutée");
       setIsInvoiceModalOpen(false);
       loadData();
@@ -74,6 +74,12 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
   const totalPurchasesHT = purchases.reduce((sum, p) => sum + p.montant_ht, 0);
   const marginHT = project.total_facture_ht - totalPurchasesHT;
   const progress = (project.total_facture_ht / project.montant_total_ht) * 100;
+
+  const chartData = [
+    { name: 'Budget Total', value: project.montant_total_ht, color: '#6366f1' },
+    { name: 'Facturé', value: project.total_facture_ht, color: '#10b981' },
+    { name: 'Dépenses', value: totalPurchasesHT, color: '#f43f5e' },
+  ];
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
@@ -142,11 +148,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
           <TabsContent value="invoices">
             <div className="flex justify-between items-center mb-4">
               <h4 className="font-bold text-slate-800">Factures de vente</h4>
-              <Button 
-                size="sm" 
-                className="gap-2 rounded-lg"
-                onClick={() => { setSelectedInvoice(null); setIsInvoiceModalOpen(true); }}
-              >
+              <Button size="sm" className="gap-2 rounded-lg" onClick={() => { setSelectedInvoice(null); setIsInvoiceModalOpen(true); }}>
                 <Plus size={14} /> Ajouter
               </Button>
             </div>
@@ -212,7 +214,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
             </div>
           </TabsContent>
 
-          <TabsContent value="stats">
+          <TabsContent value="stats" className="space-y-6">
             <div className="grid grid-cols-2 gap-6">
               <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col items-center justify-center text-center">
                 <BarChart3 className="text-primary mb-2" size={32} />
@@ -229,18 +231,30 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
                 <p className="text-xs text-slate-400 mt-2">{purchases.length} factures fournisseurs</p>
               </div>
             </div>
+
+            <div className="p-6 bg-white rounded-2xl border border-slate-100">
+              <h4 className="text-sm font-bold text-slate-800 mb-6">Comparatif Financier (HT)</h4>
+              <div className="h-[250px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} layout="vertical" margin={{ left: 40 }}>
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                    <XAxis type="number" hide />
+                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                    <Tooltip formatter={(value: number) => formatCurrencyDT(value)} cursor={{ fill: '#f8fafc' }} />
+                    <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={30}>
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
 
-        <SalesInvoiceModal 
-          isOpen={isInvoiceModalOpen}
-          onClose={() => setIsInvoiceModalOpen(false)}
-          onSubmit={handleAddInvoice}
-          initialData={selectedInvoice}
-        />
+        <SalesInvoiceModal isOpen={isInvoiceModalOpen} onClose={() => setIsInvoiceModalOpen(false)} onSubmit={handleAddInvoice} initialData={selectedInvoice} />
       </SheetContent>
     </Sheet>
   );
 };
-
-import { cn } from "@/lib/utils";
