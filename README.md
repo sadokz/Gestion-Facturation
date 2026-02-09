@@ -8,6 +8,7 @@ Cette application est une solution complète de gestion financière et opératio
 - **Indicateurs de Performance (KPIs)** : Visualisation en temps réel du total des contrats, du montant facturé, du reste à facturer et des dépenses totales (en DT HT).
 - **Flux Mensuel** : Graphique comparatif des ventes et des achats par mois.
 - **Activité Récente** : Flux chronologique des dernières factures émise/payées, nouveaux projets et achats.
+- **Top Clients** : Classement des clients par volume d'affaires.
 
 ### 🏗️ Gestion des Projets & Ventes
 - **Réorganisation Intelligente** : Système de **glisser-déposer (Drag & Drop)** pour organiser l'ordre de priorité de vos projets dans la liste.
@@ -15,31 +16,33 @@ Cette application est une solution complète de gestion financière et opératio
 - **Statuts de Facturation Automatiques** : Le statut du projet est calculé dynamiquement selon les montants réels :
   - **Non facturé** : Aucune facture émise.
   - **Partiellement Facturé** : Cumul facturé < Montant total du contrat.
-  - **Totalement Facturé** : Contrat entièrement facturé, mais paiements en attente.
-  - **Soldé** : Contrat entièrement facturé ET entièrement payé (Reste à payer = 0).
+  - **Totalement Facturé** : Contrat entièrement facturé.
 - **Facturation Multi-situations** : Création de factures structurées (Avance, Missions S0 à S5, Règlement Définitif).
-- **Suivi des Encaissements** : Gestion des dates d'émission et des dates de paiement pour un suivi précis de la trésorerie.
+- **Gestion Documentaire** : Téléversement et suivi des contrats signés, factures, décharges et attestations de retenue à la source.
+- **Analyse Détaillée** : Vue "Analyse complète" avec graphiques de rentabilité et marge brute par projet.
 
 ### 👥 Gestion des Clients & Entreprises
-- **Annuaire Clients** : Gestion des clients directs avec leurs responsables.
+- **Annuaire Clients** : Gestion des clients directs avec badges de comptage de projets.
 - **Annuaire Entreprises** : Gestion des partenaires et sous-traitants.
-- **Interface Extensible** : Visualisation rapide des contacts et des factures via un système de lignes extensibles.
+- **Vues Étendues** : Visualisation directe des responsables/contacts et de l'historique des projets réalisés pour chaque client sans quitter la liste.
 
 ### 🛒 Gestion des Achats & Dépenses
-- **Suivi Fournisseurs** : Enregistrement des factures d'achats par catégorie.
-- **Liaison Projets** : Affectation des dépenses à des projets spécifiques pour une analyse de coût réelle et calcul de marge brute.
+- **Suivi Fournisseurs** : Enregistrement des factures d'achats par catégorie (Matériel, Déplacement, Logiciels, etc.).
+- **Liaison Projets** : Affectation des dépenses à des projets spécifiques pour un calcul précis de la rentabilité.
 
-### ⚙️ Paramètres & Configuration
-- **Exercices Comptables** : Filtrage global de l'application par année d'exercice.
-- **Recherche Globale** : Accès rapide via le menu de commande (Ctrl+K).
+### ⚙️ Fonctions Globales
+- **Exercices Comptables** : Filtrage global de l'application par année d'exercice via le sélecteur en haut de page.
+- **Recherche Globale (Command Palette)** : Accès ultra-rapide à n'importe quelle section ou action via le raccourci **Ctrl+K** ou **⌘K**.
+- **Exportation** : Export des données d'achats et de ventes au format CSV.
+- **Interface Adaptative** : Design moderne, réactif et optimisé pour une utilisation quotidienne intensive.
 
 ## 🛠️ Détails Techniques
 - **Framework** : React avec TypeScript.
-- **Styling** : Tailwind CSS & Shadcn/UI.
-- **Interactions** : dnd-kit pour le glisser-déposer.
+- **Styling** : Tailwind CSS & Shadcn/UI pour une interface élégante et cohérente.
+- **Interactions** : dnd-kit pour le glisser-déposer fluide.
 - **Formatage** : Support complet du Dinar Tunisien (DT) avec 3 décimales.
 
 ## 📋 Utilisation
-1. Utilisez la **poignée de saisie** (icône à gauche) pour réorganiser vos projets.
-2. Le **Statut** se met à jour automatiquement dès que vous ajoutez une facture ou que vous marquez une facture comme "Payée".
-3. Consultez l'**Analyse complète** d'un projet pour voir les graphiques de rentabilité détaillés.
+1. **Organisation** : Utilisez la poignée de saisie à gauche des lignes pour réorganiser vos projets ou clients.
+2. **Facturation** : Développez un projet pour ajouter une situation de travaux ou une facture de mission.
+3. **Analyse** : Utilisez le menu "Analyse complète" sur un projet pour comparer vos dépenses réelles par rapport au budget facturé.
