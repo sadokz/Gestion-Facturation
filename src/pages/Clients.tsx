@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { 
   Plus, 
   Search, 
@@ -177,6 +177,7 @@ const Clients = () => {
   const [search, setSearch] = useState("");
   const [expandedClients, setExpandedClients] = useState<Set<number>>(new Set());
   const [visibleColumns, setVisibleColumns] = useState(CLIENT_COLUMNS.map(c => c.id));
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' | null }>({ key: '', direction: null });
   
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isRespModalOpen, setIsRespModalOpen] = useState(false);
@@ -203,6 +204,29 @@ const Clients = () => {
   };
 
   useEffect(() => { loadClients(); }, [search]);
+
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' | null = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
+      direction = null;
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedClients = useMemo(() => {
+    if (!sortConfig.key || !sortConfig.direction) return clients;
+
+    return [...clients].sort((a, b) => {
+      const aValue = a[sortConfig.key] || '';
+      const bValue = b[sortConfig.key] || '';
+
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [clients, sortConfig]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -235,9 +259,11 @@ const Clients = () => {
           <h1 className="text-3xl font-bold text-slate-900">Annuaire Clients</h1>
           <p className="text-slate-500">Gérez vos clients et leurs interlocuteurs privilégiés</p>
         </div>
-        <Button onClick={() => { setSelectedClient(null); setIsClientModalOpen(true); }} className="rounded-xl shadow-lg shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 gap-2 h-11 px-6">
-          <Plus size={18} /> Nouveau Client
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button onClick={() => { setSelectedClient(null); setIsClientModalOpen(true); }} className="rounded-xl shadow-lg shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 gap-2 h-11 px-6">
+            <Plus size={18} /> Nouveau Client
+          </Button>
+        </div>
       </div>
 
       <Card className="border-none shadow-md overflow-hidden">
@@ -255,11 +281,11 @@ const Clients = () => {
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="hover:bg-transparent border-slate-100">
                     <ResizableHeader initialWidth={80} minWidth={60}></ResizableHeader>
-                    {isVisible("nom") && <ResizableHeader initialWidth={250} minWidth={100} className="font-bold text-slate-700">Client</ResizableHeader>}
-                    {isVisible("adresse") && <ResizableHeader initialWidth={300} minWidth={150} className="font-bold text-slate-700">Adresse</ResizableHeader>}
-                    {isVisible("tel") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Téléphone</ResizableHeader>}
-                    {isVisible("fax") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Fax</ResizableHeader>}
-                    {isVisible("email") && <ResizableHeader initialWidth={250} minWidth={150} className="font-bold text-slate-700">Email</ResizableHeader>}
+                    {isVisible("nom") && <ResizableHeader initialWidth={250} minWidth={100} sortKey="nom" currentSort={sortConfig} onSort={handleSort}>Client</ResizableHeader>}
+                    {isVisible("adresse") && <ResizableHeader initialWidth={300} minWidth={150} sortKey="adresse" currentSort={sortConfig} onSort={handleSort}>Adresse</ResizableHeader>}
+                    {isVisible("tel") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="tel" currentSort={sortConfig} onSort={handleSort}>Téléphone</ResizableHeader>}
+                    {isVisible("fax") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="fax" currentSort={sortConfig} onSort={handleSort}>Fax</ResizableHeader>}
+                    {isVisible("email") && <ResizableHeader initialWidth={250} minWidth={150} sortKey="email" currentSort={sortConfig} onSort={handleSort}>Email</ResizableHeader>}
                     <ResizableHeader initialWidth={60} minWidth={40}>
                       <ColumnToggle columns={CLIENT_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
                     </ResizableHeader>
@@ -269,8 +295,8 @@ const Clients = () => {
                   {loading ? (
                     <TableRow><TableCell colSpan={visibleColumns.length + 2} className="h-16 text-center">Chargement...</TableCell></TableRow>
                   ) : (
-                    <SortableContext items={clients.map(c => c.id)} strategy={verticalListSortingStrategy}>
-                      {clients.map((client) => (
+                    <SortableContext items={sortedClients.map(c => c.id)} strategy={verticalListSortingStrategy}>
+                      {sortedClients.map((client) => (
                         <SortableClientRow key={client.id} client={client} expandedClients={expandedClients} toggleExpand={toggleExpand} setSelectedClient={setSelectedClient} setIsClientModalOpen={setIsClientModalOpen} setIsConfirmOpen={setIsConfirmOpen} setSelectedResp={setSelectedResp} setIsRespModalOpen={setIsRespModalOpen} visibleColumns={visibleColumns} />
                       ))}
                     </SortableContext>

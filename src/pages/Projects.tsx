@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { 
   Plus, 
   Search, 
@@ -64,12 +64,12 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 const PROJECT_COLUMNS = [
-  { id: "reference", label: "Référence" },
-  { id: "nom", label: "Projet" },
+  { id: "reference_projet", label: "Référence" },
+  { id: "nom_projet", label: "Projet" },
   { id: "contrat", label: "Contrat" },
-  { id: "total_ht", label: "Total HT" },
-  { id: "avenant_ht", label: "Avenant HT" },
-  { id: "tva", label: "TVA" },
+  { id: "montant_total_ht", label: "Total HT" },
+  { id: "montant_avenant_ht", label: "Avenant HT" },
+  { id: "tva_pct", label: "TVA" },
   { id: "total_ttc", label: "Total TTC" },
   { id: "facture_ht", label: "Facturé HT" },
   { id: "paye_ttc", label: "Payé TTC" },
@@ -152,8 +152,8 @@ const SortableProjectRow = ({
             </Button>
           </div>
         </TableCell>
-        {isVisible("reference") && <TableCell className="font-mono text-[11px] font-bold text-primary">{project.reference_projet}</TableCell>}
-        {isVisible("nom") && (
+        {isVisible("reference_projet") && <TableCell className="font-mono text-[11px] font-bold text-primary">{project.reference_projet}</TableCell>}
+        {isVisible("nom_projet") && (
           <TableCell>
             <div className="flex flex-col">
               <span className="font-bold text-slate-800 text-sm truncate">{project.nom_projet}</span>
@@ -165,7 +165,7 @@ const SortableProjectRow = ({
           <TableCell>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button onClick={() => { setSelectedProject(project); setIsModalOpen(true); }} className={cn("flex flex-col items-center justify-center w-10 h-10 rounded-xl border transition-all", project.file_contrat ? "bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100" : "bg-slate-50 border-slate-200 text-slate-400 hover:border-primary/30 hover:text-primary")}>
+                <button onClick={(e) => { e.stopPropagation(); setSelectedProject(project); setIsModalOpen(true); }} className={cn("flex flex-col items-center justify-center w-10 h-10 rounded-xl border transition-all", project.file_contrat ? "bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100" : "bg-slate-50 border-slate-200 text-slate-400 hover:border-primary/30 hover:text-primary")}>
                   {project.file_contrat ? <CheckCircle2 size={18} /> : <UploadCloud size={18} />}
                   <span className="text-[7px] font-bold uppercase mt-0.5">Contrat</span>
                 </button>
@@ -174,9 +174,9 @@ const SortableProjectRow = ({
             </Tooltip>
           </TableCell>
         )}
-        {isVisible("total_ht") && <TableCell className="text-right font-medium text-slate-600">{formatCurrencyDT(baseHT)}</TableCell>}
-        {isVisible("avenant_ht") && <TableCell className="text-right font-medium text-amber-600">{formatCurrencyDT(avenantHT)}</TableCell>}
-        {isVisible("tva") && <TableCell className="text-right font-medium text-slate-500">{formatCurrencyDT(totalTVA)}</TableCell>}
+        {isVisible("montant_total_ht") && <TableCell className="text-right font-medium text-slate-600">{formatCurrencyDT(baseHT)}</TableCell>}
+        {isVisible("montant_avenant_ht") && <TableCell className="text-right font-medium text-amber-600">{formatCurrencyDT(avenantHT)}</TableCell>}
+        {isVisible("tva_pct") && <TableCell className="text-right font-medium text-slate-500">{formatCurrencyDT(totalTVA)}</TableCell>}
         {isVisible("total_ttc") && <TableCell className="text-right font-bold text-slate-900">{formatCurrencyDT(totalTTC)}</TableCell>}
         {isVisible("facture_ht") && <TableCell className="text-right text-blue-600 font-bold">{formatCurrencyDT(totalFactureHT)}</TableCell>}
         {isVisible("paye_ttc") && <TableCell className="text-right text-emerald-600 font-bold">{formatCurrencyDT(totalPayeTTC)}</TableCell>}
@@ -215,6 +215,7 @@ const Projects = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [visibleColumns, setVisibleColumns] = useState(PROJECT_COLUMNS.map(c => c.id));
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' | null }>({ key: '', direction: null });
   
   const [expandedProjects, setExpandedProjects] = useState<Set<number>>(new Set());
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -243,6 +244,35 @@ const Projects = () => {
   };
 
   useEffect(() => { loadProjects(); }, [selectedYear, search, statusFilter]);
+
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' | null = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
+      direction = null;
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedProjects = useMemo(() => {
+    if (!sortConfig.key || !sortConfig.direction) return projects;
+
+    return [...projects].sort((a, b) => {
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+
+      // Cas spéciaux pour les colonnes calculées
+      if (sortConfig.key === 'total_ttc') {
+        aValue = a.montant_total_ht * (1 + (a.tva_pct || 19) / 100);
+        bValue = b.montant_total_ht * (1 + (b.tva_pct || 19) / 100);
+      }
+
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [projects, sortConfig]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -320,17 +350,17 @@ const Projects = () => {
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="hover:bg-transparent border-slate-100">
                     <ResizableHeader initialWidth={80} minWidth={60}></ResizableHeader>
-                    {isVisible("reference") && <ResizableHeader initialWidth={120} minWidth={80} className="font-bold text-slate-700">Référence</ResizableHeader>}
-                    {isVisible("nom") && <ResizableHeader initialWidth={200} minWidth={100} className="font-bold text-slate-700">Projet</ResizableHeader>}
-                    {isVisible("contrat") && <ResizableHeader initialWidth={100} minWidth={80} className="font-bold text-slate-700">Contrat</ResizableHeader>}
-                    {isVisible("total_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Total HT</ResizableHeader>}
-                    {isVisible("avenant_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Avenant HT</ResizableHeader>}
-                    {isVisible("tva") && <ResizableHeader initialWidth={120} minWidth={80} className="font-bold text-slate-700 text-right">TVA</ResizableHeader>}
-                    {isVisible("total_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Total TTC</ResizableHeader>}
-                    {isVisible("facture_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Facturé HT</ResizableHeader>}
-                    {isVisible("paye_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Payé TTC</ResizableHeader>}
-                    {isVisible("reste_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Reste TTC</ResizableHeader>}
-                    {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Statut</ResizableHeader>}
+                    {isVisible("reference_projet") && <ResizableHeader initialWidth={120} minWidth={80} sortKey="reference_projet" currentSort={sortConfig} onSort={handleSort}>Référence</ResizableHeader>}
+                    {isVisible("nom_projet") && <ResizableHeader initialWidth={200} minWidth={100} sortKey="nom_projet" currentSort={sortConfig} onSort={handleSort}>Projet</ResizableHeader>}
+                    {isVisible("contrat") && <ResizableHeader initialWidth={100} minWidth={80}>Contrat</ResizableHeader>}
+                    {isVisible("montant_total_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right" sortKey="montant_total_ht" currentSort={sortConfig} onSort={handleSort}>Total HT</ResizableHeader>}
+                    {isVisible("montant_avenant_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right" sortKey="montant_avenant_ht" currentSort={sortConfig} onSort={handleSort}>Avenant HT</ResizableHeader>}
+                    {isVisible("tva_pct") && <ResizableHeader initialWidth={120} minWidth={80} className="text-right" sortKey="tva_pct" currentSort={sortConfig} onSort={handleSort}>TVA</ResizableHeader>}
+                    {isVisible("total_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right" sortKey="total_ttc" currentSort={sortConfig} onSort={handleSort}>Total TTC</ResizableHeader>}
+                    {isVisible("facture_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right">Facturé HT</ResizableHeader>}
+                    {isVisible("paye_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right">Payé TTC</ResizableHeader>}
+                    {isVisible("reste_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right">Reste TTC</ResizableHeader>}
+                    {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="statut" currentSort={sortConfig} onSort={handleSort}>Statut</ResizableHeader>}
                     <ResizableHeader initialWidth={60} minWidth={40}>
                       <ColumnToggle columns={PROJECT_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
                     </ResizableHeader>
@@ -340,8 +370,8 @@ const Projects = () => {
                   {loading ? (
                     <TableRow><TableCell colSpan={visibleColumns.length + 2} className="h-16 text-center">Chargement...</TableCell></TableRow>
                   ) : (
-                    <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
-                      {projects.map((project) => (
+                    <SortableContext items={sortedProjects.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                      {sortedProjects.map((project) => (
                         <SortableProjectRow key={project.id} project={project} expandedProjects={expandedProjects} toggleExpand={toggleExpand} getStatusBadge={getStatusBadge} handleAddInvoiceClick={handleAddInvoiceClick} handleEditInvoiceClick={handleEditInvoiceClick} setSelectedProject={setSelectedProject} setIsDetailOpen={setIsDetailOpen} setIsModalOpen={setIsModalOpen} setIsConfirmOpen={setIsConfirmOpen} visibleColumns={visibleColumns} />
                       ))}
                     </SortableContext>

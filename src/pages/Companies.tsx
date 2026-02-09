@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { 
   Plus, 
   Search, 
@@ -185,6 +185,7 @@ const Companies = () => {
   const [search, setSearch] = useState("");
   const [expandedCompanies, setExpandedCompanies] = useState<Set<number>>(new Set());
   const [visibleColumns, setVisibleColumns] = useState(COMPANY_COLUMNS.map(c => c.id));
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' | null }>({ key: '', direction: null });
   
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [isRespModalOpen, setIsRespModalOpen] = useState(false);
@@ -211,6 +212,29 @@ const Companies = () => {
   };
 
   useEffect(() => { loadCompanies(); }, [search]);
+
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' | null = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
+      direction = null;
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedCompanies = useMemo(() => {
+    if (!sortConfig.key || !sortConfig.direction) return companies;
+
+    return [...companies].sort((a, b) => {
+      const aValue = a[sortConfig.key] || '';
+      const bValue = b[sortConfig.key] || '';
+
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [companies, sortConfig]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -243,9 +267,11 @@ const Companies = () => {
           <h1 className="text-3xl font-bold text-slate-900">Annuaire Entreprises</h1>
           <p className="text-slate-500">Gérez vos partenaires, sous-traitants et autres entreprises</p>
         </div>
-        <Button onClick={() => { setSelectedCompany(null); setIsCompanyModalOpen(true); }} className="rounded-xl shadow-lg shadow-amber-500/20 bg-amber-600 hover:bg-amber-700 gap-2 h-11 px-6 text-white">
-          <Plus size={18} /> Nouvelle Entreprise
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button onClick={() => { setSelectedCompany(null); setIsCompanyModalOpen(true); }} className="rounded-xl shadow-lg shadow-amber-500/20 bg-amber-600 hover:bg-amber-700 gap-2 h-11 px-6 text-white">
+            <Plus size={18} /> Nouvelle Entreprise
+          </Button>
+        </div>
       </div>
 
       <Card className="border-none shadow-md overflow-hidden">
@@ -263,11 +289,11 @@ const Companies = () => {
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="hover:bg-transparent border-slate-100">
                     <ResizableHeader initialWidth={80} minWidth={60}></ResizableHeader>
-                    {isVisible("nom") && <ResizableHeader initialWidth={250} minWidth={100} className="font-bold text-slate-700">Entreprise</ResizableHeader>}
-                    {isVisible("adresse") && <ResizableHeader initialWidth={300} minWidth={150} className="font-bold text-slate-700">Adresse</ResizableHeader>}
-                    {isVisible("tel") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Téléphone</ResizableHeader>}
-                    {isVisible("fax") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Fax</ResizableHeader>}
-                    {isVisible("email") && <ResizableHeader initialWidth={250} minWidth={150} className="font-bold text-slate-700">Email</ResizableHeader>}
+                    {isVisible("nom") && <ResizableHeader initialWidth={250} minWidth={100} sortKey="nom" currentSort={sortConfig} onSort={handleSort}>Entreprise</ResizableHeader>}
+                    {isVisible("adresse") && <ResizableHeader initialWidth={300} minWidth={150} sortKey="adresse" currentSort={sortConfig} onSort={handleSort}>Adresse</ResizableHeader>}
+                    {isVisible("tel") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="tel" currentSort={sortConfig} onSort={handleSort}>Téléphone</ResizableHeader>}
+                    {isVisible("fax") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="fax" currentSort={sortConfig} onSort={handleSort}>Fax</ResizableHeader>}
+                    {isVisible("email") && <ResizableHeader initialWidth={250} minWidth={150} sortKey="email" currentSort={sortConfig} onSort={handleSort}>Email</ResizableHeader>}
                     <ResizableHeader initialWidth={60} minWidth={40}>
                       <ColumnToggle columns={COMPANY_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
                     </ResizableHeader>
@@ -277,8 +303,8 @@ const Companies = () => {
                   {loading ? (
                     <TableRow><TableCell colSpan={visibleColumns.length + 2} className="h-16 text-center">Chargement...</TableCell></TableRow>
                   ) : (
-                    <SortableContext items={companies.map(c => c.id)} strategy={verticalListSortingStrategy}>
-                      {companies.map((company) => (
+                    <SortableContext items={sortedCompanies.map(c => c.id)} strategy={verticalListSortingStrategy}>
+                      {sortedCompanies.map((company) => (
                         <SortableCompanyRow key={company.id} company={company} expandedCompanies={expandedCompanies} toggleExpand={toggleExpand} setSelectedCompany={setSelectedCompany} setIsCompanyModalOpen={setIsCompanyModalOpen} setIsConfirmOpen={setIsConfirmOpen} setSelectedResp={setSelectedResp} setIsRespModalOpen={setIsRespModalOpen} visibleColumns={visibleColumns} />
                       ))}
                     </SortableContext>

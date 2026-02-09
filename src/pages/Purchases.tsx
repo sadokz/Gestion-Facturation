@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { 
   Plus, 
   Search, 
@@ -57,9 +57,9 @@ import { CSS } from "@dnd-kit/utilities";
 
 const PURCHASE_COLUMNS = [
   { id: "fournisseur", label: "Fournisseur" },
-  { id: "numero", label: "N° Facture" },
+  { id: "numero_facture", label: "N° Facture" },
   { id: "date_facture", label: "Date Facture" },
-  { id: "date_paiement", label: "Date Paiement" },
+  { id: "date_payement", label: "Date Paiement" },
   { id: "categorie", label: "Catégorie" },
   { id: "montant_ht", label: "Montant HT" },
   { id: "ttc", label: "TTC" },
@@ -106,9 +106,9 @@ const SortablePurchaseRow = ({
         </div>
       </TableCell>
       {isVisible("fournisseur") && <TableCell className="font-bold text-slate-800 truncate">{purchase.fournisseur}</TableCell>}
-      {isVisible("numero") && <TableCell className="font-mono text-xs text-slate-500 truncate">{purchase.numero_facture}</TableCell>}
+      {isVisible("numero_facture") && <TableCell className="font-mono text-xs text-slate-500 truncate">{purchase.numero_facture}</TableCell>}
       {isVisible("date_facture") && <TableCell className="text-slate-600 truncate">{formatDateFR(purchase.date_facture)}</TableCell>}
-      {isVisible("date_paiement") && <TableCell className="text-slate-600 font-medium truncate">{formatDateFR(purchase.date_payement)}</TableCell>}
+      {isVisible("date_payement") && <TableCell className="text-slate-600 font-medium truncate">{formatDateFR(purchase.date_payement)}</TableCell>}
       {isVisible("categorie") && (
         <TableCell>
           <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded-lg truncate">
@@ -152,6 +152,8 @@ const Purchases = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [visibleColumns, setVisibleColumns] = useState(PURCHASE_COLUMNS.map(c => c.id));
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' | null }>({ key: '', direction: null });
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState<any>(null);
@@ -175,6 +177,34 @@ const Purchases = () => {
   };
 
   useEffect(() => { loadPurchases(); }, [selectedYear, search]);
+
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' | null = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
+      direction = null;
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedPurchases = useMemo(() => {
+    if (!sortConfig.key || !sortConfig.direction) return purchases;
+
+    return [...purchases].sort((a, b) => {
+      let aValue = a[sortConfig.key] || '';
+      let bValue = b[sortConfig.key] || '';
+
+      if (sortConfig.key === 'ttc') {
+        aValue = a.montant_ht * (1 + (a.tva_pct || 19) / 100);
+        bValue = b.montant_ht * (1 + (b.tva_pct || 19) / 100);
+      }
+
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [purchases, sortConfig]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -224,14 +254,14 @@ const Purchases = () => {
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="hover:bg-transparent border-slate-100">
                     <ResizableHeader initialWidth={60} minWidth={40}></ResizableHeader>
-                    {isVisible("fournisseur") && <ResizableHeader initialWidth={200} minWidth={100} className="font-bold text-slate-700">Fournisseur</ResizableHeader>}
-                    {isVisible("numero") && <ResizableHeader initialWidth={150} minWidth={80} className="font-bold text-slate-700">N° Facture</ResizableHeader>}
-                    {isVisible("date_facture") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Date Facture</ResizableHeader>}
-                    {isVisible("date_paiement") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Date Paiement</ResizableHeader>}
-                    {isVisible("categorie") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Catégorie</ResizableHeader>}
-                    {isVisible("montant_ht") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700 text-right">Montant HT</ResizableHeader>}
-                    {isVisible("ttc") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700 text-right">TTC</ResizableHeader>}
-                    {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Statut</ResizableHeader>}
+                    {isVisible("fournisseur") && <ResizableHeader initialWidth={200} minWidth={100} sortKey="fournisseur" currentSort={sortConfig} onSort={handleSort}>Fournisseur</ResizableHeader>}
+                    {isVisible("numero_facture") && <ResizableHeader initialWidth={150} minWidth={80} sortKey="numero_facture" currentSort={sortConfig} onSort={handleSort}>N° Facture</ResizableHeader>}
+                    {isVisible("date_facture") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="date_facture" currentSort={sortConfig} onSort={handleSort}>Date Facture</ResizableHeader>}
+                    {isVisible("date_payement") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="date_payement" currentSort={sortConfig} onSort={handleSort}>Date Paiement</ResizableHeader>}
+                    {isVisible("categorie") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="categorie" currentSort={sortConfig} onSort={handleSort}>Catégorie</ResizableHeader>}
+                    {isVisible("montant_ht") && <ResizableHeader initialWidth={150} minWidth={100} className="text-right" sortKey="montant_ht" currentSort={sortConfig} onSort={handleSort}>Montant HT</ResizableHeader>}
+                    {isVisible("ttc") && <ResizableHeader initialWidth={150} minWidth={100} className="text-right" sortKey="ttc" currentSort={sortConfig} onSort={handleSort}>TTC</ResizableHeader>}
+                    {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="statut" currentSort={sortConfig} onSort={handleSort}>Statut</ResizableHeader>}
                     <ResizableHeader initialWidth={80} minWidth={60}>
                       <ColumnToggle columns={PURCHASE_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
                     </ResizableHeader>
@@ -241,8 +271,8 @@ const Purchases = () => {
                   {loading ? (
                     <TableRow><TableCell colSpan={visibleColumns.length + 2} className="h-16 text-center">Chargement...</TableCell></TableRow>
                   ) : (
-                    <SortableContext items={purchases.map(p => p.id)} strategy={verticalListSortingStrategy}>
-                      {purchases.map((purchase) => (
+                    <SortableContext items={sortedPurchases.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                      {sortedPurchases.map((purchase) => (
                         <SortablePurchaseRow key={purchase.id} purchase={purchase} setSelectedPurchase={setSelectedPurchase} setIsModalOpen={setIsModalOpen} setIsConfirmOpen={setIsConfirmOpen} visibleColumns={visibleColumns} />
                       ))}
                     </SortableContext>
