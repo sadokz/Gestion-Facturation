@@ -7,13 +7,16 @@ import {
   CalendarDays, 
   UploadCloud, 
   CheckCircle2, 
-  GripVertical 
+  GripVertical,
+  Save
 } from "lucide-react";
 import { formatCurrencyDT, formatDateFR, computeTTC } from "@/utils/formatters";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { showSuccess } from "@/utils/toast";
 
 // DND Kit Imports
 import {
@@ -38,13 +41,14 @@ interface ProjectInvoicesListProps {
   invoices: any[];
   onAddInvoice: () => void;
   onEditInvoice: (invoice: any) => void;
+  onUpdateInvoice?: (invoiceId: number, data: any) => void;
 }
 
-// Composant pour chaque ligne de facture triable
 const SortableInvoiceItem = ({ 
   inv, 
   idx, 
   onEditInvoice, 
+  onUpdateInvoice,
   getStatusStyles, 
   FileStatus 
 }: any) => {
@@ -57,11 +61,23 @@ const SortableInvoiceItem = ({
     isDragging,
   } = useSortable({ id: inv.id });
 
+  const [localData, setLocalData] = useState({
+    date_emission: inv.date_emission || inv.date_facture || "",
+    date_payement: inv.date_payement || "",
+    montant_retenue: inv.montant_retenue || 0
+  });
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     zIndex: isDragging ? 10 : 1,
     opacity: isDragging ? 0.5 : 1,
+  };
+
+  const handleBlur = (field: string, value: any) => {
+    if (inv[field] !== value) {
+      onUpdateInvoice?.(inv.id, { [field]: value });
+    }
   };
 
   return (
@@ -73,7 +89,6 @@ const SortableInvoiceItem = ({
         isDragging && "shadow-xl border-primary/50"
       )}
     >
-      {/* Poignée de déplacement */}
       <div 
         {...attributes} 
         {...listeners} 
@@ -82,7 +97,6 @@ const SortableInvoiceItem = ({
         <GripVertical size={18} />
       </div>
 
-      {/* Info Facture */}
       <div className="flex items-center gap-3 overflow-hidden">
         <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center text-[10px] font-bold text-slate-400 shrink-0">
           #{idx + 1}
@@ -93,55 +107,60 @@ const SortableInvoiceItem = ({
         </div>
       </div>
       
-      {/* Dates */}
       <div className="grid grid-cols-2 gap-2">
         <div className="flex flex-col">
-          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Émission</span>
-          <div className="flex items-center gap-1 text-[11px] text-slate-600 font-medium">
-            <CalendarDays size={10} className="text-slate-400" />
-            {formatDateFR(inv.date_emission || inv.date_facture)}
-          </div>
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter mb-1">Émission</span>
+          <Input 
+            type="date" 
+            className="h-7 text-[10px] px-1 rounded-lg border-slate-100 focus:border-primary/30" 
+            value={localData.date_emission}
+            onChange={(e) => setLocalData({...localData, date_emission: e.target.value})}
+            onBlur={(e) => handleBlur('date_emission', e.target.value)}
+          />
         </div>
         <div className="flex flex-col">
-          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Paiement</span>
-          <div className={cn(
-            "flex items-center gap-1 text-[11px] font-medium",
-            inv.date_payement ? "text-emerald-600" : "text-slate-300 italic"
-          )}>
-            <CalendarCheck size={10} className={inv.date_payement ? "text-emerald-500" : "text-slate-200"} />
-            {inv.date_payement ? formatDateFR(inv.date_payement) : "Attente"}
-          </div>
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter mb-1">Paiement</span>
+          <Input 
+            type="date" 
+            className={cn(
+              "h-7 text-[10px] px-1 rounded-lg border-slate-100 focus:border-primary/30",
+              localData.date_payement ? "text-emerald-600 font-bold" : "text-slate-400"
+            )} 
+            value={localData.date_payement}
+            onChange={(e) => setLocalData({...localData, date_payement: e.target.value})}
+            onBlur={(e) => handleBlur('date_payement', e.target.value)}
+          />
         </div>
       </div>
 
-      {/* Fichiers */}
       <div className="flex items-center gap-2 justify-center border-x border-slate-100 px-2">
         <FileStatus label="Fact" hasFile={!!inv.file_facture} onUpload={() => onEditInvoice(inv)} />
         <FileStatus label="Déch" hasFile={!!inv.file_decharge} onUpload={() => onEditInvoice(inv)} />
         <FileStatus label="Ret" hasFile={!!inv.file_retenue} onUpload={() => onEditInvoice(inv)} />
       </div>
       
-      {/* Montant HT */}
       <div className="text-right flex flex-col items-end">
         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Montant HT</span>
         <p className="text-xs font-bold text-slate-600">{formatCurrencyDT(inv.montant_ht)}</p>
       </div>
 
-      {/* Retenue */}
       <div className="text-right flex flex-col items-end">
-        <span className="text-[9px] font-bold text-rose-500 uppercase tracking-tighter">Retenue</span>
-        <p className="text-xs font-bold text-rose-600">
-          {inv.montant_retenue > 0 ? formatCurrencyDT(inv.montant_retenue) : "-"}
-        </p>
+        <span className="text-[9px] font-bold text-rose-500 uppercase tracking-tighter mb-1">Retenue (DT)</span>
+        <Input 
+          type="number" 
+          step="0.001"
+          className="h-7 text-[10px] px-1 rounded-lg border-slate-100 focus:border-rose-300 text-right font-bold text-rose-600 w-20" 
+          value={localData.montant_retenue}
+          onChange={(e) => setLocalData({...localData, montant_retenue: parseFloat(e.target.value) || 0})}
+          onBlur={(e) => handleBlur('montant_retenue', parseFloat(e.target.value) || 0)}
+        />
       </div>
 
-      {/* Montant TTC */}
       <div className="text-right flex flex-col items-end">
         <span className="text-[9px] font-bold text-primary uppercase tracking-tighter">Montant TTC</span>
         <p className="text-sm font-black text-slate-900">{formatCurrencyDT(computeTTC(inv.montant_ht, inv.tva_pct || 19))}</p>
       </div>
 
-      {/* Statut */}
       <div className="flex justify-center">
         <Badge variant="outline" className={cn(
           "text-[9px] font-bold px-2 py-0 whitespace-nowrap w-full justify-center h-5",
@@ -151,7 +170,6 @@ const SortableInvoiceItem = ({
         </Badge>
       </div>
 
-      {/* Actions */}
       <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
         <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => onEditInvoice(inv)}>
           <Edit size={14} />
@@ -164,7 +182,8 @@ const SortableInvoiceItem = ({
 export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({ 
   invoices: initialInvoices, 
   onAddInvoice,
-  onEditInvoice 
+  onEditInvoice,
+  onUpdateInvoice
 }) => {
   const [invoices, setInvoices] = useState(initialInvoices);
 
@@ -188,7 +207,6 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
         const newIndex = items.findIndex((i) => i.id === over.id);
         return arrayMove(items, oldIndex, newIndex);
       });
-      // Ici, vous pourriez appeler une API pour sauvegarder le nouvel ordre
     }
   };
 
@@ -257,6 +275,7 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
                   inv={inv} 
                   idx={idx} 
                   onEditInvoice={onEditInvoice}
+                  onUpdateInvoice={onUpdateInvoice}
                   getStatusStyles={getStatusStyles}
                   FileStatus={FileStatus}
                 />
