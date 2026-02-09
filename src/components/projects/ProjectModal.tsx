@@ -36,7 +36,7 @@ const projectSchema = z.object({
   montant_total_ht: z.coerce.number().min(0),
   montant_avenant_ht: z.coerce.number().min(0).default(0),
   tva_pct: z.coerce.number().default(19),
-  statut: z.string().default("En cours"),
+  statut: z.string().default("Partiellement Facturé"),
 });
 
 interface ProjectModalProps {
@@ -59,7 +59,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
       montant_total_ht: 0,
       montant_avenant_ht: 0,
       tva_pct: 19,
-      statut: "En cours",
+      statut: "Partiellement Facturé",
     },
   });
 
@@ -70,7 +70,6 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
           const data = await fetcher("/clients");
           setClients(data);
         } catch (err) {
-          // Fallback mock data si l'API n'est pas dispo
           setClients([
             { id: 1, nom: "Commune de Tunis" },
             { id: 2, nom: "STEG" },
@@ -203,7 +202,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
               name="statut"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Statut</FormLabel>
+                  <FormLabel>Statut de facturation</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger className="rounded-xl">
@@ -211,9 +210,9 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="En attente">En attente</SelectItem>
-                      <SelectItem value="En cours">En cours</SelectItem>
-                      <SelectItem value="Terminé">Terminé</SelectItem>
+                      <SelectItem value="Facturé">Facturé</SelectItem>
+                      <SelectItem value="Partiellement Facturé">Partiellement Facturé</SelectItem>
+                      <SelectItem value="Totalement facturé">Totalement facturé</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

@@ -69,7 +69,7 @@ const Projects = () => {
           montant_total_ht: 50000, 
           montant_avenant_ht: 5000,
           tva_pct: 19,
-          statut: "En cours",
+          statut: "Partiellement Facturé",
           invoices: [
             { id: 101, numero_facture: "FV-2026-001", date_facture: "2026-01-10", montant_ht: 5000, tva_pct: 19, statut: "Payé", type_facture: "Acompte" },
             { id: 102, numero_facture: "FV-2026-002", date_facture: "2026-02-15", montant_ht: 10000, tva_pct: 19, statut: "Payement En Attente", type_facture: "Situation n°1" },
@@ -83,7 +83,7 @@ const Projects = () => {
           montant_total_ht: 120000, 
           montant_avenant_ht: 0,
           tva_pct: 19,
-          statut: "Terminé",
+          statut: "Totalement facturé",
           invoices: [
             { id: 201, numero_facture: "FV-2026-005", date_facture: "2026-03-01", montant_ht: 120000, tva_pct: 19, statut: "Payé", type_facture: "Unique" },
           ]
@@ -110,9 +110,9 @@ const Projects = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "Terminé": return <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">Terminé</Badge>;
-      case "En cours": return <Badge className="bg-blue-100 text-blue-700 border-blue-200">En cours</Badge>;
-      case "En attente": return <Badge className="bg-amber-100 text-amber-700 border-amber-200">En attente</Badge>;
+      case "Totalement facturé": return <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">Totalement facturé</Badge>;
+      case "Partiellement Facturé": return <Badge className="bg-blue-100 text-blue-700 border-blue-200">Partiellement Facturé</Badge>;
+      case "Facturé": return <Badge className="bg-amber-100 text-amber-700 border-amber-200">Facturé</Badge>;
       default: return <Badge variant="outline">{status}</Badge>;
     }
   };
@@ -153,9 +153,9 @@ const Projects = () => {
                   onChange={(e) => setStatusFilter(e.target.value)}
                 >
                   <option value="all">Tous les statuts</option>
-                  <option value="En cours">En cours</option>
-                  <option value="Terminé">Terminé</option>
-                  <option value="En attente">En attente</option>
+                  <option value="Facturé">Facturé</option>
+                  <option value="Partiellement Facturé">Partiellement Facturé</option>
+                  <option value="Totalement facturé">Totalement facturé</option>
                 </select>
               </div>
             </div>
