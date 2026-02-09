@@ -31,7 +31,7 @@ const invoiceSchema = z.object({
   numero_facture: z.string().min(1, "Le numéro est requis"),
   date_emission: z.string().min(1, "La date d'émission est requise"),
   date_payement: z.string().optional(),
-  type_facture: z.string().default("Situation"),
+  type_facture: z.string().default("Mission S0"),
   montant_ht: z.coerce.number().min(0),
   tva_pct: z.coerce.number().default(19),
   statut: z.string().default("Non facturé"),
@@ -46,14 +46,13 @@ interface SalesInvoiceModalProps {
 }
 
 export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, onClose, onSubmit, initialData }) => {
-  // On s'assure que les dates sont au format YYYY-MM-DD pour l'input type="date"
   const form = useForm({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
       numero_facture: initialData?.numero_facture || "",
       date_emission: initialData?.date_emission || initialData?.date_facture || new Date().toISOString().split('T')[0],
       date_payement: initialData?.date_payement || "",
-      type_facture: initialData?.type_facture || "Situation",
+      type_facture: initialData?.type_facture || "Mission S0",
       montant_ht: initialData?.montant_ht || 0,
       tva_pct: initialData?.tva_pct || 19,
       statut: initialData?.statut || "Non facturé",
@@ -61,14 +60,13 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
     },
   });
 
-  // Réinitialiser le formulaire quand initialData change
   React.useEffect(() => {
     if (isOpen) {
       form.reset({
         numero_facture: initialData?.numero_facture || "",
         date_emission: initialData?.date_emission || initialData?.date_facture || new Date().toISOString().split('T')[0],
         date_payement: initialData?.date_payement || "",
-        type_facture: initialData?.type_facture || "Situation",
+        type_facture: initialData?.type_facture || "Mission S0",
         montant_ht: initialData?.montant_ht || 0,
         tva_pct: initialData?.tva_pct || 19,
         statut: initialData?.statut || "Non facturé",
@@ -114,10 +112,14 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Acompte">Acompte</SelectItem>
-                        <SelectItem value="Situation">Situation</SelectItem>
-                        <SelectItem value="Solde">Solde</SelectItem>
-                        <SelectItem value="Unique">Facture Unique</SelectItem>
+                        <SelectItem value="Avance">Avance</SelectItem>
+                        <SelectItem value="Mission S0">Mission S0</SelectItem>
+                        <SelectItem value="Mission S1">Mission S1</SelectItem>
+                        <SelectItem value="Mission S2">Mission S2</SelectItem>
+                        <SelectItem value="Mission S3">Mission S3</SelectItem>
+                        <SelectItem value="Mission S4">Mission S4</SelectItem>
+                        <SelectItem value="Mission S5">Mission S5</SelectItem>
+                        <SelectItem value="Règlement Définitif">Règlement Définitif</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
