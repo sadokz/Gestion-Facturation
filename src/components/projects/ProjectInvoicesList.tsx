@@ -74,11 +74,11 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
           invoices.map((inv, idx) => (
             <div 
               key={inv.id || idx} 
-              className="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-100 shadow-sm group hover:border-primary/30 transition-colors"
+              className="grid grid-cols-[140px_180px_140px_1fr_1fr_1fr_100px_40px] items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm group hover:border-primary/30 transition-colors gap-4"
             >
               {/* Info Facture */}
-              <div className="flex items-center gap-4 w-[15%]">
-                <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-[10px] font-bold text-slate-400 shrink-0">
+              <div className="flex items-center gap-3 overflow-hidden">
+                <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center text-[10px] font-bold text-slate-400 shrink-0">
                   #{idx + 1}
                 </div>
                 <div className="truncate">
@@ -88,63 +88,68 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
               </div>
               
               {/* Dates */}
-              <div className="flex-1 grid grid-cols-2 gap-4 px-4 max-w-[20%]">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="flex flex-col">
                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Émission</span>
-                  <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
-                    <CalendarDays size={12} className="text-slate-400" />
+                  <div className="flex items-center gap-1 text-[11px] text-slate-600 font-medium">
+                    <CalendarDays size={10} className="text-slate-400" />
                     {formatDateFR(inv.date_emission || inv.date_facture)}
                   </div>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Paiement</span>
                   <div className={cn(
-                    "flex items-center gap-1.5 text-xs font-medium",
+                    "flex items-center gap-1 text-[11px] font-medium",
                     inv.date_payement ? "text-emerald-600" : "text-slate-300 italic"
                   )}>
-                    <CalendarCheck size={12} className={inv.date_payement ? "text-emerald-500" : "text-slate-200"} />
-                    {inv.date_payement ? formatDateFR(inv.date_payement) : "En attente"}
+                    <CalendarCheck size={10} className={inv.date_payement ? "text-emerald-500" : "text-slate-200"} />
+                    {inv.date_payement ? formatDateFR(inv.date_payement) : "Attente"}
                   </div>
                 </div>
               </div>
 
-              {/* Fichiers Téléversables */}
-              <div className="flex items-center gap-3 px-4 border-x border-slate-100">
-                <FileStatus label="Facture" hasFile={!!inv.file_facture} onUpload={() => onEditInvoice(inv)} />
-                <FileStatus label="Décharge" hasFile={!!inv.file_decharge} onUpload={() => onEditInvoice(inv)} />
-                <FileStatus label="Retenue" hasFile={!!inv.file_retenue} onUpload={() => onEditInvoice(inv)} />
+              {/* Fichiers */}
+              <div className="flex items-center gap-2 justify-center border-x border-slate-100 px-2">
+                <FileStatus label="Fact" hasFile={!!inv.file_facture} onUpload={() => onEditInvoice(inv)} />
+                <FileStatus label="Déch" hasFile={!!inv.file_decharge} onUpload={() => onEditInvoice(inv)} />
+                <FileStatus label="Ret" hasFile={!!inv.file_retenue} onUpload={() => onEditInvoice(inv)} />
               </div>
               
-              {/* Montants & Statut */}
-              <div className="flex items-center gap-4 w-[45%] justify-end">
-                <div className="text-right flex flex-col items-end min-w-[90px]">
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Montant HT</span>
-                  <p className="text-xs font-bold text-slate-600">{formatCurrencyDT(inv.montant_ht)}</p>
-                </div>
+              {/* Montant HT */}
+              <div className="text-right flex flex-col items-end">
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Montant HT</span>
+                <p className="text-xs font-bold text-slate-600">{formatCurrencyDT(inv.montant_ht)}</p>
+              </div>
 
-                <div className="text-right flex flex-col items-end min-w-[90px]">
-                  <span className="text-[9px] font-bold text-rose-500 uppercase tracking-tighter">Retenue</span>
-                  <p className="text-xs font-bold text-rose-600">
-                    {inv.montant_retenue > 0 ? formatCurrencyDT(inv.montant_retenue) : "-"}
-                  </p>
-                </div>
+              {/* Retenue */}
+              <div className="text-right flex flex-col items-end">
+                <span className="text-[9px] font-bold text-rose-500 uppercase tracking-tighter">Retenue</span>
+                <p className="text-xs font-bold text-rose-600">
+                  {inv.montant_retenue > 0 ? formatCurrencyDT(inv.montant_retenue) : "-"}
+                </p>
+              </div>
 
-                <div className="text-right flex flex-col items-end min-w-[100px]">
-                  <span className="text-[9px] font-bold text-primary uppercase tracking-tighter">Montant TTC</span>
-                  <p className="text-sm font-black text-slate-900">{formatCurrencyDT(computeTTC(inv.montant_ht, inv.tva_pct || 19))}</p>
-                </div>
+              {/* Montant TTC */}
+              <div className="text-right flex flex-col items-end">
+                <span className="text-[9px] font-bold text-primary uppercase tracking-tighter">Montant TTC</span>
+                <p className="text-sm font-black text-slate-900">{formatCurrencyDT(computeTTC(inv.montant_ht, inv.tva_pct || 19))}</p>
+              </div>
 
+              {/* Statut */}
+              <div className="flex justify-center">
                 <Badge variant="outline" className={cn(
-                  "text-[10px] font-bold px-2 py-0 whitespace-nowrap min-w-[80px] justify-center",
+                  "text-[9px] font-bold px-2 py-0 whitespace-nowrap w-full justify-center h-5",
                   getStatusStyles(inv.statut)
                 )}>
                   {inv.statut}
                 </Badge>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => onEditInvoice(inv)}>
-                    <Edit size={14} />
-                  </Button>
-                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => onEditInvoice(inv)}>
+                  <Edit size={14} />
+                </Button>
               </div>
             </div>
           ))
