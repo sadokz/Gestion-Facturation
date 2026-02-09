@@ -122,12 +122,13 @@ const SortableProjectRow = ({
   
   const resteAPayeTTC = totalTTC - totalPayeTTC;
 
+  // Nouvelle logique de statut simplifiée
   let calculatedStatus = "Non facturé";
   if (totalFactureHT > 0) {
     if (totalFactureHT < totalHT) {
       calculatedStatus = "Partiellement Facturé";
-    } else if (totalFactureHT >= totalHT) {
-      calculatedStatus = resteAPayeTTC <= 0.001 ? "Soldé" : "Totalement Facturé";
+    } else {
+      calculatedStatus = "Totalement Facturé";
     }
   }
 
@@ -306,7 +307,6 @@ const Projects = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "Soldé": return <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">Soldé</Badge>;
       case "Totalement Facturé": return <Badge className="bg-indigo-100 text-indigo-700 border-indigo-200">Totalement Facturé</Badge>;
       case "Partiellement Facturé": return <Badge className="bg-blue-100 text-blue-700 border-blue-200">Partiellement Facturé</Badge>;
       case "Non facturé": return <Badge className="bg-slate-100 text-slate-500 border-slate-200">Non facturé</Badge>;
@@ -343,7 +343,6 @@ const Projects = () => {
                 <Filter size={14} className="text-slate-500" />
                 <select className="text-sm font-medium bg-transparent outline-none border-none cursor-pointer" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="all">Tous les statuts</option>
-                  <option value="Soldé">Soldé</option>
                   <option value="Totalement Facturé">Totalement Facturé</option>
                   <option value="Partiellement Facturé">Partiellement Facturé</option>
                   <option value="Non facturé">Non facturé</option>
