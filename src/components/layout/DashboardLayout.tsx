@@ -8,9 +8,7 @@ import {
   Calendar,
   Users,
   Building2,
-  Settings as SettingsIcon,
-  Menu,
-  X
+  Settings as SettingsIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useYear } from "@/context/YearContext";
@@ -22,7 +20,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { GlobalSearch } from "./GlobalSearch";
-import { Button } from "@/components/ui/button";
 
 const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
   <Link
@@ -55,12 +52,18 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
           isSidebarOpen ? "w-64 translate-x-0" : "w-0 p-0 -translate-x-full border-none"
         )}
       >
-        <div className={cn("flex items-center gap-3 px-2 transition-opacity duration-200", !isSidebarOpen && "opacity-0")}>
+        <button 
+          onClick={() => setIsSidebarOpen(false)}
+          className={cn(
+            "flex items-center gap-3 px-2 hover:opacity-80 transition-all text-left outline-none",
+            !isSidebarOpen && "opacity-0 pointer-events-none"
+          )}
+        >
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/30 shrink-0">
             B
           </div>
           <span className="font-bold text-xl tracking-tight text-slate-800 whitespace-nowrap">Bureau d'Étude</span>
-        </div>
+        </button>
 
         <nav className={cn("flex flex-col gap-2 transition-opacity duration-200", !isSidebarOpen && "opacity-0")}>
           <SidebarItem 
@@ -113,14 +116,17 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
         {/* Topbar */}
         <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-4 flex-1">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="rounded-xl hover:bg-slate-100 shrink-0"
-            >
-              {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
-            </Button>
+            {!isSidebarOpen && (
+              <button 
+                onClick={() => setIsSidebarOpen(true)}
+                className="flex items-center gap-3 hover:opacity-80 transition-all outline-none shrink-0 mr-4"
+              >
+                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/30 shrink-0">
+                  B
+                </div>
+                <span className="font-bold text-xl tracking-tight text-slate-800 whitespace-nowrap hidden sm:block">Bureau d'Étude</span>
+              </button>
+            )}
             <GlobalSearch />
           </div>
 
