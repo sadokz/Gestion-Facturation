@@ -1,5 +1,5 @@
 import React from "react";
-import { Receipt, Plus, Edit, Trash2 } from "lucide-react";
+import { Receipt, Plus, Edit, CalendarCheck } from "lucide-react";
 import { formatCurrencyDT, formatDateFR } from "@/utils/formatters";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -59,14 +59,21 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
                 </div>
                 <div>
                   <p className="text-xs font-mono font-bold text-primary">{inv.numero_facture}</p>
-                  <p className="text-[10px] text-slate-500">{formatDateFR(inv.date_facture)} • {inv.type_facture || 'Situation'}</p>
+                  <div className="flex flex-col gap-0.5">
+                    <p className="text-[10px] text-slate-500">Émise le : {formatDateFR(inv.date_emission || inv.date_facture)}</p>
+                    {inv.date_payement && (
+                      <p className="text-[10px] text-emerald-600 font-medium flex items-center gap-1">
+                        <CalendarCheck size={10} /> Payée le : {formatDateFR(inv.date_payement)}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
               
               <div className="flex items-center gap-6">
                 <div className="text-right">
                   <p className="text-sm font-black text-slate-900">{formatCurrencyDT(inv.montant_ht)}</p>
-                  <p className="text-[10px] text-slate-400">Montant HT</p>
+                  <p className="text-[10px] text-slate-400">{inv.type_facture || 'Situation'}</p>
                 </div>
                 <Badge variant="outline" className={cn(
                   "text-[10px] font-bold px-2 py-0 whitespace-nowrap",

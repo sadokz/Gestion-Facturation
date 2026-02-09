@@ -29,7 +29,8 @@ import {
 
 const invoiceSchema = z.object({
   numero_facture: z.string().min(1, "Le numéro est requis"),
-  date_facture: z.string().min(1, "La date est requise"),
+  date_emission: z.string().min(1, "La date d'émission est requise"),
+  date_payement: z.string().optional(),
   type_facture: z.string().default("Situation"),
   montant_ht: z.coerce.number().min(0),
   tva_pct: z.coerce.number().default(19),
@@ -49,7 +50,8 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
     resolver: zodResolver(invoiceSchema),
     defaultValues: initialData || {
       numero_facture: "",
-      date_facture: new Date().toISOString().split('T')[0],
+      date_emission: new Date().toISOString().split('T')[0],
+      date_payement: "",
       type_facture: "Situation",
       montant_ht: 0,
       tva_pct: 19,
@@ -109,10 +111,10 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="date_facture"
+                name="date_emission"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Date</FormLabel>
+                    <FormLabel>Date d'émission</FormLabel>
                     <FormControl>
                       <Input type="date" {...field} className="rounded-xl" />
                     </FormControl>
@@ -120,6 +122,21 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="date_payement"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date de paiement</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} className="rounded-xl" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="statut"
@@ -142,21 +159,6 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
                   </FormItem>
                 )}
               />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="montant_ht"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Montant HT (DT)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.001" {...field} className="rounded-xl" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <FormField
                 control={form.control}
                 name="tva_pct"
@@ -171,6 +173,19 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
                 )}
               />
             </div>
+            <FormField
+              control={form.control}
+              name="montant_ht"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Montant HT (DT)</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="0.001" {...field} className="rounded-xl" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="note"
