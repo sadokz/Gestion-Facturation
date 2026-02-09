@@ -33,6 +33,7 @@ const projectSchema = z.object({
   client: z.string().min(1, "Le client est requis"),
   date_contrat: z.string().min(1, "La date est requise"),
   montant_total_ht: z.coerce.number().min(0),
+  montant_avenant_ht: z.coerce.number().min(0).default(0),
   tva_pct: z.coerce.number().default(19),
   statut: z.string().default("En cours"),
 });
@@ -53,6 +54,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
       client: "",
       date_contrat: new Date().toISOString().split('T')[0],
       montant_total_ht: 0,
+      montant_avenant_ht: 0,
       tva_pct: 19,
       statut: "En cours",
     },
@@ -60,7 +62,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-width-[500px] rounded-2xl">
+      <DialogContent className="sm:max-w-[600px] rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-slate-800">
             {initialData ? "Modifier le projet" : "Nouveau projet"}
@@ -122,13 +124,13 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="montant_total_ht"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Montant Total HT (DT)</FormLabel>
+                    <FormLabel>Montant HT (DT)</FormLabel>
                     <FormControl>
                       <Input type="number" step="0.001" {...field} className="rounded-xl" />
                     </FormControl>
@@ -138,27 +140,53 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
               />
               <FormField
                 control={form.control}
-                name="statut"
+                name="montant_avenant_ht"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Statut</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder="Choisir un statut" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="En attente">En attente</SelectItem>
-                        <SelectItem value="En cours">En cours</SelectItem>
-                        <SelectItem value="Terminé">Terminé</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Avenant HT (DT)</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.001" {...field} className="rounded-xl" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="tva_pct"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>TVA (%)</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} className="rounded-xl" />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
+            <FormField
+              control={form.control}
+              name="statut"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Statut</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="rounded-xl">
+                        <SelectValue placeholder="Choisir un statut" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="En attente">En attente</SelectItem>
+                      <SelectItem value="En cours">En cours</SelectItem>
+                      <SelectItem value="Terminé">Terminé</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <DialogFooter className="pt-4">
               <Button type="button" variant="outline" onClick={onClose} className="rounded-xl">Annuler</Button>
               <Button type="submit" className="rounded-xl px-8">Enregistrer</Button>

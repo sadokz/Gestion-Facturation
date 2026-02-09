@@ -60,7 +60,6 @@ const Projects = () => {
       const data = await fetcher(`/projects?year=${selectedYear}&q=${search}&status=${statusFilter === 'all' ? '' : statusFilter}`);
       setProjects(data);
     } catch (err) {
-      // Mock data enrichie pour les calculs TTC et paiements
       setProjects([
         { 
           id: 1, 
@@ -68,6 +67,7 @@ const Projects = () => {
           nom_projet: "Eclairage Avenue", 
           client: "Commune X", 
           montant_total_ht: 50000, 
+          montant_avenant_ht: 5000,
           tva_pct: 19,
           statut: "En cours",
           invoices: [
@@ -81,21 +81,12 @@ const Projects = () => {
           nom_projet: "Rénovation Pont", 
           client: "Ministère Y", 
           montant_total_ht: 120000, 
+          montant_avenant_ht: 0,
           tva_pct: 19,
           statut: "Terminé",
           invoices: [
             { id: 201, numero_facture: "FV-2026-005", date_facture: "2026-03-01", montant_ht: 120000, tva_pct: 19, statut: "Payé", type_facture: "Unique" },
           ]
-        },
-        { 
-          id: 3, 
-          reference_projet: "PRJ-2026-003", 
-          nom_projet: "Audit Énergétique", 
-          client: "Société Z", 
-          montant_total_ht: 15000, 
-          tva_pct: 19,
-          statut: "En attente",
-          invoices: []
         },
       ]);
     } finally {
@@ -178,6 +169,8 @@ const Projects = () => {
                   <TableHead className="font-bold text-slate-700">Référence</TableHead>
                   <TableHead className="font-bold text-slate-700">Projet</TableHead>
                   <TableHead className="font-bold text-slate-700 text-right">Montant Total HT</TableHead>
+                  <TableHead className="font-bold text-slate-700 text-right">Montant Avenant HT</TableHead>
+                  <TableHead className="font-bold text-slate-700 text-right">Total TVA</TableHead>
                   <TableHead className="font-bold text-slate-700 text-right">Montant Total TTC</TableHead>
                   <TableHead className="font-bold text-slate-700 text-right">Total Facturé HT</TableHead>
                   <TableHead className="font-bold text-slate-700 text-right">Total Payé TTC</TableHead>
@@ -188,10 +181,14 @@ const Projects = () => {
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow><TableCell colSpan={10} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={12} className="h-16 text-center">Chargement...</TableCell></TableRow>
                 ) : projects.map((project) => {
-                  const totalHT = project.montant_total_ht;
-                  const totalTTC = computeTTC(totalHT, project.tva_pct || 19);
+                  const baseHT = project.montant_total_ht;
+                  const avenantHT = project.montant_avenant_ht || 0;
+                  const totalHT = baseHT + avenantHT;
+                  const tvaPct = project.tva_pct || 19;
+                  const totalTVA = totalHT * (tvaPct / 100);
+                  const totalTTC = totalHT + totalTVA;
                   
                   const invoices = project.invoices || [];
                   const totalFactureHT = invoices.reduce((sum: number, inv: any) => sum + inv.montant_ht, 0);
@@ -221,7 +218,9 @@ const Projects = () => {
                             <span className="text-[10px] text-slate-500 uppercase font-medium">{project.client}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right font-medium text-slate-600">{formatCurrencyDT(totalHT)}</TableCell>
+                        <TableCell className="text-right font-medium text-slate-600">{formatCurrencyDT(baseHT)}</TableCell>
+                        <TableCell className="text-right font-medium text-amber-600">{formatCurrencyDT(avenantHT)}</TableCell>
+                        <TableCell className="text-right font-medium text-slate-500">{formatCurrencyDT(totalTVA)}</TableCell>
                         <TableCell className="text-right font-bold text-slate-900">{formatCurrencyDT(totalTTC)}</TableCell>
                         <TableCell className="text-right text-blue-600 font-bold">{formatCurrencyDT(totalFactureHT)}</TableCell>
                         <TableCell className="text-right text-emerald-600 font-bold">{formatCurrencyDT(totalPayeTTC)}</TableCell>
@@ -253,7 +252,7 @@ const Projects = () => {
                       </TableRow>
                       {expandedProjects.has(project.id) && (
                         <TableRow className="hover:bg-transparent border-none">
-                          <TableCell colSpan={10} className="p-0">
+                          <TableCell colSpan={12} className="p-0">
                             <ProjectInvoicesList 
                               invoices={invoices} 
                               onAddInvoice={() => { setSelectedProject(project); setSelectedInvoice(null); setIsInvoiceModalOpen(true); }}
