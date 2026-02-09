@@ -8,12 +8,11 @@ import {
   Edit, 
   Trash2,
   ChevronDown,
-  ChevronRight,
-  FileStack
+  ChevronRight
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { fetcher } from "@/api/config";
-import { formatCurrencyDT } from "@/utils/formatters";
+import { formatCurrencyDT, computeTTC } from "@/utils/formatters";
 import {
   Table,
   TableBody,
@@ -61,7 +60,7 @@ const Projects = () => {
       const data = await fetcher(`/projects?year=${selectedYear}&q=${search}&status=${statusFilter === 'all' ? '' : statusFilter}`);
       setProjects(data);
     } catch (err) {
-      // Mock data avec factures incluses pour la démo
+      // Mock data enrichie pour les calculs TTC et paiements
       setProjects([
         { 
           id: 1, 
@@ -69,11 +68,11 @@ const Projects = () => {
           nom_projet: "Eclairage Avenue", 
           client: "Commune X", 
           montant_total_ht: 50000, 
-          total_facture_ht: 15000, 
+          tva_pct: 19,
           statut: "En cours",
           invoices: [
-            { id: 101, numero_facture: "FV-2026-001", date_facture: "2026-01-10", montant_ht: 5000, statut: "Payée", type_facture: "Acompte" },
-            { id: 102, numero_facture: "FV-2026-002", date_facture: "2026-02-15", montant_ht: 10000, statut: "Payée", type_facture: "Situation n°1" },
+            { id: 101, numero_facture: "FV-2026-001", date_facture: "2026-01-10", montant_ht: 5000, tva_pct: 19, statut: "Payé", type_facture: "Acompte" },
+            { id: 102, numero_facture: "FV-2026-002", date_facture: "2026-02-15", montant_ht: 10000, tva_pct: 19, statut: "Payement En Attente", type_facture: "Situation n°1" },
           ]
         },
         { 
@@ -82,10 +81,10 @@ const Projects = () => {
           nom_projet: "Rénovation Pont", 
           client: "Ministère Y", 
           montant_total_ht: 120000, 
-          total_facture_ht: 120000, 
+          tva_pct: 19,
           statut: "Terminé",
           invoices: [
-            { id: 201, numero_facture: "FV-2026-005", date_facture: "2026-03-01", montant_ht: 120000, statut: "Payée", type_facture: "Unique" },
+            { id: 201, numero_facture: "FV-2026-005", date_facture: "2026-03-01", montant_ht: 120000, tva_pct: 19, statut: "Payé", type_facture: "Unique" },
           ]
         },
         { 
@@ -94,7 +93,7 @@ const Projects = () => {
           nom_projet: "Audit Énergétique", 
           client: "Société Z", 
           montant_total_ht: 15000, 
-          total_facture_ht: 0, 
+          tva_pct: 19,
           statut: "En attente",
           invoices: []
         },
@@ -178,75 +177,94 @@ const Projects = () => {
                   <TableHead className="w-[40px]"></TableHead>
                   <TableHead className="font-bold text-slate-700">Référence</TableHead>
                   <TableHead className="font-bold text-slate-700">Projet</TableHead>
-                  <TableHead className="font-bold text-slate-700 text-right">Montant HT</TableHead>
-                  <TableHead className="font-bold text-slate-700 text-right">Facturé HT</TableHead>
+                  <TableHead className="font-bold text-slate-700 text-right">Montant Total HT</TableHead>
+                  <TableHead className="font-bold text-slate-700 text-right">Montant Total TTC</TableHead>
+                  <TableHead className="font-bold text-slate-700 text-right">Total Facturé HT</TableHead>
+                  <TableHead className="font-bold text-slate-700 text-right">Total Payé TTC</TableHead>
+                  <TableHead className="font-bold text-slate-700 text-right">Reste à Payé TTC</TableHead>
                   <TableHead className="font-bold text-slate-700">Statut</TableHead>
-                  <TableHead className="w-[80px]"></TableHead>
+                  <TableHead className="w-[60px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow><TableCell colSpan={7} className="h-16 text-center">Chargement...</TableCell></TableRow>
-                ) : projects.map((project) => (
-                  <React.Fragment key={project.id}>
-                    <TableRow className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
-                      <TableCell>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
-                          onClick={() => toggleExpand(project.id)}
-                        >
-                          {expandedProjects.has(project.id) ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-                        </Button>
-                      </TableCell>
-                      <TableCell className="font-mono text-xs font-bold text-primary">{project.reference_projet}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-medium text-slate-800">{project.nom_projet}</span>
-                          <span className="text-xs text-slate-500">{project.client}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right font-semibold">{formatCurrencyDT(project.montant_total_ht)}</TableCell>
-                      <TableCell className="text-right text-emerald-600 font-bold">{formatCurrencyDT(project.total_facture_ht)}</TableCell>
-                      <TableCell>{getStatusBadge(project.statut)}</TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
-                              <MoreHorizontal size={16} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
-                            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsDetailOpen(true); }}>
-                              <Eye size={14} /> Analyse complète
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}>
-                              <Edit size={14} /> Modifier Projet
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
-                              onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}
-                            >
-                              <Trash2 size={14} /> Supprimer
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                    {expandedProjects.has(project.id) && (
-                      <TableRow className="hover:bg-transparent border-none">
-                        <TableCell colSpan={7} className="p-0">
-                          <ProjectInvoicesList 
-                            invoices={project.invoices || []} 
-                            onAddInvoice={() => { setSelectedProject(project); setSelectedInvoice(null); setIsInvoiceModalOpen(true); }}
-                            onEditInvoice={(inv) => { setSelectedProject(project); setSelectedInvoice(inv); setIsInvoiceModalOpen(true); }}
-                          />
+                  <TableRow><TableCell colSpan={10} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                ) : projects.map((project) => {
+                  const totalHT = project.montant_total_ht;
+                  const totalTTC = computeTTC(totalHT, project.tva_pct || 19);
+                  
+                  const invoices = project.invoices || [];
+                  const totalFactureHT = invoices.reduce((sum: number, inv: any) => sum + inv.montant_ht, 0);
+                  const totalPayeTTC = invoices
+                    .filter((inv: any) => inv.statut === "Payé")
+                    .reduce((sum: number, inv: any) => sum + computeTTC(inv.montant_ht, inv.tva_pct || 19), 0);
+                  
+                  const resteAPayeTTC = totalTTC - totalPayeTTC;
+
+                  return (
+                    <React.Fragment key={project.id}>
+                      <TableRow className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
+                        <TableCell>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+                            onClick={() => toggleExpand(project.id)}
+                          >
+                            {expandedProjects.has(project.id) ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                          </Button>
+                        </TableCell>
+                        <TableCell className="font-mono text-[11px] font-bold text-primary">{project.reference_projet}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-bold text-slate-800 text-sm">{project.nom_projet}</span>
+                            <span className="text-[10px] text-slate-500 uppercase font-medium">{project.client}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right font-medium text-slate-600">{formatCurrencyDT(totalHT)}</TableCell>
+                        <TableCell className="text-right font-bold text-slate-900">{formatCurrencyDT(totalTTC)}</TableCell>
+                        <TableCell className="text-right text-blue-600 font-bold">{formatCurrencyDT(totalFactureHT)}</TableCell>
+                        <TableCell className="text-right text-emerald-600 font-bold">{formatCurrencyDT(totalPayeTTC)}</TableCell>
+                        <TableCell className="text-right text-rose-600 font-black">{formatCurrencyDT(resteAPayeTTC)}</TableCell>
+                        <TableCell>{getStatusBadge(project.statut)}</TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
+                                <MoreHorizontal size={16} />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
+                              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsDetailOpen(true); }}>
+                                <Eye size={14} /> Analyse complète
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}>
+                                <Edit size={14} /> Modifier Projet
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
+                                onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}
+                              >
+                                <Trash2 size={14} /> Supprimer
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
-                    )}
-                  </React.Fragment>
-                ))}
+                      {expandedProjects.has(project.id) && (
+                        <TableRow className="hover:bg-transparent border-none">
+                          <TableCell colSpan={10} className="p-0">
+                            <ProjectInvoicesList 
+                              invoices={invoices} 
+                              onAddInvoice={() => { setSelectedProject(project); setSelectedInvoice(null); setIsInvoiceModalOpen(true); }}
+                              onEditInvoice={(inv) => { setSelectedProject(project); setSelectedInvoice(inv); setIsInvoiceModalOpen(true); }}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
