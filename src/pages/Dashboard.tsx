@@ -7,7 +7,8 @@ import {
   TrendingUp,
   PieChart as PieChartIcon,
   ArrowUpRight,
-  Users
+  Users,
+  Activity
 } from "lucide-react";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { useYear } from "@/context/YearContext";
@@ -27,7 +28,7 @@ import {
 } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatCurrencyDT } from "@/utils/formatters";
+import { formatCurrencyDT, formatDateFR } from "@/utils/formatters";
 import { Badge } from "@/components/ui/badge";
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
@@ -209,27 +210,41 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* Bottom Section: Recent Projects & Top Clients */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border-none shadow-md overflow-hidden">
+      {/* Bottom Section: Recent Activity & Top Clients */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2 border-none shadow-md overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50">
             <div className="flex items-center gap-2">
-              <ArrowUpRight size={18} className="text-primary" />
-              <CardTitle className="text-lg font-bold">Projets Récents</CardTitle>
+              <Activity size={18} className="text-primary" />
+              <CardTitle className="text-lg font-bold">Activité Récente</CardTitle>
             </div>
-            <button className="text-xs font-semibold text-primary hover:underline">Voir tout</button>
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y divide-slate-100">
-              {recentProjects.map((project) => (
-                <div key={project.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-bold text-slate-800">{project.nom_projet}</span>
-                    <span className="text-xs text-slate-500">{project.client}</span>
+              {[
+                { type: 'invoice', title: 'Facture FV-2026-012 émise', project: 'Eclairage Avenue', amount: 4500, date: '2026-03-15' },
+                { type: 'purchase', title: 'Nouvel achat : Bureau Vallée', project: 'Frais Généraux', amount: 120, date: '2026-03-14' },
+                { type: 'project', title: 'Nouveau projet signé : Audit STEG', project: 'Audit STEG', amount: 15000, date: '2026-03-12' },
+                { type: 'payment', title: 'Paiement reçu : Commune X', project: 'Rénovation Pont', amount: 12000, date: '2026-03-10' },
+              ].map((item, i) => (
+                <div key={i} className="p-4 flex items-center gap-4 hover:bg-slate-50 transition-colors">
+                  <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center",
+                    item.type === 'invoice' ? "bg-emerald-100 text-emerald-600" :
+                    item.type === 'purchase' ? "bg-rose-100 text-rose-600" :
+                    item.type === 'project' ? "bg-indigo-100 text-indigo-600" : "bg-amber-100 text-amber-600"
+                  )}>
+                    {item.type === 'invoice' ? <FileText size={18} /> :
+                     item.type === 'purchase' ? <ShoppingBag size={18} /> :
+                     item.type === 'project' ? <Briefcase size={18} /> : <CheckCircle2 size={18} />}
                   </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm font-semibold text-slate-700">{formatCurrencyDT(project.montant_total_ht)}</span>
-                    <Badge variant="outline" className="text-[10px]">{project.statut}</Badge>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-slate-800">{item.title}</p>
+                    <p className="text-xs text-slate-500">{item.project}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-slate-700">{formatCurrencyDT(item.amount)}</p>
+                    <p className="text-[10px] text-slate-400">{formatDateFR(item.date)}</p>
                   </div>
                 </div>
               ))}
