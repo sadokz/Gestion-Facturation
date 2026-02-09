@@ -1,6 +1,6 @@
 import React from "react";
 import { Receipt, Plus, Edit, CalendarCheck, CalendarDays, FileText, UploadCloud, CheckCircle2, ShieldAlert } from "lucide-react";
-import { formatCurrencyDT, formatDateFR } from "@/utils/formatters";
+import { formatCurrencyDT, formatDateFR, computeTTC } from "@/utils/formatters";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -77,7 +77,7 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
               className="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-100 shadow-sm group hover:border-primary/30 transition-colors"
             >
               {/* Info Facture */}
-              <div className="flex items-center gap-4 w-[18%]">
+              <div className="flex items-center gap-4 w-[15%]">
                 <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-[10px] font-bold text-slate-400 shrink-0">
                   #{idx + 1}
                 </div>
@@ -88,7 +88,7 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
               </div>
               
               {/* Dates */}
-              <div className="flex-1 grid grid-cols-2 gap-4 px-4 max-w-[25%]">
+              <div className="flex-1 grid grid-cols-2 gap-4 px-4 max-w-[20%]">
                 <div className="flex flex-col">
                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Émission</span>
                   <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
@@ -115,16 +115,23 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
                 <FileStatus label="Retenue" hasFile={!!inv.file_retenue} onUpload={() => onEditInvoice(inv)} />
               </div>
               
-              {/* Montant & Statut */}
-              <div className="flex items-center gap-6 w-[30%] justify-end">
-                <div className="text-right flex flex-col items-end">
-                  <p className="text-sm font-black text-slate-900">{formatCurrencyDT(inv.montant_ht)}</p>
+              {/* Montants & Statut */}
+              <div className="flex items-center gap-6 w-[40%] justify-end">
+                <div className="text-right flex flex-col items-end min-w-[100px]">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Montant HT</span>
+                  <p className="text-xs font-bold text-slate-600">{formatCurrencyDT(inv.montant_ht)}</p>
                   {inv.montant_retenue > 0 && (
                     <p className="text-[9px] text-rose-500 font-bold flex items-center gap-1">
                       <ShieldAlert size={10} /> Retenue: {formatCurrencyDT(inv.montant_retenue)}
                     </p>
                   )}
                 </div>
+
+                <div className="text-right flex flex-col items-end min-w-[100px]">
+                  <span className="text-[9px] font-bold text-primary uppercase tracking-tighter">Montant TTC</span>
+                  <p className="text-sm font-black text-slate-900">{formatCurrencyDT(computeTTC(inv.montant_ht, inv.tva_pct || 19))}</p>
+                </div>
+
                 <Badge variant="outline" className={cn(
                   "text-[10px] font-bold px-2 py-0 whitespace-nowrap min-w-[80px] justify-center",
                   getStatusStyles(inv.statut)
