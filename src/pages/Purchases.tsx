@@ -6,7 +6,6 @@ import {
   MoreHorizontal, 
   Edit, 
   Trash2,
-  ShoppingBag,
   Tag
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
@@ -30,12 +29,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { PurchaseModal } from "@/components/purchases/PurchaseModal";
+import { showSuccess, showError } from "@/utils/toast";
 
 const Purchases = () => {
   const { selectedYear } = useYear();
   const [purchases, setPurchases] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPurchase, setSelectedPurchase] = useState<any>(null);
 
   const loadPurchases = async () => {
     setLoading(true);
@@ -44,7 +47,6 @@ const Purchases = () => {
       setPurchases(data);
     } catch (err) {
       console.error(err);
-      // Mock data
       setPurchases([
         { id: 1, fournisseur: "Société ABC", numero_facture: "FA-4587", date_facture: "2026-02-20", categorie: "Matériel", montant_ht: 2400, tva_pct: 19, statut: "À payer", note: "Câbles" },
         { id: 2, fournisseur: "Bureau Vallée", numero_facture: "BV-992", date_facture: "2026-03-05", categorie: "Fournitures", montant_ht: 450, tva_pct: 19, statut: "Payée", note: "Papeterie" },
@@ -59,6 +61,17 @@ const Purchases = () => {
     loadPurchases();
   }, [selectedYear, search]);
 
+  const handleAddPurchase = async (data: any) => {
+    try {
+      // await fetcher('/purchases', { method: 'POST', body: JSON.stringify(data) });
+      showSuccess("Achat enregistré");
+      setIsModalOpen(false);
+      loadPurchases();
+    } catch (err) {
+      showError("Erreur lors de l'enregistrement");
+    }
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -66,7 +79,10 @@ const Purchases = () => {
           <h1 className="text-3xl font-bold text-slate-900">Achats & Dépenses</h1>
           <p className="text-slate-500">Suivez vos factures fournisseurs et vos coûts opérationnels</p>
         </div>
-        <Button className="rounded-xl shadow-lg shadow-rose-500/20 bg-rose-600 hover:bg-rose-700 gap-2 h-11 px-6">
+        <Button 
+          onClick={() => { setSelectedPurchase(null); setIsModalOpen(true); }}
+          className="rounded-xl shadow-lg shadow-rose-500/20 bg-rose-600 hover:bg-rose-700 gap-2 h-11 px-6"
+        >
           <Plus size={18} />
           Nouvel Achat
         </Button>
@@ -141,7 +157,9 @@ const Purchases = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
-                          <DropdownMenuItem className="gap-2 cursor-pointer"><Edit size={14} /> Modifier</DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedPurchase(purchase); setIsModalOpen(true); }}>
+                            <Edit size={14} /> Modifier
+                          </DropdownMenuItem>
                           <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"><Trash2 size={14} /> Supprimer</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -153,6 +171,13 @@ const Purchases = () => {
           </div>
         </CardContent>
       </Card>
+
+      <PurchaseModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSubmit={handleAddPurchase}
+        initialData={selectedPurchase}
+      />
     </div>
   );
 };

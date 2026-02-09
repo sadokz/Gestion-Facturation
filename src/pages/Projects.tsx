@@ -6,8 +6,7 @@ import {
   MoreHorizontal, 
   Eye, 
   Edit, 
-  Trash2,
-  ArrowUpDown
+  Trash2
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { fetcher } from "@/api/config";
@@ -31,6 +30,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { showSuccess, showError } from "@/utils/toast";
+import { ProjectModal } from "@/components/projects/ProjectModal";
+import { ProjectDetail } from "@/components/projects/ProjectDetail";
 
 const Projects = () => {
   const { selectedYear } = useYear();
@@ -38,6 +39,11 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  
+  // Modal states
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
 
   const loadProjects = async () => {
     setLoading(true);
@@ -46,11 +52,10 @@ const Projects = () => {
       setProjects(data);
     } catch (err) {
       console.error(err);
-      // Mock data for demo
       setProjects([
-        { id: 1, reference_projet: "PRJ-2026-001", nom_projet: "Eclairage Avenue", client: "Commune X", montant_total_ht: 50000, total_facture_ht: 15000, reste_a_facturer_ht: 35000, statut: "En cours", annee: 2026 },
-        { id: 2, reference_projet: "PRJ-2026-002", nom_projet: "Rénovation Pont", client: "Ministère Y", montant_total_ht: 120000, total_facture_ht: 120000, reste_a_facturer_ht: 0, statut: "Terminé", annee: 2026 },
-        { id: 3, reference_projet: "PRJ-2026-003", nom_projet: "Audit Énergétique", client: "Société Z", montant_total_ht: 15000, total_facture_ht: 0, reste_a_facturer_ht: 15000, statut: "En attente", annee: 2026 },
+        { id: 1, reference_projet: "PRJ-2026-001", nom_projet: "Eclairage Avenue", client: "Commune X", montant_total_ht: 50000, total_facture_ht: 15000, reste_a_facturer_ht: 35000, statut: "En cours", annee: 2026, date_contrat: "2026-01-15", tva_pct: 19 },
+        { id: 2, reference_projet: "PRJ-2026-002", nom_projet: "Rénovation Pont", client: "Ministère Y", montant_total_ht: 120000, total_facture_ht: 120000, reste_a_facturer_ht: 0, statut: "Terminé", annee: 2026, date_contrat: "2026-02-10", tva_pct: 19 },
+        { id: 3, reference_projet: "PRJ-2026-003", nom_projet: "Audit Énergétique", client: "Société Z", montant_total_ht: 15000, total_facture_ht: 0, reste_a_facturer_ht: 15000, statut: "En attente", annee: 2026, date_contrat: "2026-03-05", tva_pct: 19 },
       ]);
     } finally {
       setLoading(false);
@@ -60,6 +65,27 @@ const Projects = () => {
   useEffect(() => {
     loadProjects();
   }, [selectedYear, search, statusFilter]);
+
+  const handleAddProject = async (data: any) => {
+    try {
+      // await fetcher('/projects', { method: 'POST', body: JSON.stringify(data) });
+      showSuccess("Projet créé avec succès");
+      setIsModalOpen(false);
+      loadProjects();
+    } catch (err) {
+      showError("Erreur lors de la création");
+    }
+  };
+
+  const handleEditProject = (project: any) => {
+    setSelectedProject(project);
+    setIsModalOpen(true);
+  };
+
+  const handleViewProject = (project: any) => {
+    setSelectedProject(project);
+    setIsDetailOpen(true);
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -77,7 +103,10 @@ const Projects = () => {
           <h1 className="text-3xl font-bold text-slate-900">Projets & Facturation</h1>
           <p className="text-slate-500">Gérez vos contrats et suivez l'avancement de la facturation</p>
         </div>
-        <Button className="rounded-xl shadow-lg shadow-primary/20 gap-2 h-11 px-6">
+        <Button 
+          onClick={() => { setSelectedProject(null); setIsModalOpen(true); }}
+          className="rounded-xl shadow-lg shadow-primary/20 gap-2 h-11 px-6"
+        >
           <Plus size={18} />
           Nouveau Projet
         </Button>
@@ -133,10 +162,6 @@ const Projects = () => {
                       <TableCell colSpan={8} className="h-16 text-center text-slate-400">Chargement...</TableCell>
                     </TableRow>
                   ))
-                ) : projects.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="h-32 text-center text-slate-500">Aucun projet trouvé</TableCell>
-                  </TableRow>
                 ) : projects.map((project) => (
                   <TableRow key={project.id} className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
                     <TableCell className="font-mono text-xs font-bold text-primary">{project.reference_projet}</TableCell>
@@ -154,10 +179,10 @@ const Projects = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
-                          <DropdownMenuItem className="gap-2 cursor-pointer">
+                          <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleViewProject(project)}>
                             <Eye size={14} /> Voir détails
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2 cursor-pointer">
+                          <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleEditProject(project)}>
                             <Edit size={14} /> Modifier
                           </DropdownMenuItem>
                           <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600">
@@ -173,6 +198,19 @@ const Projects = () => {
           </div>
         </CardContent>
       </Card>
+
+      <ProjectModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSubmit={handleAddProject}
+        initialData={selectedProject}
+      />
+
+      <ProjectDetail 
+        isOpen={isDetailOpen} 
+        onClose={() => setIsDetailOpen(false)} 
+        project={selectedProject}
+      />
     </div>
   );
 };
