@@ -8,7 +8,8 @@ import {
   Edit, 
   Trash2,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  GripVertical
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { fetcher } from "@/api/config";
@@ -38,6 +39,152 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { ProjectInvoicesList } from "@/components/projects/ProjectInvoicesList";
 import { SalesInvoiceModal } from "@/components/projects/SalesInvoiceModal";
 
+// DND Kit Imports
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+// Composant pour une ligne de projet triable
+const SortableProjectRow = ({ 
+  project, 
+  expandedProjects, 
+  toggleExpand, 
+  getStatusBadge, 
+  handleAddInvoiceClick, 
+  handleEditInvoiceClick,
+  setSelectedProject,
+  setIsDetailOpen,
+  setIsModalOpen,
+  setIsConfirmOpen
+}: any) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: project.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : 1,
+  };
+
+  const baseHT = project.montant_total_ht;
+  const avenantHT = project.montant_avenant_ht || 0;
+  const totalHT = baseHT + avenantHT;
+  const tvaPct = project.tva_pct || 19;
+  const totalTVA = totalHT * (tvaPct / 100);
+  const totalTTC = totalHT + totalTVA;
+  
+  const invoices = project.invoices || [];
+  const totalFactureHT = invoices.reduce((sum: number, inv: any) => sum + inv.montant_ht, 0);
+  const totalPayeTTC = invoices
+    .filter((inv: any) => inv.statut === "Payé")
+    .reduce((sum: number, inv: any) => sum + computeTTC(inv.montant_ht, inv.tva_pct || 19), 0);
+  
+  const resteAPayeTTC = totalTTC - totalPayeTTC;
+
+  return (
+    <React.Fragment>
+      <TableRow 
+        ref={setNodeRef}
+        style={style}
+        className={cn(
+          "hover:bg-slate-50/50 transition-colors border-slate-100 group",
+          isDragging && "bg-slate-100 shadow-lg"
+        )}
+      >
+        <TableCell>
+          <div className="flex items-center gap-1">
+            <div 
+              {...attributes} 
+              {...listeners} 
+              className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors p-1"
+            >
+              <GripVertical size={16} />
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+              onClick={() => toggleExpand(project.id)}
+            >
+              {expandedProjects.has(project.id) ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+            </Button>
+          </div>
+        </TableCell>
+        <TableCell className="font-mono text-[11px] font-bold text-primary">{project.reference_projet}</TableCell>
+        <TableCell>
+          <div className="flex flex-col">
+            <span className="font-bold text-slate-800 text-sm">{project.nom_projet}</span>
+            <span className="text-[10px] text-slate-500 uppercase font-medium">{project.client}</span>
+          </div>
+        </TableCell>
+        <TableCell className="text-right font-medium text-slate-600">{formatCurrencyDT(baseHT)}</TableCell>
+        <TableCell className="text-right font-medium text-amber-600">{formatCurrencyDT(avenantHT)}</TableCell>
+        <TableCell className="text-right font-medium text-slate-500">{formatCurrencyDT(totalTVA)}</TableCell>
+        <TableCell className="text-right font-bold text-slate-900">{formatCurrencyDT(totalTTC)}</TableCell>
+        <TableCell className="text-right text-blue-600 font-bold">{formatCurrencyDT(totalFactureHT)}</TableCell>
+        <TableCell className="text-right text-emerald-600 font-bold">{formatCurrencyDT(totalPayeTTC)}</TableCell>
+        <TableCell className="text-right text-rose-600 font-black">{formatCurrencyDT(resteAPayeTTC)}</TableCell>
+        <TableCell>{getStatusBadge(project.statut)}</TableCell>
+        <TableCell>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
+                <MoreHorizontal size={16} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
+              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsDetailOpen(true); }}>
+                <Eye size={14} /> Analyse complète
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}>
+                <Edit size={14} /> Modifier Projet
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
+                onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}
+              >
+                <Trash2 size={14} /> Supprimer
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </TableCell>
+      </TableRow>
+      {expandedProjects.has(project.id) && (
+        <TableRow className="hover:bg-transparent border-none">
+          <TableCell colSpan={12} className="p-0">
+            <ProjectInvoicesList 
+              invoices={invoices} 
+              onAddInvoice={() => handleAddInvoiceClick(project)}
+              onEditInvoice={(inv) => handleEditInvoiceClick(project, inv)}
+            />
+          </TableCell>
+        </TableRow>
+      )}
+    </React.Fragment>
+  );
+};
+
 const Projects = () => {
   const { selectedYear } = useYear();
   const [projects, setProjects] = useState<any[]>([]);
@@ -53,6 +200,13 @@ const Projects = () => {
   
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const loadProjects = async () => {
     setLoading(true);
@@ -97,6 +251,17 @@ const Projects = () => {
   useEffect(() => {
     loadProjects();
   }, [selectedYear, search, statusFilter]);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setProjects((items) => {
+        const oldIndex = items.findIndex((i) => i.id === active.id);
+        const newIndex = items.findIndex((i) => i.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
 
   const toggleExpand = (id: number) => {
     const newExpanded = new Set(expandedProjects);
@@ -174,110 +339,56 @@ const Projects = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-slate-50/50">
-                <TableRow className="hover:bg-transparent border-slate-100">
-                  <TableHead className="w-[40px]"></TableHead>
-                  <TableHead className="font-bold text-slate-700">Référence</TableHead>
-                  <TableHead className="font-bold text-slate-700">Projet</TableHead>
-                  <TableHead className="font-bold text-slate-700 text-right">Montant Total HT</TableHead>
-                  <TableHead className="font-bold text-slate-700 text-right">Montant Avenant HT</TableHead>
-                  <TableHead className="font-bold text-slate-700 text-right">Total TVA</TableHead>
-                  <TableHead className="font-bold text-slate-700 text-right">Montant Total TTC</TableHead>
-                  <TableHead className="font-bold text-slate-700 text-right">Total Facturé HT</TableHead>
-                  <TableHead className="font-bold text-slate-700 text-right">Total Payé TTC</TableHead>
-                  <TableHead className="font-bold text-slate-700 text-right">Reste à Payé TTC</TableHead>
-                  <TableHead className="font-bold text-slate-700">Statut</TableHead>
-                  <TableHead className="w-[60px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow><TableCell colSpan={12} className="h-16 text-center">Chargement...</TableCell></TableRow>
-                ) : projects.map((project) => {
-                  const baseHT = project.montant_total_ht;
-                  const avenantHT = project.montant_avenant_ht || 0;
-                  const totalHT = baseHT + avenantHT;
-                  const tvaPct = project.tva_pct || 19;
-                  const totalTVA = totalHT * (tvaPct / 100);
-                  const totalTTC = totalHT + totalTVA;
-                  
-                  const invoices = project.invoices || [];
-                  const totalFactureHT = invoices.reduce((sum: number, inv: any) => sum + inv.montant_ht, 0);
-                  const totalPayeTTC = invoices
-                    .filter((inv: any) => inv.statut === "Payé")
-                    .reduce((sum: number, inv: any) => sum + computeTTC(inv.montant_ht, inv.tva_pct || 19), 0);
-                  
-                  const resteAPayeTTC = totalTTC - totalPayeTTC;
-
-                  return (
-                    <React.Fragment key={project.id}>
-                      <TableRow className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
-                        <TableCell>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
-                            onClick={() => toggleExpand(project.id)}
-                          >
-                            {expandedProjects.has(project.id) ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-                          </Button>
-                        </TableCell>
-                        <TableCell className="font-mono text-[11px] font-bold text-primary">{project.reference_projet}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="font-bold text-slate-800 text-sm">{project.nom_projet}</span>
-                            <span className="text-[10px] text-slate-500 uppercase font-medium">{project.client}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right font-medium text-slate-600">{formatCurrencyDT(baseHT)}</TableCell>
-                        <TableCell className="text-right font-medium text-amber-600">{formatCurrencyDT(avenantHT)}</TableCell>
-                        <TableCell className="text-right font-medium text-slate-500">{formatCurrencyDT(totalTVA)}</TableCell>
-                        <TableCell className="text-right font-bold text-slate-900">{formatCurrencyDT(totalTTC)}</TableCell>
-                        <TableCell className="text-right text-blue-600 font-bold">{formatCurrencyDT(totalFactureHT)}</TableCell>
-                        <TableCell className="text-right text-emerald-600 font-bold">{formatCurrencyDT(totalPayeTTC)}</TableCell>
-                        <TableCell className="text-right text-rose-600 font-black">{formatCurrencyDT(resteAPayeTTC)}</TableCell>
-                        <TableCell>{getStatusBadge(project.statut)}</TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
-                                <MoreHorizontal size={16} />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
-                              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsDetailOpen(true); }}>
-                                <Eye size={14} /> Analyse complète
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}>
-                                <Edit size={14} /> Modifier Projet
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
-                                onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}
-                              >
-                                <Trash2 size={14} /> Supprimer
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                      {expandedProjects.has(project.id) && (
-                        <TableRow className="hover:bg-transparent border-none">
-                          <TableCell colSpan={12} className="p-0">
-                            <ProjectInvoicesList 
-                              invoices={invoices} 
-                              onAddInvoice={() => handleAddInvoiceClick(project)}
-                              onEditInvoice={(inv) => handleEditInvoiceClick(project, inv)}
-                            />
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </React.Fragment>
-                  );
-                })}
-              </TableBody>
-            </Table>
+            <DndContext 
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <Table>
+                <TableHeader className="bg-slate-50/50">
+                  <TableRow className="hover:bg-transparent border-slate-100">
+                    <TableHead className="w-[80px]"></TableHead>
+                    <TableHead className="font-bold text-slate-700">Référence</TableHead>
+                    <TableHead className="font-bold text-slate-700">Projet</TableHead>
+                    <TableHead className="font-bold text-slate-700 text-right">Montant Total HT</TableHead>
+                    <TableHead className="font-bold text-slate-700 text-right">Montant Avenant HT</TableHead>
+                    <TableHead className="font-bold text-slate-700 text-right">Total TVA</TableHead>
+                    <TableHead className="font-bold text-slate-700 text-right">Montant Total TTC</TableHead>
+                    <TableHead className="font-bold text-slate-700 text-right">Total Facturé HT</TableHead>
+                    <TableHead className="font-bold text-slate-700 text-right">Total Payé TTC</TableHead>
+                    <TableHead className="font-bold text-slate-700 text-right">Reste à Payé TTC</TableHead>
+                    <TableHead className="font-bold text-slate-700">Statut</TableHead>
+                    <TableHead className="w-[60px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loading ? (
+                    <TableRow><TableCell colSpan={12} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                  ) : (
+                    <SortableContext 
+                      items={projects.map(p => p.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {projects.map((project) => (
+                        <SortableProjectRow 
+                          key={project.id}
+                          project={project}
+                          expandedProjects={expandedProjects}
+                          toggleExpand={toggleExpand}
+                          getStatusBadge={getStatusBadge}
+                          handleAddInvoiceClick={handleAddInvoiceClick}
+                          handleEditInvoiceClick={handleEditInvoiceClick}
+                          setSelectedProject={setSelectedProject}
+                          setIsDetailOpen={setIsDetailOpen}
+                          setIsModalOpen={setIsModalOpen}
+                          setIsConfirmOpen={setIsConfirmOpen}
+                        />
+                      ))}
+                    </SortableContext>
+                  )}
+                </TableBody>
+              </Table>
+            </DndContext>
           </div>
         </CardContent>
       </Card>
