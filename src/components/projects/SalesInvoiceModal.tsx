@@ -33,7 +33,7 @@ const invoiceSchema = z.object({
   type_facture: z.string().default("Situation"),
   montant_ht: z.coerce.number().min(0),
   tva_pct: z.coerce.number().default(19),
-  statut: z.string().default("Émise"),
+  statut: z.string().default("Non facturé"),
   note: z.string().optional(),
 });
 
@@ -53,7 +53,7 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
       type_facture: "Situation",
       montant_ht: 0,
       tva_pct: 19,
-      statut: "Émise",
+      statut: "Non facturé",
       note: "",
     },
   });
@@ -133,9 +133,9 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Brouillon">Brouillon</SelectItem>
-                        <SelectItem value="Émise">Émise</SelectItem>
-                        <SelectItem value="Payée">Payée</SelectItem>
+                        <SelectItem value="Non facturé">Non facturé</SelectItem>
+                        <SelectItem value="Payement En Attente">Payement En Attente</SelectItem>
+                        <SelectItem value="Payé">Payé</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

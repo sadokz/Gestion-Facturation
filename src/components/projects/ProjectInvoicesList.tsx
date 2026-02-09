@@ -16,6 +16,19 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
   onAddInvoice,
   onEditInvoice 
 }) => {
+  const getStatusStyles = (statut: string) => {
+    switch (statut) {
+      case "Payé":
+        return "border-emerald-200 text-emerald-600 bg-emerald-50";
+      case "Payement En Attente":
+        return "border-amber-200 text-amber-600 bg-amber-50";
+      case "Non facturé":
+        return "border-slate-200 text-slate-500 bg-slate-50";
+      default:
+        return "border-slate-200 text-slate-500";
+    }
+  };
+
   return (
     <div className="bg-slate-50/50 p-6 rounded-b-2xl border-t border-slate-100 animate-in slide-in-from-top-2 duration-300">
       <div className="flex items-center justify-between mb-4">
@@ -56,8 +69,8 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
                   <p className="text-[10px] text-slate-400">Montant HT</p>
                 </div>
                 <Badge variant="outline" className={cn(
-                  "text-[10px] font-bold px-2 py-0",
-                  inv.statut === "Payée" ? "border-emerald-200 text-emerald-600 bg-emerald-50" : "border-slate-200 text-slate-500"
+                  "text-[10px] font-bold px-2 py-0 whitespace-nowrap",
+                  getStatusStyles(inv.statut)
                 )}>
                   {inv.statut}
                 </Badge>
