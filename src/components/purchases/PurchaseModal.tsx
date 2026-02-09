@@ -33,6 +33,7 @@ const purchaseSchema = z.object({
   fournisseur: z.string().min(1, "Le fournisseur est requis"),
   numero_facture: z.string().min(1, "Le numéro de facture est requis"),
   date_facture: z.string().min(1, "La date est requise"),
+  date_payement: z.string().optional(),
   categorie: z.string().min(1, "La catégorie est requise"),
   montant_ht: z.coerce.number().min(0),
   tva_pct: z.coerce.number().default(19),
@@ -58,6 +59,7 @@ export const PurchaseModal: React.FC<PurchaseModalProps> = ({ isOpen, onClose, o
       fournisseur: "",
       numero_facture: "",
       date_facture: new Date().toISOString().split('T')[0],
+      date_payement: "",
       categorie: "Matériel",
       montant_ht: 0,
       tva_pct: 19,
@@ -81,8 +83,24 @@ export const PurchaseModal: React.FC<PurchaseModalProps> = ({ isOpen, onClose, o
         }
       };
       loadProjects();
+      if (initialData) {
+        form.reset(initialData);
+      } else {
+        form.reset({
+          fournisseur: "",
+          numero_facture: "",
+          date_facture: new Date().toISOString().split('T')[0],
+          date_payement: "",
+          categorie: "Matériel",
+          montant_ht: 0,
+          tva_pct: 19,
+          statut: "À payer",
+          projet_id: "",
+          note: "",
+        });
+      }
     }
-  }, [isOpen, selectedYear]);
+  }, [isOpen, selectedYear, initialData, form]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -138,6 +156,19 @@ export const PurchaseModal: React.FC<PurchaseModalProps> = ({ isOpen, onClose, o
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
+                name="date_payement"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date de paiement</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} className="rounded-xl" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="categorie"
                 render={({ field }) => (
                   <FormItem>
@@ -160,6 +191,8 @@ export const PurchaseModal: React.FC<PurchaseModalProps> = ({ isOpen, onClose, o
                   </FormItem>
                 )}
               />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="projet_id"
@@ -181,21 +214,6 @@ export const PurchaseModal: React.FC<PurchaseModalProps> = ({ isOpen, onClose, o
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="montant_ht"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Montant HT (DT)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.001" {...field} className="rounded-xl" />
-                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -222,6 +240,19 @@ export const PurchaseModal: React.FC<PurchaseModalProps> = ({ isOpen, onClose, o
                 )}
               />
             </div>
+            <FormField
+              control={form.control}
+              name="montant_ht"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Montant HT (DT)</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="0.001" {...field} className="rounded-xl" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="note"

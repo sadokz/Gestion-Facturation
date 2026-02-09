@@ -54,9 +54,9 @@ const Purchases = () => {
     } catch (err) {
       console.error(err);
       setPurchases([
-        { id: 1, fournisseur: "Société ABC", numero_facture: "FA-4587", date_facture: "2026-02-20", categorie: "Matériel", montant_ht: 2400, tva_pct: 19, statut: "À payer", note: "Câbles" },
-        { id: 2, fournisseur: "Bureau Vallée", numero_facture: "BV-992", date_facture: "2026-03-05", categorie: "Fournitures", montant_ht: 450, tva_pct: 19, statut: "Payée", note: "Papeterie" },
-        { id: 3, fournisseur: "Tunisie Telecom", numero_facture: "TT-2026-01", date_facture: "2026-01-15", categorie: "Abonnement", montant_ht: 120, tva_pct: 19, statut: "Payée", note: "Internet" },
+        { id: 1, fournisseur: "Société ABC", numero_facture: "FA-4587", date_facture: "2026-02-20", date_payement: "2026-02-25", categorie: "Matériel", montant_ht: 2400, tva_pct: 19, statut: "À payer", note: "Câbles" },
+        { id: 2, fournisseur: "Bureau Vallée", numero_facture: "BV-992", date_facture: "2026-03-05", date_payement: "2026-03-10", categorie: "Fournitures", montant_ht: 450, tva_pct: 19, statut: "Payée", note: "Papeterie" },
+        { id: 3, fournisseur: "Tunisie Telecom", numero_facture: "TT-2026-01", date_facture: "2026-01-15", date_payement: "2026-01-20", categorie: "Abonnement", montant_ht: 120, tva_pct: 19, statut: "Payée", note: "Internet" },
       ]);
     } finally {
       setLoading(false);
@@ -138,7 +138,8 @@ const Purchases = () => {
                 <TableRow className="hover:bg-transparent border-slate-100">
                   <TableHead className="font-bold text-slate-700">Fournisseur</TableHead>
                   <TableHead className="font-bold text-slate-700">N° Facture</TableHead>
-                  <TableHead className="font-bold text-slate-700">Date</TableHead>
+                  <TableHead className="font-bold text-slate-700">Date Facture</TableHead>
+                  <TableHead className="font-bold text-slate-700">Date Paiement</TableHead>
                   <TableHead className="font-bold text-slate-700">Catégorie</TableHead>
                   <TableHead className="font-bold text-slate-700 text-right">Montant HT</TableHead>
                   <TableHead className="font-bold text-slate-700 text-right">TTC</TableHead>
@@ -148,12 +149,13 @@ const Purchases = () => {
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow><TableCell colSpan={8} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={9} className="h-16 text-center">Chargement...</TableCell></TableRow>
                 ) : purchases.map((purchase) => (
                   <TableRow key={purchase.id} className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
                     <TableCell className="font-bold text-slate-800">{purchase.fournisseur}</TableCell>
                     <TableCell className="font-mono text-xs text-slate-500">{purchase.numero_facture}</TableCell>
                     <TableCell className="text-slate-600">{formatDateFR(purchase.date_facture)}</TableCell>
+                    <TableCell className="text-slate-600 font-medium">{formatDateFR(purchase.date_payement)}</TableCell>
                     <TableCell>
                       <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded-lg">
                         {purchase.categorie}
