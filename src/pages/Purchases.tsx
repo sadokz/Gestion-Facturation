@@ -14,6 +14,7 @@ import {
 import { useYear } from "@/context/YearContext";
 import { fetcher } from "@/api/config";
 import { formatCurrencyDT, formatDateFR, computeTTC } from "@/utils/formatters";
+import { exportToCSV } from "@/utils/export";
 import {
   Table,
   TableBody,
@@ -66,6 +67,11 @@ const Purchases = () => {
     loadPurchases();
   }, [selectedYear, search]);
 
+  const handleExport = () => {
+    exportToCSV(purchases, `achats_${selectedYear}`);
+    showSuccess("Exportation CSV lancée");
+  };
+
   const handleDelete = async () => {
     try {
       // await fetcher(`/purchases/${selectedPurchase.id}`, { method: 'DELETE' });
@@ -85,7 +91,11 @@ const Purchases = () => {
           <p className="text-slate-500">Suivez vos factures fournisseurs et vos coûts opérationnels</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="rounded-xl gap-2 h-11 px-4 border-slate-200">
+          <Button 
+            variant="outline" 
+            className="rounded-xl gap-2 h-11 px-4 border-slate-200"
+            onClick={handleExport}
+          >
             <Download size={18} /> Export
           </Button>
           <Button 
