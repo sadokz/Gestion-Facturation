@@ -1,0 +1,257 @@
+import React, { useEffect, useState } from "react";
+import { 
+  Plus, 
+  Search, 
+  MoreHorizontal, 
+  Edit, 
+  Trash2,
+  ChevronDown,
+  ChevronRight,
+  Phone,
+  Mail,
+  MapPin,
+  Printer,
+  Building2
+} from "lucide-react";
+import { fetcher } from "@/api/config";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { showSuccess, showError } from "@/utils/toast";
+import { CompanyModal } from "@/components/companies/CompanyModal";
+import { CompanyResponsibleModal } from "@/components/companies/CompanyResponsibleModal";
+import { CompanyResponsiblesList } from "@/components/companies/CompanyResponsiblesList";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+
+const Companies = () => {
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [expandedCompanies, setExpandedCompanies] = useState<Set<number>>(new Set());
+  
+  const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
+  const [isRespModalOpen, setIsRespModalOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  
+  const [selectedCompany, setSelectedCompany] = useState<any>(null);
+  const [selectedResp, setSelectedResp] = useState<any>(null);
+
+  const loadCompanies = async () => {
+    setLoading(true);
+    try {
+      const data = await fetcher(`/companies?q=${search}`);
+      setCompanies(data);
+    } catch (err) {
+      // Mock data pour la démo
+      setCompanies([
+        { 
+          id: 1, 
+          nom: "Bureau d'Études Alpha", 
+          adresse: "Zone Industrielle, Sousse", 
+          tel: "73 444 555", 
+          fax: "73 444 556", 
+          email: "contact@alpha-etudes.tn",
+          responsibles: [
+            { id: 101, nom: "M. Karim Jendoubi", role: "Gérant", tel: "98 111 222", email: "k.jendoubi@alpha.tn" }
+          ]
+        },
+        { 
+          id: 2, 
+          nom: "Société de Travaux Publics (STP)", 
+          adresse: "Route de Gabès, Sfax", 
+          tel: "74 888 999", 
+          fax: "", 
+          email: "info@stp-travaux.tn",
+          responsibles: [
+            { id: 201, nom: "Mme. Ines Ben Amor", role: "Responsable RH", tel: "22 555 666", email: "ines.ba@stp.tn" },
+            { id: 202, nom: "M. Walid Ghorbel", role: "Directeur Technique", tel: "55 777 888", email: "w.ghorbel@stp.tn" }
+          ]
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCompanies();
+  }, [search]);
+
+  const toggleExpand = (id: number) => {
+    const newExpanded = new Set(expandedCompanies);
+    if (newExpanded.has(id)) {
+      newExpanded.delete(id);
+    } else {
+      newExpanded.add(id);
+    }
+    setExpandedCompanies(newExpanded);
+  };
+
+  return (
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold text-slate-900">Annuaire Entreprises</h1>
+          <p className="text-slate-500">Gérez vos partenaires, sous-traitants et autres entreprises</p>
+        </div>
+        <Button 
+          onClick={() => { setSelectedCompany(null); setIsCompanyModalOpen(true); }}
+          className="rounded-xl shadow-lg shadow-amber-500/20 bg-amber-600 hover:bg-amber-700 gap-2 h-11 px-6 text-white"
+        >
+          <Plus size={18} /> Nouvelle Entreprise
+        </Button>
+      </div>
+
+      <Card className="border-none shadow-md overflow-hidden">
+        <CardContent className="p-0">
+          <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-50/30">
+            <div className="relative w-full md:w-96">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+              <Input 
+                placeholder="Rechercher une entreprise..." 
+                className="pl-10 rounded-xl border-slate-200 focus:ring-amber-500/10"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-slate-50/50">
+                <TableRow className="hover:bg-transparent border-slate-100">
+                  <TableHead className="w-[40px]"></TableHead>
+                  <TableHead className="font-bold text-slate-700">Entreprise</TableHead>
+                  <TableHead className="font-bold text-slate-700">Adresse</TableHead>
+                  <TableHead className="font-bold text-slate-700">Téléphone</TableHead>
+                  <TableHead className="font-bold text-slate-700">Fax</TableHead>
+                  <TableHead className="font-bold text-slate-700">Email</TableHead>
+                  <TableHead className="w-[60px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow><TableCell colSpan={7} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                ) : companies.map((company) => (
+                  <React.Fragment key={company.id}>
+                    <TableRow className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
+                      <TableCell>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 rounded-lg hover:bg-amber-100 hover:text-amber-600 transition-colors"
+                          onClick={() => toggleExpand(company.id)}
+                        >
+                          {expandedCompanies.has(company.id) ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                        </Button>
+                      </TableCell>
+                      <TableCell className="font-bold text-slate-800">
+                        <div className="flex items-center gap-2">
+                          <Building2 size={14} className="text-amber-500" />
+                          {company.nom}
+                        </div>
+                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate text-slate-500 text-xs">
+                        <div className="flex items-center gap-1">
+                          <MapPin size={12} className="shrink-0" /> {company.adresse}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-slate-600 text-sm">
+                        <div className="flex items-center gap-1">
+                          <Phone size={12} className="shrink-0" /> {company.tel}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-slate-400 text-sm">
+                        {company.fax ? (
+                          <div className="flex items-center gap-1">
+                            <Printer size={12} className="shrink-0" /> {company.fax}
+                          </div>
+                        ) : "-"}
+                      </TableCell>
+                      <TableCell className="text-amber-700 text-sm font-medium">
+                        <div className="flex items-center gap-1">
+                          <Mail size={12} className="shrink-0" /> {company.email}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
+                              <MoreHorizontal size={16} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
+                            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedCompany(company); setIsCompanyModalOpen(true); }}>
+                              <Edit size={14} /> Modifier Entreprise
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
+                              onClick={() => { setSelectedCompany(company); setIsConfirmOpen(true); }}
+                            >
+                              <Trash2 size={14} /> Supprimer
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                    {expandedCompanies.has(company.id) && (
+                      <TableRow className="hover:bg-transparent border-none">
+                        <TableCell colSpan={7} className="p-0">
+                          <CompanyResponsiblesList 
+                            responsibles={company.responsibles || []} 
+                            onAdd={() => { setSelectedCompany(company); setSelectedResp(null); setIsRespModalOpen(true); }}
+                            onEdit={(resp) => { setSelectedCompany(company); setSelectedResp(resp); setIsRespModalOpen(true); }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      <CompanyModal 
+        isOpen={isCompanyModalOpen} 
+        onClose={() => setIsCompanyModalOpen(false)} 
+        onSubmit={() => { showSuccess("Entreprise enregistrée"); setIsCompanyModalOpen(false); loadCompanies(); }} 
+        initialData={selectedCompany} 
+      />
+
+      <CompanyResponsibleModal 
+        isOpen={isRespModalOpen} 
+        onClose={() => setIsRespModalOpen(false)} 
+        onSubmit={() => { showSuccess("Responsable enregistré"); setIsRespModalOpen(false); loadCompanies(); }} 
+        initialData={selectedResp} 
+      />
+
+      <ConfirmDialog 
+        isOpen={isConfirmOpen} 
+        onClose={() => setIsConfirmOpen(false)} 
+        onConfirm={() => { showSuccess("Entreprise supprimée"); setIsConfirmOpen(false); loadCompanies(); }} 
+        title="Supprimer l'entreprise ?" 
+        description="Cette action supprimera également tous les responsables liés à cette entreprise." 
+        variant="destructive" 
+        confirmText="Supprimer" 
+      />
+    </div>
+  );
+};
+
+export default Companies;

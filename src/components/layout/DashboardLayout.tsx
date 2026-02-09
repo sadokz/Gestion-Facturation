@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Calendar,
   Users,
+  Building2,
   Settings as SettingsIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -70,6 +71,12 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             icon={Users} 
             label="Clients" 
             active={location.pathname === "/clients"} 
+          />
+          <SidebarItem 
+            to="/companies" 
+            icon={Building2} 
+            label="Entreprises" 
+            active={location.pathname === "/companies"} 
           />
           <SidebarItem 
             to="/purchases" 

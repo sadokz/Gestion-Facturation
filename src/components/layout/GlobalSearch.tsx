@@ -9,7 +9,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import { Briefcase, ShoppingCart, LayoutDashboard, Search, Users } from "lucide-react";
+import { Briefcase, ShoppingCart, LayoutDashboard, Search, Users, Building2 } from "lucide-react";
 
 export const GlobalSearch = () => {
   const [open, setOpen] = useState(false);
@@ -38,7 +38,7 @@ export const GlobalSearch = () => {
         className="relative w-full md:w-96 flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-slate-200/70 border-transparent rounded-xl transition-all text-slate-400 text-sm group"
       >
         <Search size={16} className="group-hover:text-primary transition-colors" />
-        <span>Rechercher un projet, client...</span>
+        <span>Rechercher un projet, client, entreprise...</span>
         <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 hidden h-5 select-none items-center gap-1 rounded border bg-white px-1.5 font-mono text-[10px] font-medium text-slate-500 opacity-100 sm:flex">
           <span className="text-xs">⌘</span>K
         </kbd>
@@ -61,6 +61,10 @@ export const GlobalSearch = () => {
               <Users className="mr-2 h-4 w-4" />
               <span>Clients</span>
             </CommandItem>
+            <CommandItem onSelect={() => runCommand(() => navigate("/companies"))}>
+              <Building2 className="mr-2 h-4 w-4" />
+              <span>Entreprises</span>
+            </CommandItem>
             <CommandItem onSelect={() => runCommand(() => navigate("/purchases"))}>
               <ShoppingCart className="mr-2 h-4 w-4" />
               <span>Achats</span>
@@ -76,9 +80,9 @@ export const GlobalSearch = () => {
               <Users className="mr-2 h-4 w-4" />
               <span>Nouveau Client</span>
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => navigate("/purchases?new=true"))}>
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              <span>Nouvel Achat</span>
+            <CommandItem onSelect={() => runCommand(() => navigate("/companies?new=true"))}>
+              <Building2 className="mr-2 h-4 w-4" />
+              <span>Nouvelle Entreprise</span>
             </CommandItem>
           </CommandGroup>
         </CommandList>
