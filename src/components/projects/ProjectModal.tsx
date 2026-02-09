@@ -27,6 +27,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetcher } from "@/api/config";
+import { UploadCloud, FileCheck } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const projectSchema = z.object({
   reference_projet: z.string().min(1, "La référence est requise"),
@@ -37,6 +39,7 @@ const projectSchema = z.object({
   montant_avenant_ht: z.coerce.number().min(0).default(0),
   tva_pct: z.coerce.number().default(19),
   statut: z.string().default("Partiellement Facturé"),
+  file_contrat: z.any().optional(),
 });
 
 interface ProjectModalProps {
@@ -78,12 +81,13 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
         }
       };
       loadClients();
+      if (initialData) form.reset(initialData);
     }
-  }, [isOpen]);
+  }, [isOpen, initialData, form]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] rounded-2xl">
+      <DialogContent className="sm:max-w-[600px] rounded-2xl overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-slate-800">
             {initialData ? "Modifier le projet" : "Nouveau projet"}
@@ -197,28 +201,42 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="statut"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Statut de facturation</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+
+            <div className="space-y-2 border-t pt-4">
+              <FormLabel className="text-sm font-bold text-slate-700">Document du Contrat</FormLabel>
+              <FormField
+                control={form.control}
+                name="file_contrat"
+                render={({ field: { value, onChange, ...field } }) => (
+                  <FormItem>
                     <FormControl>
-                      <SelectTrigger className="rounded-xl">
-                        <SelectValue placeholder="Choisir un statut" />
-                      </SelectTrigger>
+                      <div className="relative">
+                        <Input 
+                          type="file" 
+                          className="hidden" 
+                          id="file_contrat" 
+                          onChange={(e) => onChange(e.target.files?.[0])} 
+                        />
+                        <label 
+                          htmlFor="file_contrat" 
+                          className={cn(
+                            "flex flex-col items-center justify-center h-24 border-2 border-dashed rounded-2xl cursor-pointer transition-all",
+                            value ? "bg-primary/5 border-primary/30 text-primary" : "bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100"
+                          )}
+                        >
+                          {value ? <FileCheck size={24} /> : <UploadCloud size={24} />}
+                          <span className="text-xs mt-2 font-bold">
+                            {value ? (value.name || "Contrat sélectionné") : "Téléverser le contrat signé (PDF, Image)"}
+                          </span>
+                        </label>
+                      </div>
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Facturé">Facturé</SelectItem>
-                      <SelectItem value="Partiellement Facturé">Partiellement Facturé</SelectItem>
-                      <SelectItem value="Totalement facturé">Totalement facturé</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <DialogFooter className="pt-4">
               <Button type="button" variant="outline" onClick={onClose} className="rounded-xl">Annuler</Button>
               <Button type="submit" className="rounded-xl px-8">Enregistrer</Button>

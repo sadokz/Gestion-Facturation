@@ -9,7 +9,10 @@ import {
   Trash2,
   ChevronDown,
   ChevronRight,
-  GripVertical
+  GripVertical,
+  FileText,
+  UploadCloud,
+  CheckCircle2
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { fetcher } from "@/api/config";
@@ -39,6 +42,7 @@ import { ProjectDetail } from "@/components/projects/ProjectDetail";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { ProjectInvoicesList } from "@/components/projects/ProjectInvoicesList";
 import { SalesInvoiceModal } from "@/components/projects/SalesInvoiceModal";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 // DND Kit Imports
 import {
@@ -149,6 +153,27 @@ const SortableProjectRow = ({
             <span className="text-[10px] text-slate-500 uppercase font-medium">{project.client}</span>
           </div>
         </TableCell>
+        <TableCell>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button 
+                onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}
+                className={cn(
+                  "flex flex-col items-center justify-center w-10 h-10 rounded-xl border transition-all",
+                  project.file_contrat 
+                    ? "bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100" 
+                    : "bg-slate-50 border-slate-200 text-slate-400 hover:border-primary/30 hover:text-primary"
+                )}
+              >
+                {project.file_contrat ? <CheckCircle2 size={18} /> : <UploadCloud size={18} />}
+                <span className="text-[7px] font-bold uppercase mt-0.5">Contrat</span>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs">{project.file_contrat ? "Voir/Modifier le contrat" : "Téléverser le contrat"}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TableCell>
         <TableCell className="text-right font-medium text-slate-600">{formatCurrencyDT(baseHT)}</TableCell>
         <TableCell className="text-right font-medium text-amber-600">{formatCurrencyDT(avenantHT)}</TableCell>
         <TableCell className="text-right font-medium text-slate-500">{formatCurrencyDT(totalTVA)}</TableCell>
@@ -183,7 +208,7 @@ const SortableProjectRow = ({
       </TableRow>
       {expandedProjects.has(project.id) && (
         <TableRow className="hover:bg-transparent border-none">
-          <TableCell colSpan={12} className="p-0">
+          <TableCell colSpan={13} className="p-0">
             <ProjectInvoicesList 
               invoices={invoices} 
               onAddInvoice={() => handleAddInvoiceClick(project)}
@@ -234,6 +259,7 @@ const Projects = () => {
           montant_total_ht: 50000, 
           montant_avenant_ht: 5000,
           tva_pct: 19,
+          file_contrat: { name: "contrat_001.pdf" },
           invoices: [
             { id: 101, numero_facture: "FV-2026-001", date_facture: "2026-01-10", montant_ht: 5000, tva_pct: 19, statut: "Payé", type_facture: "Acompte" },
             { id: 102, numero_facture: "FV-2026-002", date_facture: "2026-02-15", montant_ht: 10000, tva_pct: 19, statut: "Payement En Attente", type_facture: "Situation n°1" },
@@ -247,6 +273,7 @@ const Projects = () => {
           montant_total_ht: 120000, 
           montant_avenant_ht: 0,
           tva_pct: 19,
+          file_contrat: null,
           invoices: [
             { id: 201, numero_facture: "FV-2026-005", date_facture: "2026-03-01", montant_ht: 120000, tva_pct: 19, statut: "Payé", type_facture: "Unique" },
           ]
@@ -361,6 +388,7 @@ const Projects = () => {
                     <TableHead className="w-[80px]"></TableHead>
                     <TableHead className="font-bold text-slate-700">Référence</TableHead>
                     <TableHead className="font-bold text-slate-700">Projet</TableHead>
+                    <TableHead className="font-bold text-slate-700">Contrat</TableHead>
                     <TableHead className="font-bold text-slate-700 text-right">Montant Total HT</TableHead>
                     <TableHead className="font-bold text-slate-700 text-right">Montant Avenant HT</TableHead>
                     <TableHead className="font-bold text-slate-700 text-right">Total TVA</TableHead>
@@ -374,7 +402,7 @@ const Projects = () => {
                 </TableHeader>
                 <TableBody>
                   {loading ? (
-                    <TableRow><TableCell colSpan={12} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={13} className="h-16 text-center">Chargement...</TableCell></TableRow>
                   ) : (
                     <SortableContext 
                       items={projects.map(p => p.id)}
