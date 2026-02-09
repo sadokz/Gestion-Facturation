@@ -11,7 +11,8 @@ import {
   Mail,
   MapPin,
   Printer,
-  Building2
+  Building2,
+  GripVertical
 } from "lucide-react";
 import { fetcher } from "@/api/config";
 import {
@@ -36,6 +37,145 @@ import { CompanyModal } from "@/components/companies/CompanyModal";
 import { CompanyResponsibleModal } from "@/components/companies/CompanyResponsibleModal";
 import { CompanyResponsiblesList } from "@/components/companies/CompanyResponsiblesList";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { cn } from "@/lib/utils";
+
+// DND Kit Imports
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+const SortableCompanyRow = ({ 
+  company, 
+  expandedCompanies, 
+  toggleExpand, 
+  setSelectedCompany, 
+  setIsCompanyModalOpen, 
+  setIsConfirmOpen,
+  setSelectedResp,
+  setIsRespModalOpen
+}: any) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: company.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : 1,
+  };
+
+  return (
+    <React.Fragment>
+      <TableRow 
+        ref={setNodeRef}
+        style={style}
+        className={cn(
+          "hover:bg-slate-50/50 transition-colors border-slate-100 group",
+          isDragging && "bg-slate-100 shadow-lg"
+        )}
+      >
+        <TableCell>
+          <div className="flex items-center gap-1">
+            <div 
+              {...attributes} 
+              {...listeners} 
+              className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors p-1"
+            >
+              <GripVertical size={16} />
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 rounded-lg hover:bg-amber-100 hover:text-amber-600 transition-colors"
+              onClick={() => toggleExpand(company.id)}
+            >
+              {expandedCompanies.has(company.id) ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+            </Button>
+          </div>
+        </TableCell>
+        <TableCell className="font-bold text-slate-800">
+          <div className="flex items-center gap-2">
+            <Building2 size={14} className="text-amber-500" />
+            {company.nom}
+          </div>
+        </TableCell>
+        <TableCell className="max-w-[200px] truncate text-slate-500 text-xs">
+          <div className="flex items-center gap-1">
+            <MapPin size={12} className="shrink-0" /> {company.adresse}
+          </div>
+        </TableCell>
+        <TableCell className="text-slate-600 text-sm">
+          <div className="flex items-center gap-1">
+            <Phone size={12} className="shrink-0" /> {company.tel}
+          </div>
+        </TableCell>
+        <TableCell className="text-slate-400 text-sm">
+          {company.fax ? (
+            <div className="flex items-center gap-1">
+              <Printer size={12} className="shrink-0" /> {company.fax}
+            </div>
+          ) : "-"}
+        </TableCell>
+        <TableCell className="text-amber-700 text-sm font-medium">
+          <div className="flex items-center gap-1">
+            <Mail size={12} className="shrink-0" /> {company.email}
+          </div>
+        </TableCell>
+        <TableCell>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
+                <MoreHorizontal size={16} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
+              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedCompany(company); setIsCompanyModalOpen(true); }}>
+                <Edit size={14} /> Modifier Entreprise
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
+                onClick={() => { setSelectedCompany(company); setIsConfirmOpen(true); }}
+              >
+                <Trash2 size={14} /> Supprimer
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </TableCell>
+      </TableRow>
+      {expandedCompanies.has(company.id) && (
+        <TableRow className="hover:bg-transparent border-none">
+          <TableCell colSpan={7} className="p-0">
+            <CompanyResponsiblesList 
+              responsibles={company.responsibles || []} 
+              onAdd={() => { setSelectedCompany(company); setSelectedResp(null); setIsRespModalOpen(true); }}
+              onEdit={(resp) => { setSelectedCompany(company); setSelectedResp(resp); setIsRespModalOpen(true); }}
+            />
+          </TableCell>
+        </TableRow>
+      )}
+    </React.Fragment>
+  );
+};
 
 const Companies = () => {
   const [companies, setCompanies] = useState<any[]>([]);
@@ -50,13 +190,19 @@ const Companies = () => {
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [selectedResp, setSelectedResp] = useState<any>(null);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   const loadCompanies = async () => {
     setLoading(true);
     try {
       const data = await fetcher(`/companies?q=${search}`);
       setCompanies(data);
     } catch (err) {
-      // Mock data pour la démo
       setCompanies([
         { 
           id: 1, 
@@ -90,6 +236,17 @@ const Companies = () => {
   useEffect(() => {
     loadCompanies();
   }, [search]);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setCompanies((items) => {
+        const oldIndex = items.findIndex((i) => i.id === active.id);
+        const newIndex = items.findIndex((i) => i.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
 
   const toggleExpand = (id: number) => {
     const newExpanded = new Set(expandedCompanies);
@@ -131,98 +288,49 @@ const Companies = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-slate-50/50">
-                <TableRow className="hover:bg-transparent border-slate-100">
-                  <TableHead className="w-[40px]"></TableHead>
-                  <TableHead className="font-bold text-slate-700">Entreprise</TableHead>
-                  <TableHead className="font-bold text-slate-700">Adresse</TableHead>
-                  <TableHead className="font-bold text-slate-700">Téléphone</TableHead>
-                  <TableHead className="font-bold text-slate-700">Fax</TableHead>
-                  <TableHead className="font-bold text-slate-700">Email</TableHead>
-                  <TableHead className="w-[60px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow><TableCell colSpan={7} className="h-16 text-center">Chargement...</TableCell></TableRow>
-                ) : companies.map((company) => (
-                  <React.Fragment key={company.id}>
-                    <TableRow className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
-                      <TableCell>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 rounded-lg hover:bg-amber-100 hover:text-amber-600 transition-colors"
-                          onClick={() => toggleExpand(company.id)}
-                        >
-                          {expandedCompanies.has(company.id) ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-                        </Button>
-                      </TableCell>
-                      <TableCell className="font-bold text-slate-800">
-                        <div className="flex items-center gap-2">
-                          <Building2 size={14} className="text-amber-500" />
-                          {company.nom}
-                        </div>
-                      </TableCell>
-                      <TableCell className="max-w-[200px] truncate text-slate-500 text-xs">
-                        <div className="flex items-center gap-1">
-                          <MapPin size={12} className="shrink-0" /> {company.adresse}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-slate-600 text-sm">
-                        <div className="flex items-center gap-1">
-                          <Phone size={12} className="shrink-0" /> {company.tel}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-slate-400 text-sm">
-                        {company.fax ? (
-                          <div className="flex items-center gap-1">
-                            <Printer size={12} className="shrink-0" /> {company.fax}
-                          </div>
-                        ) : "-"}
-                      </TableCell>
-                      <TableCell className="text-amber-700 text-sm font-medium">
-                        <div className="flex items-center gap-1">
-                          <Mail size={12} className="shrink-0" /> {company.email}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
-                              <MoreHorizontal size={16} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
-                            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedCompany(company); setIsCompanyModalOpen(true); }}>
-                              <Edit size={14} /> Modifier Entreprise
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
-                              onClick={() => { setSelectedCompany(company); setIsConfirmOpen(true); }}
-                            >
-                              <Trash2 size={14} /> Supprimer
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                    {expandedCompanies.has(company.id) && (
-                      <TableRow className="hover:bg-transparent border-none">
-                        <TableCell colSpan={7} className="p-0">
-                          <CompanyResponsiblesList 
-                            responsibles={company.responsibles || []} 
-                            onAdd={() => { setSelectedCompany(company); setSelectedResp(null); setIsRespModalOpen(true); }}
-                            onEdit={(resp) => { setSelectedCompany(company); setSelectedResp(resp); setIsRespModalOpen(true); }}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </React.Fragment>
-                ))}
-              </TableBody>
-            </Table>
+            <DndContext 
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <Table>
+                <TableHeader className="bg-slate-50/50">
+                  <TableRow className="hover:bg-transparent border-slate-100">
+                    <TableHead className="w-[80px]"></TableHead>
+                    <TableHead className="font-bold text-slate-700">Entreprise</TableHead>
+                    <TableHead className="font-bold text-slate-700">Adresse</TableHead>
+                    <TableHead className="font-bold text-slate-700">Téléphone</TableHead>
+                    <TableHead className="font-bold text-slate-700">Fax</TableHead>
+                    <TableHead className="font-bold text-slate-700">Email</TableHead>
+                    <TableHead className="w-[60px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loading ? (
+                    <TableRow><TableCell colSpan={7} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                  ) : (
+                    <SortableContext 
+                      items={companies.map(c => c.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {companies.map((company) => (
+                        <SortableCompanyRow 
+                          key={company.id}
+                          company={company}
+                          expandedCompanies={expandedCompanies}
+                          toggleExpand={toggleExpand}
+                          setSelectedCompany={setSelectedCompany}
+                          setIsCompanyModalOpen={setIsCompanyModalOpen}
+                          setIsConfirmOpen={setIsConfirmOpen}
+                          setSelectedResp={setSelectedResp}
+                          setIsRespModalOpen={setIsRespModalOpen}
+                        />
+                      ))}
+                    </SortableContext>
+                  )}
+                </TableBody>
+              </Table>
+            </DndContext>
           </div>
         </CardContent>
       </Card>

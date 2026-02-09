@@ -9,7 +9,8 @@ import {
   Tag,
   ChevronLeft,
   ChevronRight,
-  Download
+  Download,
+  GripVertical
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { fetcher } from "@/api/config";
@@ -36,6 +37,108 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PurchaseModal } from "@/components/purchases/PurchaseModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { showSuccess, showError } from "@/utils/toast";
+import { cn } from "@/lib/utils";
+
+// DND Kit Imports
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+const SortablePurchaseRow = ({ 
+  purchase, 
+  setSelectedPurchase, 
+  setIsModalOpen, 
+  setIsConfirmOpen 
+}: any) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: purchase.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : 1,
+  };
+
+  return (
+    <TableRow 
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "hover:bg-slate-50/50 transition-colors border-slate-100 group",
+        isDragging && "bg-slate-100 shadow-lg"
+      )}
+    >
+      <TableCell>
+        <div 
+          {...attributes} 
+          {...listeners} 
+          className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors p-1"
+        >
+          <GripVertical size={16} />
+        </div>
+      </TableCell>
+      <TableCell className="font-bold text-slate-800">{purchase.fournisseur}</TableCell>
+      <TableCell className="font-mono text-xs text-slate-500">{purchase.numero_facture}</TableCell>
+      <TableCell className="text-slate-600">{formatDateFR(purchase.date_facture)}</TableCell>
+      <TableCell className="text-slate-600 font-medium">{formatDateFR(purchase.date_payement)}</TableCell>
+      <TableCell>
+        <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded-lg">
+          {purchase.categorie}
+        </span>
+      </TableCell>
+      <TableCell className="text-right font-medium">{formatCurrencyDT(purchase.montant_ht)}</TableCell>
+      <TableCell className="text-right font-bold text-slate-900">
+        {formatCurrencyDT(computeTTC(purchase.montant_ht, purchase.tva_pct))}
+      </TableCell>
+      <TableCell>
+        <Badge className={purchase.statut === "Payée" ? "bg-emerald-100 text-emerald-700 border-emerald-200" : "bg-rose-100 text-rose-700 border-rose-200"}>
+          {purchase.statut}
+        </Badge>
+      </TableCell>
+      <TableCell>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
+              <MoreHorizontal size={16} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
+            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedPurchase(purchase); setIsModalOpen(true); }}>
+              <Edit size={14} /> Modifier
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
+              onClick={() => { setSelectedPurchase(purchase); setIsConfirmOpen(true); }}
+            >
+              <Trash2 size={14} /> Supprimer
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </TableCell>
+    </TableRow>
+  );
+};
 
 const Purchases = () => {
   const { selectedYear } = useYear();
@@ -46,13 +149,19 @@ const Purchases = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState<any>(null);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   const loadPurchases = async () => {
     setLoading(true);
     try {
       const data = await fetcher(`/purchases?year=${selectedYear}&q=${search}`);
       setPurchases(data);
     } catch (err) {
-      console.error(err);
       setPurchases([
         { id: 1, fournisseur: "Société ABC", numero_facture: "FA-4587", date_facture: "2026-02-20", date_payement: "2026-02-25", categorie: "Matériel", montant_ht: 2400, tva_pct: 19, statut: "À payer", note: "Câbles" },
         { id: 2, fournisseur: "Bureau Vallée", numero_facture: "BV-992", date_facture: "2026-03-05", date_payement: "2026-03-10", categorie: "Fournitures", montant_ht: 450, tva_pct: 19, statut: "Payée", note: "Papeterie" },
@@ -67,6 +176,17 @@ const Purchases = () => {
     loadPurchases();
   }, [selectedYear, search]);
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setPurchases((items) => {
+        const oldIndex = items.findIndex((i) => i.id === active.id);
+        const newIndex = items.findIndex((i) => i.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
   const handleExport = () => {
     exportToCSV(purchases, `achats_${selectedYear}`);
     showSuccess("Exportation CSV lancée");
@@ -74,7 +194,6 @@ const Purchases = () => {
 
   const handleDelete = async () => {
     try {
-      // await fetcher(`/purchases/${selectedPurchase.id}`, { method: 'DELETE' });
       showSuccess("Achat supprimé");
       setIsConfirmOpen(false);
       loadPurchases();
@@ -119,90 +238,51 @@ const Purchases = () => {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5">
-                <Tag size={14} className="text-slate-500" />
-                <select className="text-sm font-medium bg-transparent outline-none border-none cursor-pointer">
-                  <option>Toutes catégories</option>
-                  <option>Matériel</option>
-                  <option>Déplacement</option>
-                  <option>Logiciels</option>
-                </select>
-              </div>
-            </div>
           </div>
 
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-slate-50/50">
-                <TableRow className="hover:bg-transparent border-slate-100">
-                  <TableHead className="font-bold text-slate-700">Fournisseur</TableHead>
-                  <TableHead className="font-bold text-slate-700">N° Facture</TableHead>
-                  <TableHead className="font-bold text-slate-700">Date Facture</TableHead>
-                  <TableHead className="font-bold text-slate-700">Date Paiement</TableHead>
-                  <TableHead className="font-bold text-slate-700">Catégorie</TableHead>
-                  <TableHead className="font-bold text-slate-700 text-right">Montant HT</TableHead>
-                  <TableHead className="font-bold text-slate-700 text-right">TTC</TableHead>
-                  <TableHead className="font-bold text-slate-700">Statut</TableHead>
-                  <TableHead className="w-[80px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow><TableCell colSpan={9} className="h-16 text-center">Chargement...</TableCell></TableRow>
-                ) : purchases.map((purchase) => (
-                  <TableRow key={purchase.id} className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
-                    <TableCell className="font-bold text-slate-800">{purchase.fournisseur}</TableCell>
-                    <TableCell className="font-mono text-xs text-slate-500">{purchase.numero_facture}</TableCell>
-                    <TableCell className="text-slate-600">{formatDateFR(purchase.date_facture)}</TableCell>
-                    <TableCell className="text-slate-600 font-medium">{formatDateFR(purchase.date_payement)}</TableCell>
-                    <TableCell>
-                      <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded-lg">
-                        {purchase.categorie}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right font-medium">{formatCurrencyDT(purchase.montant_ht)}</TableCell>
-                    <TableCell className="text-right font-bold text-slate-900">
-                      {formatCurrencyDT(computeTTC(purchase.montant_ht, purchase.tva_pct))}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={purchase.statut === "Payée" ? "bg-emerald-100 text-emerald-700 border-emerald-200" : "bg-rose-100 text-rose-700 border-rose-200"}>
-                        {purchase.statut}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
-                            <MoreHorizontal size={16} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
-                          <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedPurchase(purchase); setIsModalOpen(true); }}>
-                            <Edit size={14} /> Modifier
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
-                            onClick={() => { setSelectedPurchase(purchase); setIsConfirmOpen(true); }}
-                          >
-                            <Trash2 size={14} /> Supprimer
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+            <DndContext 
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <Table>
+                <TableHeader className="bg-slate-50/50">
+                  <TableRow className="hover:bg-transparent border-slate-100">
+                    <TableHead className="w-[60px]"></TableHead>
+                    <TableHead className="font-bold text-slate-700">Fournisseur</TableHead>
+                    <TableHead className="font-bold text-slate-700">N° Facture</TableHead>
+                    <TableHead className="font-bold text-slate-700">Date Facture</TableHead>
+                    <TableHead className="font-bold text-slate-700">Date Paiement</TableHead>
+                    <TableHead className="font-bold text-slate-700">Catégorie</TableHead>
+                    <TableHead className="font-bold text-slate-700 text-right">Montant HT</TableHead>
+                    <TableHead className="font-bold text-slate-700 text-right">TTC</TableHead>
+                    <TableHead className="font-bold text-slate-700">Statut</TableHead>
+                    <TableHead className="w-[80px]"></TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-
-          <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/30">
-            <p className="text-xs text-slate-500 font-medium">Affichage de 1 à {purchases.length} sur {purchases.length} achats</p>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg" disabled><ChevronLeft size={14} /></Button>
-              <Button variant="primary" size="sm" className="h-8 w-8 rounded-lg p-0 bg-rose-600 hover:bg-rose-700">1</Button>
-              <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg" disabled><ChevronRight size={14} /></Button>
-            </div>
+                </TableHeader>
+                <TableBody>
+                  {loading ? (
+                    <TableRow><TableCell colSpan={10} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                  ) : (
+                    <SortableContext 
+                      items={purchases.map(p => p.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {purchases.map((purchase) => (
+                        <SortablePurchaseRow 
+                          key={purchase.id}
+                          purchase={purchase}
+                          setSelectedPurchase={setSelectedPurchase}
+                          setIsModalOpen={setIsModalOpen}
+                          setIsConfirmOpen={setIsConfirmOpen}
+                        />
+                      ))}
+                    </SortableContext>
+                  )}
+                </TableBody>
+              </Table>
+            </DndContext>
           </div>
         </CardContent>
       </Card>

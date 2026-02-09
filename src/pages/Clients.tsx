@@ -10,7 +10,8 @@ import {
   Phone,
   Mail,
   MapPin,
-  Printer
+  Printer,
+  GripVertical
 } from "lucide-react";
 import { fetcher } from "@/api/config";
 import {
@@ -35,6 +36,140 @@ import { ClientModal } from "@/components/clients/ClientModal";
 import { ResponsibleModal } from "@/components/clients/ResponsibleModal";
 import { ClientResponsiblesList } from "@/components/clients/ClientResponsiblesList";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { cn } from "@/lib/utils";
+
+// DND Kit Imports
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+const SortableClientRow = ({ 
+  client, 
+  expandedClients, 
+  toggleExpand, 
+  setSelectedClient, 
+  setIsClientModalOpen, 
+  setIsConfirmOpen,
+  setSelectedResp,
+  setIsRespModalOpen
+}: any) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: client.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : 1,
+  };
+
+  return (
+    <React.Fragment>
+      <TableRow 
+        ref={setNodeRef}
+        style={style}
+        className={cn(
+          "hover:bg-slate-50/50 transition-colors border-slate-100 group",
+          isDragging && "bg-slate-100 shadow-lg"
+        )}
+      >
+        <TableCell>
+          <div className="flex items-center gap-1">
+            <div 
+              {...attributes} 
+              {...listeners} 
+              className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors p-1"
+            >
+              <GripVertical size={16} />
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 rounded-lg hover:bg-indigo-100 hover:text-indigo-600 transition-colors"
+              onClick={() => toggleExpand(client.id)}
+            >
+              {expandedClients.has(client.id) ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+            </Button>
+          </div>
+        </TableCell>
+        <TableCell className="font-bold text-slate-800">{client.nom}</TableCell>
+        <TableCell className="max-w-[200px] truncate text-slate-500 text-xs">
+          <div className="flex items-center gap-1">
+            <MapPin size={12} className="shrink-0" /> {client.adresse}
+          </div>
+        </TableCell>
+        <TableCell className="text-slate-600 text-sm">
+          <div className="flex items-center gap-1">
+            <Phone size={12} className="shrink-0" /> {client.tel}
+          </div>
+        </TableCell>
+        <TableCell className="text-slate-400 text-sm">
+          {client.fax ? (
+            <div className="flex items-center gap-1">
+              <Printer size={12} className="shrink-0" /> {client.fax}
+            </div>
+          ) : "-"}
+        </TableCell>
+        <TableCell className="text-indigo-600 text-sm font-medium">
+          <div className="flex items-center gap-1">
+            <Mail size={12} className="shrink-0" /> {client.email}
+          </div>
+        </TableCell>
+        <TableCell>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
+                <MoreHorizontal size={16} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
+              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedClient(client); setIsClientModalOpen(true); }}>
+                <Edit size={14} /> Modifier Client
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
+                onClick={() => { setSelectedClient(client); setIsConfirmOpen(true); }}
+              >
+                <Trash2 size={14} /> Supprimer
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </TableCell>
+      </TableRow>
+      {expandedClients.has(client.id) && (
+        <TableRow className="hover:bg-transparent border-none">
+          <TableCell colSpan={7} className="p-0">
+            <ClientResponsiblesList 
+              responsibles={client.responsibles || []} 
+              onAdd={() => { setSelectedClient(client); setSelectedResp(null); setIsRespModalOpen(true); }}
+              onEdit={(resp) => { setSelectedClient(client); setSelectedResp(resp); setIsRespModalOpen(true); }}
+            />
+          </TableCell>
+        </TableRow>
+      )}
+    </React.Fragment>
+  );
+};
 
 const Clients = () => {
   const [clients, setClients] = useState<any[]>([]);
@@ -49,13 +184,19 @@ const Clients = () => {
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [selectedResp, setSelectedResp] = useState<any>(null);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   const loadClients = async () => {
     setLoading(true);
     try {
       const data = await fetcher(`/clients?q=${search}`);
       setClients(data);
     } catch (err) {
-      // Mock data
       setClients([
         { 
           id: 1, 
@@ -89,6 +230,17 @@ const Clients = () => {
   useEffect(() => {
     loadClients();
   }, [search]);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setClients((items) => {
+        const oldIndex = items.findIndex((i) => i.id === active.id);
+        const newIndex = items.findIndex((i) => i.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
 
   const toggleExpand = (id: number) => {
     const newExpanded = new Set(expandedClients);
@@ -130,93 +282,49 @@ const Clients = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-slate-50/50">
-                <TableRow className="hover:bg-transparent border-slate-100">
-                  <TableHead className="w-[40px]"></TableHead>
-                  <TableHead className="font-bold text-slate-700">Client</TableHead>
-                  <TableHead className="font-bold text-slate-700">Adresse</TableHead>
-                  <TableHead className="font-bold text-slate-700">Téléphone</TableHead>
-                  <TableHead className="font-bold text-slate-700">Fax</TableHead>
-                  <TableHead className="font-bold text-slate-700">Email</TableHead>
-                  <TableHead className="w-[60px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow><TableCell colSpan={7} className="h-16 text-center">Chargement...</TableCell></TableRow>
-                ) : clients.map((client) => (
-                  <React.Fragment key={client.id}>
-                    <TableRow className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
-                      <TableCell>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 rounded-lg hover:bg-indigo-100 hover:text-indigo-600 transition-colors"
-                          onClick={() => toggleExpand(client.id)}
-                        >
-                          {expandedClients.has(client.id) ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-                        </Button>
-                      </TableCell>
-                      <TableCell className="font-bold text-slate-800">{client.nom}</TableCell>
-                      <TableCell className="max-w-[200px] truncate text-slate-500 text-xs">
-                        <div className="flex items-center gap-1">
-                          <MapPin size={12} className="shrink-0" /> {client.adresse}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-slate-600 text-sm">
-                        <div className="flex items-center gap-1">
-                          <Phone size={12} className="shrink-0" /> {client.tel}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-slate-400 text-sm">
-                        {client.fax ? (
-                          <div className="flex items-center gap-1">
-                            <Printer size={12} className="shrink-0" /> {client.fax}
-                          </div>
-                        ) : "-"}
-                      </TableCell>
-                      <TableCell className="text-indigo-600 text-sm font-medium">
-                        <div className="flex items-center gap-1">
-                          <Mail size={12} className="shrink-0" /> {client.email}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
-                              <MoreHorizontal size={16} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
-                            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedClient(client); setIsClientModalOpen(true); }}>
-                              <Edit size={14} /> Modifier Client
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
-                              onClick={() => { setSelectedClient(client); setIsConfirmOpen(true); }}
-                            >
-                              <Trash2 size={14} /> Supprimer
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                    {expandedClients.has(client.id) && (
-                      <TableRow className="hover:bg-transparent border-none">
-                        <TableCell colSpan={7} className="p-0">
-                          <ClientResponsiblesList 
-                            responsibles={client.responsibles || []} 
-                            onAdd={() => { setSelectedClient(client); setSelectedResp(null); setIsRespModalOpen(true); }}
-                            onEdit={(resp) => { setSelectedClient(client); setSelectedResp(resp); setIsRespModalOpen(true); }}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </React.Fragment>
-                ))}
-              </TableBody>
-            </Table>
+            <DndContext 
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <Table>
+                <TableHeader className="bg-slate-50/50">
+                  <TableRow className="hover:bg-transparent border-slate-100">
+                    <TableHead className="w-[80px]"></TableHead>
+                    <TableHead className="font-bold text-slate-700">Client</TableHead>
+                    <TableHead className="font-bold text-slate-700">Adresse</TableHead>
+                    <TableHead className="font-bold text-slate-700">Téléphone</TableHead>
+                    <TableHead className="font-bold text-slate-700">Fax</TableHead>
+                    <TableHead className="font-bold text-slate-700">Email</TableHead>
+                    <TableHead className="w-[60px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loading ? (
+                    <TableRow><TableCell colSpan={7} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                  ) : (
+                    <SortableContext 
+                      items={clients.map(c => c.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {clients.map((client) => (
+                        <SortableClientRow 
+                          key={client.id}
+                          client={client}
+                          expandedClients={expandedClients}
+                          toggleExpand={toggleExpand}
+                          setSelectedClient={setSelectedClient}
+                          setIsClientModalOpen={setIsClientModalOpen}
+                          setIsConfirmOpen={setIsConfirmOpen}
+                          setSelectedResp={setSelectedResp}
+                          setIsRespModalOpen={setIsRespModalOpen}
+                        />
+                      ))}
+                    </SortableContext>
+                  )}
+                </TableBody>
+              </Table>
+            </DndContext>
           </div>
         </CardContent>
       </Card>
