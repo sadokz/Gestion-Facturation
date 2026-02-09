@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { fetcher } from "@/api/config";
 
 const projectSchema = z.object({
   reference_projet: z.string().min(1, "La référence est requise"),
@@ -46,6 +47,8 @@ interface ProjectModalProps {
 }
 
 export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onSubmit, initialData }) => {
+  const [clients, setClients] = useState<any[]>([]);
+
   const form = useForm({
     resolver: zodResolver(projectSchema),
     defaultValues: initialData || {
@@ -59,6 +62,25 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
       statut: "En cours",
     },
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      const loadClients = async () => {
+        try {
+          const data = await fetcher("/clients");
+          setClients(data);
+        } catch (err) {
+          // Fallback mock data si l'API n'est pas dispo
+          setClients([
+            { id: 1, nom: "Commune de Tunis" },
+            { id: 2, nom: "STEG" },
+            { id: 3, nom: "Ministère de l'Équipement" }
+          ]);
+        }
+      };
+      loadClients();
+    }
+  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -117,9 +139,20 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Client</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Nom du client" {...field} className="rounded-xl" />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="rounded-xl">
+                        <SelectValue placeholder="Sélectionner un client" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {clients.map((client) => (
+                        <SelectItem key={client.id} value={client.nom}>
+                          {client.nom}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
