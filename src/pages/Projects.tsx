@@ -7,7 +7,7 @@ import {
   Eye, 
   Edit, 
   Trash2,
-  ChevronLeft,
+  ChevronDown,
   ChevronRight,
   FileStack
 } from "lucide-react";
@@ -36,6 +36,8 @@ import { showSuccess, showError } from "@/utils/toast";
 import { ProjectModal } from "@/components/projects/ProjectModal";
 import { ProjectDetail } from "@/components/projects/ProjectDetail";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { ProjectInvoicesList } from "@/components/projects/ProjectInvoicesList";
+import { SalesInvoiceModal } from "@/components/projects/SalesInvoiceModal";
 
 const Projects = () => {
   const { selectedYear } = useYear();
@@ -44,10 +46,14 @@ const Projects = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   
+  const [expandedProjects, setExpandedProjects] = useState<Set<number>>(new Set());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+  
   const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
 
   const loadProjects = async () => {
     setLoading(true);
@@ -55,10 +61,43 @@ const Projects = () => {
       const data = await fetcher(`/projects?year=${selectedYear}&q=${search}&status=${statusFilter === 'all' ? '' : statusFilter}`);
       setProjects(data);
     } catch (err) {
+      // Mock data avec factures incluses pour la démo
       setProjects([
-        { id: 1, reference_projet: "PRJ-2026-001", nom_projet: "Eclairage Avenue", client: "Commune X", montant_total_ht: 50000, total_facture_ht: 15000, reste_a_facturer_ht: 35000, statut: "En cours", invoice_count: 2 },
-        { id: 2, reference_projet: "PRJ-2026-002", nom_projet: "Rénovation Pont", client: "Ministère Y", montant_total_ht: 120000, total_facture_ht: 120000, reste_a_facturer_ht: 0, statut: "Terminé", invoice_count: 4 },
-        { id: 3, reference_projet: "PRJ-2026-003", nom_projet: "Audit Énergétique", client: "Société Z", montant_total_ht: 15000, total_facture_ht: 0, reste_a_facturer_ht: 15000, statut: "En attente", invoice_count: 0 },
+        { 
+          id: 1, 
+          reference_projet: "PRJ-2026-001", 
+          nom_projet: "Eclairage Avenue", 
+          client: "Commune X", 
+          montant_total_ht: 50000, 
+          total_facture_ht: 15000, 
+          statut: "En cours",
+          invoices: [
+            { id: 101, numero_facture: "FV-2026-001", date_facture: "2026-01-10", montant_ht: 5000, statut: "Payée", type_facture: "Acompte" },
+            { id: 102, numero_facture: "FV-2026-002", date_facture: "2026-02-15", montant_ht: 10000, statut: "Payée", type_facture: "Situation n°1" },
+          ]
+        },
+        { 
+          id: 2, 
+          reference_projet: "PRJ-2026-002", 
+          nom_projet: "Rénovation Pont", 
+          client: "Ministère Y", 
+          montant_total_ht: 120000, 
+          total_facture_ht: 120000, 
+          statut: "Terminé",
+          invoices: [
+            { id: 201, numero_facture: "FV-2026-005", date_facture: "2026-03-01", montant_ht: 120000, statut: "Payée", type_facture: "Unique" },
+          ]
+        },
+        { 
+          id: 3, 
+          reference_projet: "PRJ-2026-003", 
+          nom_projet: "Audit Énergétique", 
+          client: "Société Z", 
+          montant_total_ht: 15000, 
+          total_facture_ht: 0, 
+          statut: "En attente",
+          invoices: []
+        },
       ]);
     } finally {
       setLoading(false);
@@ -68,6 +107,16 @@ const Projects = () => {
   useEffect(() => {
     loadProjects();
   }, [selectedYear, search, statusFilter]);
+
+  const toggleExpand = (id: number) => {
+    const newExpanded = new Set(expandedProjects);
+    if (newExpanded.has(id)) {
+      newExpanded.delete(id);
+    } else {
+      newExpanded.add(id);
+    }
+    setExpandedProjects(newExpanded);
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -126,11 +175,11 @@ const Projects = () => {
             <Table>
               <TableHeader className="bg-slate-50/50">
                 <TableRow className="hover:bg-transparent border-slate-100">
+                  <TableHead className="w-[40px]"></TableHead>
                   <TableHead className="font-bold text-slate-700">Référence</TableHead>
                   <TableHead className="font-bold text-slate-700">Projet</TableHead>
                   <TableHead className="font-bold text-slate-700 text-right">Montant HT</TableHead>
                   <TableHead className="font-bold text-slate-700 text-right">Facturé HT</TableHead>
-                  <TableHead className="font-bold text-slate-700 text-center">Factures</TableHead>
                   <TableHead className="font-bold text-slate-700">Statut</TableHead>
                   <TableHead className="w-[80px]"></TableHead>
                 </TableRow>
@@ -139,47 +188,64 @@ const Projects = () => {
                 {loading ? (
                   <TableRow><TableCell colSpan={7} className="h-16 text-center">Chargement...</TableCell></TableRow>
                 ) : projects.map((project) => (
-                  <TableRow key={project.id} className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
-                    <TableCell className="font-mono text-xs font-bold text-primary">{project.reference_projet}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="font-medium text-slate-800">{project.nom_projet}</span>
-                        <span className="text-xs text-slate-500">{project.client}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right font-semibold">{formatCurrencyDT(project.montant_total_ht)}</TableCell>
-                    <TableCell className="text-right text-emerald-600 font-bold">{formatCurrencyDT(project.total_facture_ht)}</TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex items-center justify-center gap-1 text-slate-500">
-                        <FileStack size={14} />
-                        <span className="text-xs font-bold">{project.invoice_count || 0}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(project.statut)}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
-                            <MoreHorizontal size={16} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
-                          <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsDetailOpen(true); }}>
-                            <Eye size={14} /> Voir détails & Factures
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}>
-                            <Edit size={14} /> Modifier Projet
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
-                            onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}
-                          >
-                            <Trash2 size={14} /> Supprimer
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
+                  <React.Fragment key={project.id}>
+                    <TableRow className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
+                      <TableCell>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+                          onClick={() => toggleExpand(project.id)}
+                        >
+                          {expandedProjects.has(project.id) ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                        </Button>
+                      </TableCell>
+                      <TableCell className="font-mono text-xs font-bold text-primary">{project.reference_projet}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-slate-800">{project.nom_projet}</span>
+                          <span className="text-xs text-slate-500">{project.client}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right font-semibold">{formatCurrencyDT(project.montant_total_ht)}</TableCell>
+                      <TableCell className="text-right text-emerald-600 font-bold">{formatCurrencyDT(project.total_facture_ht)}</TableCell>
+                      <TableCell>{getStatusBadge(project.statut)}</TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
+                              <MoreHorizontal size={16} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
+                            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsDetailOpen(true); }}>
+                              <Eye size={14} /> Analyse complète
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}>
+                              <Edit size={14} /> Modifier Projet
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
+                              onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}
+                            >
+                              <Trash2 size={14} /> Supprimer
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                    {expandedProjects.has(project.id) && (
+                      <TableRow className="hover:bg-transparent border-none">
+                        <TableCell colSpan={7} className="p-0">
+                          <ProjectInvoicesList 
+                            invoices={project.invoices || []} 
+                            onAddInvoice={() => { setSelectedProject(project); setSelectedInvoice(null); setIsInvoiceModalOpen(true); }}
+                            onEditInvoice={(inv) => { setSelectedProject(project); setSelectedInvoice(inv); setIsInvoiceModalOpen(true); }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
                 ))}
               </TableBody>
             </Table>
@@ -190,6 +256,13 @@ const Projects = () => {
       <ProjectModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSubmit={() => { showSuccess("Projet enregistré"); setIsModalOpen(false); loadProjects(); }} initialData={selectedProject} />
       <ProjectDetail isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} project={selectedProject} />
       <ConfirmDialog isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={() => { showSuccess("Projet supprimé"); setIsConfirmOpen(false); loadProjects(); }} title="Supprimer le projet ?" description="Cette action supprimera également toutes les factures liées." variant="destructive" confirmText="Supprimer" />
+      
+      <SalesInvoiceModal 
+        isOpen={isInvoiceModalOpen} 
+        onClose={() => setIsInvoiceModalOpen(false)} 
+        onSubmit={() => { showSuccess("Facture enregistrée"); setIsInvoiceModalOpen(false); loadProjects(); }} 
+        initialData={selectedInvoice} 
+      />
     </div>
   );
 };
