@@ -120,6 +120,7 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
                         <SelectItem value="Mission S4">Mission S4</SelectItem>
                         <SelectItem value="Mission S5">Mission S5</SelectItem>
                         <SelectItem value="Règlement Définitif">Règlement Définitif</SelectItem>
+                        <SelectItem value="Autre">Autre</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
