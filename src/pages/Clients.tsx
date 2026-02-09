@@ -43,6 +43,25 @@ import { ResizableHeader } from "@/components/ui/ResizableHeader";
 import { ColumnToggle } from "@/components/ui/ColumnToggle";
 import { useNavigate } from "react-router-dom";
 
+// DND Kit Imports
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
 const CLIENT_COLUMNS = [
   { id: "nom", label: "Client" },
   { id: "adresse", label: "Adresse" },
