@@ -6,6 +6,7 @@ import {
   ShoppingCart, 
   ChevronRight,
   Calendar,
+  Users,
   Settings as SettingsIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -63,6 +64,12 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             icon={Briefcase} 
             label="Projets & Ventes" 
             active={location.pathname.startsWith("/projects")} 
+          />
+          <SidebarItem 
+            to="/clients" 
+            icon={Users} 
+            label="Clients" 
+            active={location.pathname === "/clients"} 
           />
           <SidebarItem 
             to="/purchases" 

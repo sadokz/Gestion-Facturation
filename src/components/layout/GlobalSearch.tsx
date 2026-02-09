@@ -9,7 +9,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import { Briefcase, ShoppingCart, LayoutDashboard, Search } from "lucide-react";
+import { Briefcase, ShoppingCart, LayoutDashboard, Search, Users } from "lucide-react";
 
 export const GlobalSearch = () => {
   const [open, setOpen] = useState(false);
@@ -57,6 +57,10 @@ export const GlobalSearch = () => {
               <Briefcase className="mr-2 h-4 w-4" />
               <span>Projets & Ventes</span>
             </CommandItem>
+            <CommandItem onSelect={() => runCommand(() => navigate("/clients"))}>
+              <Users className="mr-2 h-4 w-4" />
+              <span>Clients</span>
+            </CommandItem>
             <CommandItem onSelect={() => runCommand(() => navigate("/purchases"))}>
               <ShoppingCart className="mr-2 h-4 w-4" />
               <span>Achats</span>
@@ -67,6 +71,10 @@ export const GlobalSearch = () => {
             <CommandItem onSelect={() => runCommand(() => navigate("/projects?new=true"))}>
               <Briefcase className="mr-2 h-4 w-4" />
               <span>Nouveau Projet</span>
+            </CommandItem>
+            <CommandItem onSelect={() => runCommand(() => navigate("/clients?new=true"))}>
+              <Users className="mr-2 h-4 w-4" />
+              <span>Nouveau Client</span>
             </CommandItem>
             <CommandItem onSelect={() => runCommand(() => navigate("/purchases?new=true"))}>
               <ShoppingCart className="mr-2 h-4 w-4" />

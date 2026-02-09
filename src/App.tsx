@@ -7,6 +7,7 @@ import { YearProvider } from "./context/YearContext";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
+import Clients from "./pages/Clients";
 import Purchases from "./pages/Purchases";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -24,6 +25,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/projects" element={<Projects />} />
+              <Route path="/clients" element={<Clients />} />
               <Route path="/purchases" element={<Purchases />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<NotFound />} />
