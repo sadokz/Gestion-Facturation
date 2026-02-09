@@ -14,6 +14,7 @@ import {
 import { useYear } from "@/context/YearContext";
 import { fetcher } from "@/api/config";
 import { formatCurrencyDT, computeTTC } from "@/utils/formatters";
+import { cn } from "@/lib/utils";
 import {
   Table,
   TableBody,
