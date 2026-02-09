@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { formatCurrencyDT, formatDateFR } from "@/utils/formatters";
 import { fetcher } from "@/api/config";
-import { Plus, FileText, Trash2, Edit } from "lucide-react";
+import { Plus, FileText, Trash2, Edit, ShoppingCart, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -24,25 +24,34 @@ interface ProjectDetailProps {
 
 export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, onClose }) => {
   const [invoices, setInvoices] = useState<any[]>([]);
+  const [purchases, setPurchases] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
 
   useEffect(() => {
     if (isOpen && project) {
-      loadInvoices();
+      loadData();
     }
   }, [isOpen, project]);
 
-  const loadInvoices = async () => {
+  const loadData = async () => {
     setLoading(true);
     try {
-      const data = await fetcher(`/projects/${project.id}/sales-invoices`);
-      setInvoices(data);
+      const [invData, purData] = await Promise.all([
+        fetcher(`/projects/${project.id}/sales-invoices`),
+        fetcher(`/purchases?projet_id=${project.id}`)
+      ]);
+      setInvoices(invData);
+      setPurchases(purData);
     } catch (err) {
+      // Mock data
       setInvoices([
         { id: 1, numero_facture: "FV-2026-001", date_facture: "2026-03-10", montant_ht: 5000, tva_pct: 19, statut: "Payée", note: "Avancement 10%" },
         { id: 2, numero_facture: "FV-2026-002", date_facture: "2026-04-15", montant_ht: 10000, tva_pct: 19, statut: "Émise", note: "Phase 2" },
+      ]);
+      setPurchases([
+        { id: 101, fournisseur: "Fournisseur X", numero_facture: "FA-998", date_facture: "2026-02-10", montant_ht: 1200, categorie: "Matériel" },
       ]);
     } finally {
       setLoading(false);
@@ -54,7 +63,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
       // await fetcher(`/projects/${project.id}/sales-invoices`, { method: 'POST', body: JSON.stringify(data) });
       showSuccess("Facture ajoutée");
       setIsInvoiceModalOpen(false);
-      loadInvoices();
+      loadData();
     } catch (err) {
       showError("Erreur lors de l'ajout");
     }
@@ -62,11 +71,13 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
 
   if (!project) return null;
 
+  const totalPurchasesHT = purchases.reduce((sum, p) => sum + p.montant_ht, 0);
+  const marginHT = project.total_facture_ht - totalPurchasesHT;
   const progress = (project.total_facture_ht / project.montant_total_ht) * 100;
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="sm:max-w-[800px] overflow-y-auto">
+      <SheetContent className="sm:max-w-[850px] overflow-y-auto">
         <SheetHeader className="mb-6">
           <div className="flex items-center gap-2 text-primary font-mono text-sm mb-1">
             <FileText size={14} /> {project.reference_projet}
@@ -99,15 +110,17 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
         </div>
 
         <Tabs defaultValue="summary" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6 bg-slate-100 p-1 rounded-xl">
+          <TabsList className="grid w-full grid-cols-4 mb-6 bg-slate-100 p-1 rounded-xl">
             <TabsTrigger value="summary" className="rounded-lg">Résumé</TabsTrigger>
-            <TabsTrigger value="invoices" className="rounded-lg">Factures de vente</TabsTrigger>
+            <TabsTrigger value="invoices" className="rounded-lg">Ventes</TabsTrigger>
+            <TabsTrigger value="purchases" className="rounded-lg">Achats</TabsTrigger>
+            <TabsTrigger value="stats" className="rounded-lg">Stats</TabsTrigger>
           </TabsList>
 
           <TabsContent value="summary" className="space-y-6">
             <div className="grid grid-cols-2 gap-6">
-              <div>
-                <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Informations</h4>
+              <div className="space-y-4">
+                <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Informations</h4>
                 <dl className="space-y-3">
                   <div className="flex justify-between border-b border-slate-50 pb-2">
                     <dt className="text-slate-500 text-sm">Date contrat</dt>
@@ -128,7 +141,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
 
           <TabsContent value="invoices">
             <div className="flex justify-between items-center mb-4">
-              <h4 className="font-bold text-slate-800">Liste des factures</h4>
+              <h4 className="font-bold text-slate-800">Factures de vente</h4>
               <Button 
                 size="sm" 
                 className="gap-2 rounded-lg"
@@ -137,7 +150,6 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
                 <Plus size={14} /> Ajouter
               </Button>
             </div>
-
             <div className="border rounded-xl overflow-hidden">
               <Table>
                 <TableHeader className="bg-slate-50">
@@ -155,37 +167,67 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
                       <TableCell className="font-mono text-xs">{inv.numero_facture}</TableCell>
                       <TableCell className="text-xs">{formatDateFR(inv.date_facture)}</TableCell>
                       <TableCell className="text-xs text-right font-medium">{formatCurrencyDT(inv.montant_ht)}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                          {inv.statut}
-                        </Badge>
-                      </TableCell>
+                      <TableCell><Badge variant="outline" className="text-[10px]">{inv.statut}</Badge></TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-7 w-7 text-slate-400 hover:text-primary"
-                            onClick={() => { setSelectedInvoice(inv); setIsInvoiceModalOpen(true); }}
-                          >
-                            <Edit size={12} />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-rose-500">
-                            <Trash2 size={12} />
-                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedInvoice(inv); setIsInvoiceModalOpen(true); }}><Edit size={12} /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-rose-500"><Trash2 size={12} /></Button>
                         </div>
                       </TableCell>
                     </TableRow>
                   ))}
-                  {invoices.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-slate-400 text-sm">
-                        Aucune facture pour ce projet
-                      </TableCell>
+                </TableBody>
+              </Table>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="purchases">
+            <div className="flex justify-between items-center mb-4">
+              <h4 className="font-bold text-slate-800">Achats liés au projet</h4>
+            </div>
+            <div className="border rounded-xl overflow-hidden">
+              <Table>
+                <TableHeader className="bg-slate-50">
+                  <TableRow>
+                    <TableHead className="text-xs">Fournisseur</TableHead>
+                    <TableHead className="text-xs">N° Facture</TableHead>
+                    <TableHead className="text-xs text-right">Montant HT</TableHead>
+                    <TableHead className="text-xs">Catégorie</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {purchases.map((pur) => (
+                    <TableRow key={pur.id}>
+                      <TableCell className="text-xs font-medium">{pur.fournisseur}</TableCell>
+                      <TableCell className="font-mono text-xs">{pur.numero_facture}</TableCell>
+                      <TableCell className="text-xs text-right font-medium">{formatCurrencyDT(pur.montant_ht)}</TableCell>
+                      <TableCell><span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">{pur.categorie}</span></TableCell>
                     </TableRow>
+                  ))}
+                  {purchases.length === 0 && (
+                    <TableRow><TableCell colSpan={4} className="text-center py-8 text-slate-400 text-sm">Aucun achat lié</TableCell></TableRow>
                   )}
                 </TableBody>
               </Table>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="stats">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col items-center justify-center text-center">
+                <BarChart3 className="text-primary mb-2" size={32} />
+                <p className="text-sm text-slate-500 font-medium">Marge Brute HT</p>
+                <p className={cn("text-2xl font-bold mt-1", marginHT >= 0 ? "text-emerald-600" : "text-rose-600")}>
+                  {formatCurrencyDT(marginHT)}
+                </p>
+                <p className="text-xs text-slate-400 mt-2">(Facturé HT - Achats HT)</p>
+              </div>
+              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col items-center justify-center text-center">
+                <ShoppingCart className="text-rose-500 mb-2" size={32} />
+                <p className="text-sm text-slate-500 font-medium">Total Dépenses HT</p>
+                <p className="text-2xl font-bold text-slate-900 mt-1">{formatCurrencyDT(totalPurchasesHT)}</p>
+                <p className="text-xs text-slate-400 mt-2">{purchases.length} factures fournisseurs</p>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
@@ -200,3 +242,5 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, isOpen, o
     </Sheet>
   );
 };
+
+import { cn } from "@/lib/utils";

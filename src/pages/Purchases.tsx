@@ -6,7 +6,10 @@ import {
   MoreHorizontal, 
   Edit, 
   Trash2,
-  Tag
+  Tag,
+  ChevronLeft,
+  ChevronRight,
+  Download
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { fetcher } from "@/api/config";
@@ -30,6 +33,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { PurchaseModal } from "@/components/purchases/PurchaseModal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { showSuccess, showError } from "@/utils/toast";
 
 const Purchases = () => {
@@ -38,6 +42,7 @@ const Purchases = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState<any>(null);
 
   const loadPurchases = async () => {
@@ -61,14 +66,14 @@ const Purchases = () => {
     loadPurchases();
   }, [selectedYear, search]);
 
-  const handleAddPurchase = async (data: any) => {
+  const handleDelete = async () => {
     try {
-      // await fetcher('/purchases', { method: 'POST', body: JSON.stringify(data) });
-      showSuccess("Achat enregistré");
-      setIsModalOpen(false);
+      // await fetcher(`/purchases/${selectedPurchase.id}`, { method: 'DELETE' });
+      showSuccess("Achat supprimé");
+      setIsConfirmOpen(false);
       loadPurchases();
     } catch (err) {
-      showError("Erreur lors de l'enregistrement");
+      showError("Erreur lors de la suppression");
     }
   };
 
@@ -79,13 +84,17 @@ const Purchases = () => {
           <h1 className="text-3xl font-bold text-slate-900">Achats & Dépenses</h1>
           <p className="text-slate-500">Suivez vos factures fournisseurs et vos coûts opérationnels</p>
         </div>
-        <Button 
-          onClick={() => { setSelectedPurchase(null); setIsModalOpen(true); }}
-          className="rounded-xl shadow-lg shadow-rose-500/20 bg-rose-600 hover:bg-rose-700 gap-2 h-11 px-6"
-        >
-          <Plus size={18} />
-          Nouvel Achat
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="rounded-xl gap-2 h-11 px-4 border-slate-200">
+            <Download size={18} /> Export
+          </Button>
+          <Button 
+            onClick={() => { setSelectedPurchase(null); setIsModalOpen(true); }}
+            className="rounded-xl shadow-lg shadow-rose-500/20 bg-rose-600 hover:bg-rose-700 gap-2 h-11 px-6"
+          >
+            <Plus size={18} /> Nouvel Achat
+          </Button>
+        </div>
       </div>
 
       <Card className="border-none shadow-md overflow-hidden">
@@ -160,7 +169,12 @@ const Purchases = () => {
                           <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedPurchase(purchase); setIsModalOpen(true); }}>
                             <Edit size={14} /> Modifier
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"><Trash2 size={14} /> Supprimer</DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
+                            onClick={() => { setSelectedPurchase(purchase); setIsConfirmOpen(true); }}
+                          >
+                            <Trash2 size={14} /> Supprimer
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -169,14 +183,33 @@ const Purchases = () => {
               </TableBody>
             </Table>
           </div>
+
+          <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/30">
+            <p className="text-xs text-slate-500 font-medium">Affichage de 1 à {purchases.length} sur {purchases.length} achats</p>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg" disabled><ChevronLeft size={14} /></Button>
+              <Button variant="primary" size="sm" className="h-8 w-8 rounded-lg p-0 bg-rose-600 hover:bg-rose-700">1</Button>
+              <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg" disabled><ChevronRight size={14} /></Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
       <PurchaseModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        onSubmit={handleAddPurchase}
+        onSubmit={() => { showSuccess("Action simulée"); setIsModalOpen(false); }}
         initialData={selectedPurchase}
+      />
+
+      <ConfirmDialog 
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleDelete}
+        title="Supprimer cet achat ?"
+        description="Cette action est irréversible. La dépense sera retirée de vos statistiques."
+        variant="destructive"
+        confirmText="Supprimer"
       />
     </div>
   );
