@@ -11,7 +11,12 @@ Cette application est une solution complète de gestion financière et opératio
 
 ### 🏗️ Gestion des Projets & Ventes
 - **Suivi des Contrats** : Gestion des montants de base et des avenants.
-- **Facturation Multi-situations** : Possibilité de créer plusieurs factures (Acomptes, Situations, Solde) pour un seul projet.
+- **Facturation Multi-situations** : Création de factures structurées selon les étapes types d'un projet d'ingénierie :
+  - **Avance**
+  - **Missions S0 à S5** (Suivi des phases d'études)
+  - **Règlement Définitif**
+  - **Autre**
+- **Suivi des Encaissements** : Gestion des dates d'émission et des **dates de paiement** pour un suivi précis de la trésorerie client.
 - **Analyse de Rentabilité** : Calcul automatique de la marge brute par projet.
 
 ### 👥 Gestion des Clients & Entreprises
@@ -21,7 +26,8 @@ Cette application est une solution complète de gestion financière et opératio
 
 ### 🛒 Gestion des Achats & Dépenses
 - **Suivi Fournisseurs** : Enregistrement des factures d'achats par catégorie.
-- **Liaison Projets** : Affectation des dépenses à des projets spécifiques.
+- **Suivi des Paiements** : Nouveau champ **Date de paiement** pour suivre les décaissements effectifs.
+- **Liaison Projets** : Affectation des dépenses à des projets spécifiques pour une analyse de coût réelle.
 
 ### ⚙️ Paramètres & Configuration
 - **Profil du Bureau** : Personnalisation des informations de l'entreprise.
@@ -32,9 +38,10 @@ Cette application est une solution complète de gestion financière et opératio
 - **Framework** : React avec TypeScript.
 - **Styling** : Tailwind CSS & Shadcn/UI.
 - **Graphiques** : Recharts.
-- **Formatage** : Support complet du Dinar Tunisien (DT).
+- **Formatage** : Support complet du Dinar Tunisien (DT) avec 3 décimales.
 
 ## 📋 Utilisation
 1. Sélectionnez l'**Année d'Exercice** en haut à droite.
 2. Utilisez la **Recherche Globale** (⌘K) pour naviguer.
 3. Dans les onglets **Clients** ou **Entreprises**, cliquez sur la flèche à gauche pour gérer les responsables.
+4. Lors de la création d'une facture (Vente ou Achat), renseignez la **Date de paiement** dès que le règlement est effectif pour mettre à jour vos indicateurs de trésorerie.
