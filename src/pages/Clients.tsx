@@ -38,6 +38,7 @@ import { showSuccess, showError } from "@/utils/toast";
 import { ClientModal } from "@/components/clients/ClientModal";
 import { ResponsibleModal } from "@/components/clients/ResponsibleModal";
 import { ClientResponsiblesList } from "@/components/clients/ClientResponsiblesList";
+import { ClientProjectsList } from "@/components/clients/ClientProjectsList";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/utils";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
@@ -207,7 +208,14 @@ const SortableClientRow = ({
       {expandedClients.has(client.id) && (
         <TableRow className="hover:bg-transparent border-none">
           <TableCell colSpan={visibleColumns.length + 2} className="p-0">
-            <ClientResponsiblesList responsibles={client.responsibles || []} onAdd={() => { setSelectedClient(client); setSelectedResp(null); setIsRespModalOpen(true); }} onEdit={(resp) => { setSelectedClient(client); setSelectedResp(resp); setIsRespModalOpen(true); }} />
+            <div className="flex flex-col">
+              <ClientResponsiblesList 
+                responsibles={client.responsibles || []} 
+                onAdd={() => { setSelectedClient(client); setSelectedResp(null); setIsRespModalOpen(true); }} 
+                onEdit={(resp) => { setSelectedClient(client); setSelectedResp(resp); setIsRespModalOpen(true); }} 
+              />
+              <ClientProjectsList projects={client.projects || []} />
+            </div>
           </TableCell>
         </TableRow>
       )}
@@ -247,8 +255,8 @@ const Clients = () => {
           fax: "71 123 457", 
           email: "contact@commune-tunis.gov.tn", 
           projects: [
-            { id: 1, nom_projet: "Eclairage Avenue" },
-            { id: 2, nom_projet: "Rénovation Pont" }
+            { id: 1, nom_projet: "Eclairage Avenue", reference_projet: "PRJ-2026-001", date_contrat: "2026-01-10" },
+            { id: 2, nom_projet: "Rénovation Pont", reference_projet: "PRJ-2026-002", date_contrat: "2026-02-15" }
           ],
           responsibles: [
             { id: 101, nom: "M. Ahmed Ben Salah", role: "Directeur Technique", tel: "98 000 111", email: "ahmed.salah@commune.tn" }, 
@@ -263,7 +271,7 @@ const Clients = () => {
           fax: "71 333 445", 
           email: "info@steg.com.tn", 
           projects: [
-            { id: 3, nom_projet: "Audit STEG" }
+            { id: 3, nom_projet: "Audit STEG", reference_projet: "PRJ-2026-003", date_contrat: "2026-03-01" }
           ],
           responsibles: [
             { id: 201, nom: "M. Sami Trabelsi", role: "Ingénieur Principal", tel: "55 666 777", email: "s.trabelsi@steg.com.tn" }
