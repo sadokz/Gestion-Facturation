@@ -116,15 +116,17 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
               </div>
               
               {/* Montants & Statut */}
-              <div className="flex items-center gap-6 w-[40%] justify-end">
-                <div className="text-right flex flex-col items-end min-w-[100px]">
+              <div className="flex items-center gap-4 w-[45%] justify-end">
+                <div className="text-right flex flex-col items-end min-w-[90px]">
                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Montant HT</span>
                   <p className="text-xs font-bold text-slate-600">{formatCurrencyDT(inv.montant_ht)}</p>
-                  {inv.montant_retenue > 0 && (
-                    <p className="text-[9px] text-rose-500 font-bold flex items-center gap-1">
-                      <ShieldAlert size={10} /> Retenue: {formatCurrencyDT(inv.montant_retenue)}
-                    </p>
-                  )}
+                </div>
+
+                <div className="text-right flex flex-col items-end min-w-[90px]">
+                  <span className="text-[9px] font-bold text-rose-500 uppercase tracking-tighter">Retenue</span>
+                  <p className="text-xs font-bold text-rose-600">
+                    {inv.montant_retenue > 0 ? formatCurrencyDT(inv.montant_retenue) : "-"}
+                  </p>
                 </div>
 
                 <div className="text-right flex flex-col items-end min-w-[100px]">
