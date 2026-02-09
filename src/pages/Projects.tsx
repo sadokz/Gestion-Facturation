@@ -8,7 +8,8 @@ import {
   Edit, 
   Trash2,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  FileStack
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { fetcher } from "@/api/config";
@@ -43,7 +44,6 @@ const Projects = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   
-  // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -55,11 +55,10 @@ const Projects = () => {
       const data = await fetcher(`/projects?year=${selectedYear}&q=${search}&status=${statusFilter === 'all' ? '' : statusFilter}`);
       setProjects(data);
     } catch (err) {
-      console.error(err);
       setProjects([
-        { id: 1, reference_projet: "PRJ-2026-001", nom_projet: "Eclairage Avenue", client: "Commune X", montant_total_ht: 50000, total_facture_ht: 15000, reste_a_facturer_ht: 35000, statut: "En cours", annee: 2026, date_contrat: "2026-01-15", tva_pct: 19 },
-        { id: 2, reference_projet: "PRJ-2026-002", nom_projet: "Rénovation Pont", client: "Ministère Y", montant_total_ht: 120000, total_facture_ht: 120000, reste_a_facturer_ht: 0, statut: "Terminé", annee: 2026, date_contrat: "2026-02-10", tva_pct: 19 },
-        { id: 3, reference_projet: "PRJ-2026-003", nom_projet: "Audit Énergétique", client: "Société Z", montant_total_ht: 15000, total_facture_ht: 0, reste_a_facturer_ht: 15000, statut: "En attente", annee: 2026, date_contrat: "2026-03-05", tva_pct: 19 },
+        { id: 1, reference_projet: "PRJ-2026-001", nom_projet: "Eclairage Avenue", client: "Commune X", montant_total_ht: 50000, total_facture_ht: 15000, reste_a_facturer_ht: 35000, statut: "En cours", invoice_count: 2 },
+        { id: 2, reference_projet: "PRJ-2026-002", nom_projet: "Rénovation Pont", client: "Ministère Y", montant_total_ht: 120000, total_facture_ht: 120000, reste_a_facturer_ht: 0, statut: "Terminé", invoice_count: 4 },
+        { id: 3, reference_projet: "PRJ-2026-003", nom_projet: "Audit Énergétique", client: "Société Z", montant_total_ht: 15000, total_facture_ht: 0, reste_a_facturer_ht: 15000, statut: "En attente", invoice_count: 0 },
       ]);
     } finally {
       setLoading(false);
@@ -70,22 +69,11 @@ const Projects = () => {
     loadProjects();
   }, [selectedYear, search, statusFilter]);
 
-  const handleDelete = async () => {
-    try {
-      // await fetcher(`/projects/${selectedProject.id}`, { method: 'DELETE' });
-      showSuccess("Projet supprimé");
-      setIsConfirmOpen(false);
-      loadProjects();
-    } catch (err) {
-      showError("Erreur lors de la suppression");
-    }
-  };
-
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "Terminé": return <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100">Terminé</Badge>;
-      case "En cours": return <Badge className="bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100">En cours</Badge>;
-      case "En attente": return <Badge className="bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-100">En attente</Badge>;
+      case "Terminé": return <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">Terminé</Badge>;
+      case "En cours": return <Badge className="bg-blue-100 text-blue-700 border-blue-200">En cours</Badge>;
+      case "En attente": return <Badge className="bg-amber-100 text-amber-700 border-amber-200">En attente</Badge>;
       default: return <Badge variant="outline">{status}</Badge>;
     }
   };
@@ -101,8 +89,7 @@ const Projects = () => {
           onClick={() => { setSelectedProject(null); setIsModalOpen(true); }}
           className="rounded-xl shadow-lg shadow-primary/20 gap-2 h-11 px-6"
         >
-          <Plus size={18} />
-          Nouveau Projet
+          <Plus size={18} /> Nouveau Projet
         </Button>
       </div>
 
@@ -113,12 +100,12 @@ const Projects = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <Input 
                 placeholder="Référence, nom ou client..." 
-                className="pl-10 rounded-xl border-slate-200 focus:ring-primary/10"
+                className="pl-10 rounded-xl border-slate-200"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5">
                 <Filter size={14} className="text-slate-500" />
                 <select 
@@ -141,29 +128,33 @@ const Projects = () => {
                 <TableRow className="hover:bg-transparent border-slate-100">
                   <TableHead className="font-bold text-slate-700">Référence</TableHead>
                   <TableHead className="font-bold text-slate-700">Projet</TableHead>
-                  <TableHead className="font-bold text-slate-700">Client</TableHead>
                   <TableHead className="font-bold text-slate-700 text-right">Montant HT</TableHead>
                   <TableHead className="font-bold text-slate-700 text-right">Facturé HT</TableHead>
-                  <TableHead className="font-bold text-slate-700 text-right">Reste HT</TableHead>
+                  <TableHead className="font-bold text-slate-700 text-center">Factures</TableHead>
                   <TableHead className="font-bold text-slate-700">Statut</TableHead>
                   <TableHead className="w-[80px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  [1, 2, 3].map(i => (
-                    <TableRow key={i}>
-                      <TableCell colSpan={8} className="h-16 text-center text-slate-400">Chargement...</TableCell>
-                    </TableRow>
-                  ))
+                  <TableRow><TableCell colSpan={7} className="h-16 text-center">Chargement...</TableCell></TableRow>
                 ) : projects.map((project) => (
                   <TableRow key={project.id} className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
                     <TableCell className="font-mono text-xs font-bold text-primary">{project.reference_projet}</TableCell>
-                    <TableCell className="font-medium text-slate-800">{project.nom_projet}</TableCell>
-                    <TableCell className="text-slate-600">{project.client}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="font-medium text-slate-800">{project.nom_projet}</span>
+                        <span className="text-xs text-slate-500">{project.client}</span>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right font-semibold">{formatCurrencyDT(project.montant_total_ht)}</TableCell>
-                    <TableCell className="text-right text-emerald-600 font-medium">{formatCurrencyDT(project.total_facture_ht)}</TableCell>
-                    <TableCell className="text-right text-amber-600 font-medium">{formatCurrencyDT(project.reste_a_facturer_ht)}</TableCell>
+                    <TableCell className="text-right text-emerald-600 font-bold">{formatCurrencyDT(project.total_facture_ht)}</TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-1 text-slate-500">
+                        <FileStack size={14} />
+                        <span className="text-xs font-bold">{project.invoice_count || 0}</span>
+                      </div>
+                    </TableCell>
                     <TableCell>{getStatusBadge(project.statut)}</TableCell>
                     <TableCell>
                       <DropdownMenu>
@@ -174,10 +165,10 @@ const Projects = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
                           <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsDetailOpen(true); }}>
-                            <Eye size={14} /> Voir détails
+                            <Eye size={14} /> Voir détails & Factures
                           </DropdownMenuItem>
                           <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}>
-                            <Edit size={14} /> Modifier
+                            <Edit size={14} /> Modifier Projet
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
@@ -193,45 +184,12 @@ const Projects = () => {
               </TableBody>
             </Table>
           </div>
-
-          {/* Pagination UI */}
-          <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/30">
-            <p className="text-xs text-slate-500 font-medium">Affichage de 1 à {projects.length} sur {projects.length} projets</p>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg" disabled>
-                <ChevronLeft size={14} />
-              </Button>
-              <Button variant="primary" size="sm" className="h-8 w-8 rounded-lg p-0">1</Button>
-              <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg" disabled>
-                <ChevronRight size={14} />
-              </Button>
-            </div>
-          </div>
         </CardContent>
       </Card>
 
-      <ProjectModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSubmit={() => { showSuccess("Action simulée"); setIsModalOpen(false); }}
-        initialData={selectedProject}
-      />
-
-      <ProjectDetail 
-        isOpen={isDetailOpen} 
-        onClose={() => setIsDetailOpen(false)} 
-        project={selectedProject}
-      />
-
-      <ConfirmDialog 
-        isOpen={isConfirmOpen}
-        onClose={() => setIsConfirmOpen(false)}
-        onConfirm={handleDelete}
-        title="Supprimer le projet ?"
-        description="Cette action est irréversible. Toutes les factures liées seront également impactées."
-        variant="destructive"
-        confirmText="Supprimer"
-      />
+      <ProjectModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSubmit={() => { showSuccess("Projet enregistré"); setIsModalOpen(false); loadProjects(); }} initialData={selectedProject} />
+      <ProjectDetail isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} project={selectedProject} />
+      <ConfirmDialog isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={() => { showSuccess("Projet supprimé"); setIsConfirmOpen(false); loadProjects(); }} title="Supprimer le projet ?" description="Cette action supprimera également toutes les factures liées." variant="destructive" confirmText="Supprimer" />
     </div>
   );
 };

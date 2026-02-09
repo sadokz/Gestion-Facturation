@@ -30,6 +30,7 @@ import {
 const invoiceSchema = z.object({
   numero_facture: z.string().min(1, "Le numéro est requis"),
   date_facture: z.string().min(1, "La date est requise"),
+  type_facture: z.string().default("Situation"),
   montant_ht: z.coerce.number().min(0),
   tva_pct: z.coerce.number().default(19),
   statut: z.string().default("Émise"),
@@ -49,6 +50,7 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
     defaultValues: initialData || {
       numero_facture: "",
       date_facture: new Date().toISOString().split('T')[0],
+      type_facture: "Situation",
       montant_ht: 0,
       tva_pct: 19,
       statut: "Émise",
@@ -61,24 +63,49 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
       <DialogContent className="sm:max-width-[450px] rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-slate-800">
-            {initialData ? "Modifier la facture" : "Nouvelle facture de vente"}
+            {initialData ? "Modifier la facture" : "Nouvelle facture (Vente)"}
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2">
-            <FormField
-              control={form.control}
-              name="numero_facture"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>N° Facture</FormLabel>
-                  <FormControl>
-                    <Input placeholder="FV-2026-XXX" {...field} className="rounded-xl" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="numero_facture"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>N° Facture</FormLabel>
+                    <FormControl>
+                      <Input placeholder="FV-2026-XXX" {...field} className="rounded-xl" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="type_facture"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Type</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder="Type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Acompte">Acompte</SelectItem>
+                        <SelectItem value="Situation">Situation</SelectItem>
+                        <SelectItem value="Solde">Solde</SelectItem>
+                        <SelectItem value="Unique">Facture Unique</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -149,9 +176,9 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
               name="note"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Note</FormLabel>
+                  <FormLabel>Libellé / Note (ex: Situation n°2)</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: Avancement 30%..." {...field} className="rounded-xl" />
+                    <Input placeholder="Détails de la prestation..." {...field} className="rounded-xl" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -159,7 +186,7 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
             />
             <DialogFooter className="pt-4">
               <Button type="button" variant="outline" onClick={onClose} className="rounded-xl">Annuler</Button>
-              <Button type="submit" className="rounded-xl px-6">Enregistrer</Button>
+              <Button type="submit" className="rounded-xl px-6">Enregistrer la facture</Button>
             </DialogFooter>
           </form>
         </Form>
