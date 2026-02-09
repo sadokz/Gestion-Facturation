@@ -33,6 +33,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { showSuccess, showError } from "@/utils/toast";
 import { ClientModal } from "@/components/clients/ClientModal";
 import { ResponsibleModal } from "@/components/clients/ResponsibleModal";
@@ -99,6 +100,7 @@ const SortableClientRow = ({
   };
 
   const isVisible = (id: string) => visibleColumns.includes(id);
+  const projectCount = client.projects?.length || 0;
 
   return (
     <React.Fragment>
@@ -120,7 +122,18 @@ const SortableClientRow = ({
             </Button>
           </div>
         </TableCell>
-        {isVisible("nom") && <TableCell className="font-bold text-slate-800 truncate">{client.nom}</TableCell>}
+        {isVisible("nom") && (
+          <TableCell className="font-bold text-slate-800 truncate">
+            <div className="flex items-center gap-2">
+              <span className="truncate">{client.nom}</span>
+              {projectCount > 0 && (
+                <Badge variant="secondary" className="h-5 px-1.5 text-[10px] bg-indigo-50 text-indigo-600 border-indigo-100">
+                  {projectCount}
+                </Badge>
+              )}
+            </div>
+          </TableCell>
+        )}
         {isVisible("adresse") && (
           <TableCell className="text-slate-500 text-xs">
             <div className="flex items-center gap-1 truncate">
@@ -158,27 +171,35 @@ const SortableClientRow = ({
                 <MoreHorizontal size={16} />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl w-56">
-              <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold">Actions</DropdownMenuLabel>
-              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedClient(client); setIsClientModalOpen(true); }}><Edit size={14} /> Modifier Client</DropdownMenuItem>
-              <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedClient(client); setIsConfirmOpen(true); }}><Trash2 size={14} /> Supprimer</DropdownMenuItem>
+            <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl w-64">
+              <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold px-3 py-2">Actions</DropdownMenuLabel>
+              <DropdownMenuItem className="gap-2 cursor-pointer mx-1 rounded-lg" onClick={() => { setSelectedClient(client); setIsClientModalOpen(true); }}>
+                <Edit size={14} /> Modifier Client
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2 cursor-pointer mx-1 rounded-lg text-rose-600 focus:text-rose-600" onClick={() => { setSelectedClient(client); setIsConfirmOpen(true); }}>
+                <Trash2 size={14} /> Supprimer
+              </DropdownMenuItem>
               
-              <DropdownMenuSeparator />
-              <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold">Projets associés</DropdownMenuLabel>
-              {client.projects && client.projects.length > 0 ? (
-                client.projects.map((project: any) => (
-                  <DropdownMenuItem 
-                    key={project.id} 
-                    className="gap-2 cursor-pointer text-xs"
-                    onClick={() => navigate(`/projects?search=${project.nom_projet}`)}
-                  >
-                    <Briefcase size={12} className="text-indigo-500" />
-                    <span className="truncate">{project.nom_projet}</span>
-                  </DropdownMenuItem>
-                ))
-              ) : (
-                <div className="px-2 py-1.5 text-[10px] text-slate-400 italic">Aucun projet enregistré</div>
-              )}
+              <DropdownMenuSeparator className="my-1" />
+              <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold px-3 py-2">Projets associés ({projectCount})</DropdownMenuLabel>
+              <div className="max-h-[200px] overflow-y-auto py-1">
+                {client.projects && client.projects.length > 0 ? (
+                  client.projects.map((project: any) => (
+                    <DropdownMenuItem 
+                      key={project.id} 
+                      className="gap-2 cursor-pointer mx-1 rounded-lg text-xs py-2"
+                      onClick={() => navigate(`/projects?search=${encodeURIComponent(project.nom_projet)}`)}
+                    >
+                      <Briefcase size={12} className="text-indigo-500 shrink-0" />
+                      <span className="truncate font-medium">{project.nom_projet}</span>
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <div className="px-3 py-3 text-[11px] text-slate-400 italic text-center">
+                    Aucun projet enregistré
+                  </div>
+                )}
+              </div>
             </DropdownMenuContent>
           </DropdownMenu>
         </TableCell>

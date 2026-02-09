@@ -43,6 +43,7 @@ import { SalesInvoiceModal } from "@/components/projects/SalesInvoiceModal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
 import { ColumnToggle } from "@/components/ui/ColumnToggle";
+import { useSearchParams } from "react-router-dom";
 
 // DND Kit Imports
 import {
@@ -210,9 +211,10 @@ const SortableProjectRow = ({
 
 const Projects = () => {
   const { selectedYear } = useYear();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParams.get("search") || "");
   const [statusFilter, setStatusFilter] = useState("all");
   const [visibleColumns, setVisibleColumns] = useState(PROJECT_COLUMNS.map(c => c.id));
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' | null }>({ key: '', direction: null });
@@ -235,15 +237,22 @@ const Projects = () => {
       setProjects(data);
     } catch (err) {
       setProjects([
-        { id: 1, reference_projet: "PRJ-2026-001", nom_projet: "Eclairage Avenue", client: "Commune X", montant_total_ht: 50000, montant_avenant_ht: 5000, tva_pct: 19, file_contrat: { name: "contrat_001.pdf" }, invoices: [{ id: 101, numero_facture: "FV-2026-001", date_facture: "2026-01-10", montant_ht: 5000, tva_pct: 19, statut: "Payé", type_facture: "Acompte" }, { id: 102, numero_facture: "FV-2026-002", date_facture: "2026-02-15", montant_ht: 10000, tva_pct: 19, statut: "Payement En Attente", type_facture: "Situation n°1" }] },
-        { id: 2, reference_projet: "PRJ-2026-002", nom_projet: "Rénovation Pont", client: "Ministère Y", montant_total_ht: 120000, montant_avenant_ht: 0, tva_pct: 19, file_contrat: null, invoices: [{ id: 201, numero_facture: "FV-2026-005", date_facture: "2026-03-01", montant_ht: 120000, tva_pct: 19, statut: "Payé", type_facture: "Unique" }] },
+        { id: 1, reference_projet: "PRJ-2026-001", nom_projet: "Eclairage Avenue", client: "Commune de Tunis", montant_total_ht: 50000, montant_avenant_ht: 5000, tva_pct: 19, file_contrat: { name: "contrat_001.pdf" }, invoices: [{ id: 101, numero_facture: "FV-2026-001", date_facture: "2026-01-10", montant_ht: 5000, tva_pct: 19, statut: "Payé", type_facture: "Acompte" }, { id: 102, numero_facture: "FV-2026-002", date_facture: "2026-02-15", montant_ht: 10000, tva_pct: 19, statut: "Payement En Attente", type_facture: "Situation n°1" }] },
+        { id: 2, reference_projet: "PRJ-2026-002", nom_projet: "Rénovation Pont", client: "Commune de Tunis", montant_total_ht: 120000, montant_avenant_ht: 0, tva_pct: 19, file_contrat: null, invoices: [{ id: 201, numero_facture: "FV-2026-005", date_facture: "2026-03-01", montant_ht: 120000, tva_pct: 19, statut: "Payé", type_facture: "Unique" }] },
+        { id: 3, reference_projet: "PRJ-2026-003", nom_projet: "Audit STEG", client: "STEG", montant_total_ht: 15000, montant_avenant_ht: 0, tva_pct: 19, file_contrat: null, invoices: [] },
       ]);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { loadProjects(); }, [selectedYear, search, statusFilter]);
+  useEffect(() => { 
+    const urlSearch = searchParams.get("search");
+    if (urlSearch !== null) {
+      setSearch(urlSearch);
+    }
+    loadProjects(); 
+  }, [selectedYear, search, statusFilter, searchParams]);
 
   const handleSort = (key: string) => {
     let direction: 'asc' | 'desc' | null = 'asc';
@@ -262,7 +271,6 @@ const Projects = () => {
       let aValue = a[sortConfig.key];
       let bValue = b[sortConfig.key];
 
-      // Cas spéciaux pour les colonnes calculées
       if (sortConfig.key === 'total_ttc') {
         aValue = a.montant_total_ht * (1 + (a.tva_pct || 19) / 100);
         bValue = b.montant_total_ht * (1 + (b.tva_pct || 19) / 100);
@@ -328,7 +336,7 @@ const Projects = () => {
           <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-50/30">
             <div className="relative w-full md:w-96">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-              <Input placeholder="Référence, nom ou client..." className="pl-10 rounded-xl border-slate-200" value={search} onChange={(e) => setSearch(e.target.value)} />
+              <Input placeholder="Référence, nom ou client..." className="pl-10 rounded-xl border-slate-200" value={search} onChange={(e) => { setSearch(e.target.value); setSearchParams({ search: e.target.value }); }} />
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5">
