@@ -10,38 +10,36 @@ Cette application est une solution complète de gestion financière et opératio
 - **Activité Récente** : Flux chronologique des dernières factures émise/payées, nouveaux projets et achats.
 
 ### 🏗️ Gestion des Projets & Ventes
+- **Réorganisation Intelligente** : Système de **glisser-déposer (Drag & Drop)** pour organiser l'ordre de priorité de vos projets dans la liste.
 - **Suivi des Contrats** : Gestion des montants de base et des avenants.
-- **Facturation Multi-situations** : Création de factures structurées selon les étapes types d'un projet d'ingénierie :
-  - **Avance**
-  - **Missions S0 à S5** (Suivi des phases d'études)
-  - **Règlement Définitif**
-  - **Autre**
-- **Suivi des Encaissements** : Gestion des dates d'émission et des **dates de paiement** pour un suivi précis de la trésorerie client.
-- **Analyse de Rentabilité** : Calcul automatique de la marge brute par projet.
+- **Statuts de Facturation Automatiques** : Le statut du projet est calculé dynamiquement selon les montants réels :
+  - **Non facturé** : Aucune facture émise.
+  - **Partiellement Facturé** : Cumul facturé < Montant total du contrat.
+  - **Totalement Facturé** : Contrat entièrement facturé, mais paiements en attente.
+  - **Soldé** : Contrat entièrement facturé ET entièrement payé (Reste à payer = 0).
+- **Facturation Multi-situations** : Création de factures structurées (Avance, Missions S0 à S5, Règlement Définitif).
+- **Suivi des Encaissements** : Gestion des dates d'émission et des dates de paiement pour un suivi précis de la trésorerie.
 
 ### 👥 Gestion des Clients & Entreprises
 - **Annuaire Clients** : Gestion des clients directs avec leurs responsables.
-- **Annuaire Entreprises** : Gestion des partenaires et sous-traitants avec leurs responsables respectifs.
-- **Interface Extensible** : Visualisation rapide des contacts via un système de lignes extensibles dans les tableaux.
+- **Annuaire Entreprises** : Gestion des partenaires et sous-traitants.
+- **Interface Extensible** : Visualisation rapide des contacts et des factures via un système de lignes extensibles.
 
 ### 🛒 Gestion des Achats & Dépenses
 - **Suivi Fournisseurs** : Enregistrement des factures d'achats par catégorie.
-- **Suivi des Paiements** : Nouveau champ **Date de paiement** pour suivre les décaissements effectifs.
-- **Liaison Projets** : Affectation des dépenses à des projets spécifiques pour une analyse de coût réelle.
+- **Liaison Projets** : Affectation des dépenses à des projets spécifiques pour une analyse de coût réelle et calcul de marge brute.
 
 ### ⚙️ Paramètres & Configuration
-- **Profil du Bureau** : Personnalisation des informations de l'entreprise.
 - **Exercices Comptables** : Filtrage global de l'application par année d'exercice.
 - **Recherche Globale** : Accès rapide via le menu de commande (Ctrl+K).
 
 ## 🛠️ Détails Techniques
 - **Framework** : React avec TypeScript.
 - **Styling** : Tailwind CSS & Shadcn/UI.
-- **Graphiques** : Recharts.
+- **Interactions** : dnd-kit pour le glisser-déposer.
 - **Formatage** : Support complet du Dinar Tunisien (DT) avec 3 décimales.
 
 ## 📋 Utilisation
-1. Sélectionnez l'**Année d'Exercice** en haut à droite.
-2. Utilisez la **Recherche Globale** (⌘K) pour naviguer.
-3. Dans les onglets **Clients** ou **Entreprises**, cliquez sur la flèche à gauche pour gérer les responsables.
-4. Lors de la création d'une facture (Vente ou Achat), renseignez la **Date de paiement** dès que le règlement est effectif pour mettre à jour vos indicateurs de trésorerie.
+1. Utilisez la **poignée de saisie** (icône à gauche) pour réorganiser vos projets.
+2. Le **Statut** se met à jour automatiquement dès que vous ajoutez une facture ou que vous marquez une facture comme "Payée".
+3. Consultez l'**Analyse complète** d'un projet pour voir les graphiques de rentabilité détaillés.
