@@ -26,7 +26,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FileText, UploadCloud } from "lucide-react";
+import { UploadCloud } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const invoiceSchema = z.object({
   numero_facture: z.string().min(1, "Le numéro est requis"),
@@ -53,17 +54,14 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
   const form = useForm({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
-      numero_facture: initialData?.numero_facture || "",
-      date_emission: initialData?.date_emission || initialData?.date_facture || new Date().toISOString().split('T')[0],
-      date_payement: initialData?.date_payement || "",
-      type_facture: initialData?.type_facture || "Mission S0",
-      montant_ht: initialData?.montant_ht || 0,
-      tva_pct: initialData?.tva_pct || 19,
-      statut: initialData?.statut || "Non facturé",
-      note: initialData?.note || "",
-      file_facture: initialData?.file_facture || null,
-      file_decharge: initialData?.file_decharge || null,
-      file_retenue: initialData?.file_retenue || null,
+      numero_facture: "",
+      date_emission: new Date().toISOString().split('T')[0],
+      date_payement: "",
+      type_facture: "Mission S0",
+      montant_ht: 0,
+      tva_pct: 19,
+      statut: "Non facturé",
+      note: "",
     },
   });
 
@@ -78,9 +76,6 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
         tva_pct: initialData?.tva_pct || 19,
         statut: initialData?.statut || "Non facturé",
         note: initialData?.note || "",
-        file_facture: initialData?.file_facture || null,
-        file_decharge: initialData?.file_decharge || null,
-        file_retenue: initialData?.file_retenue || null,
       });
     }
   }, [isOpen, initialData, form]);
@@ -115,7 +110,7 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="rounded-xl">
                           <SelectValue placeholder="Type" />
@@ -173,7 +168,7 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Statut</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="rounded-xl">
                           <SelectValue placeholder="Statut" />
@@ -220,96 +215,41 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
             <div className="space-y-3 border-t pt-4 mt-4">
               <h4 className="text-sm font-bold text-slate-700">Documents joints</h4>
               <div className="grid grid-cols-3 gap-3">
-                <FormField
-                  control={form.control}
-                  name="file_facture"
-                  render={({ field: { value, onChange, ...field } }) => (
-                    <FormItem>
-                      <FormLabel className="text-[10px] uppercase text-slate-500">Facture</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input 
-                            type="file" 
-                            className="hidden" 
-                            id="file-facture" 
-                            onChange={(e) => onChange(e.target.files?.[0])} 
-                            {...field} 
-                          />
-                          <label 
-                            htmlFor="file-facture" 
-                            className={cn(
-                              "flex flex-col items-center justify-center h-20 border-2 border-dashed rounded-xl cursor-pointer transition-colors",
-                              value ? "bg-emerald-50 border-emerald-200 text-emerald-600" : "bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100"
-                            )}
-                          >
-                            <UploadCloud size={20} />
-                            <span className="text-[9px] mt-1 font-bold">{value ? "Modifer" : "Choisir"}</span>
-                          </label>
-                        </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="file_decharge"
-                  render={({ field: { value, onChange, ...field } }) => (
-                    <FormItem>
-                      <FormLabel className="text-[10px] uppercase text-slate-500">Décharge</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input 
-                            type="file" 
-                            className="hidden" 
-                            id="file-decharge" 
-                            onChange={(e) => onChange(e.target.files?.[0])} 
-                            {...field} 
-                          />
-                          <label 
-                            htmlFor="file-decharge" 
-                            className={cn(
-                              "flex flex-col items-center justify-center h-20 border-2 border-dashed rounded-xl cursor-pointer transition-colors",
-                              value ? "bg-emerald-50 border-emerald-200 text-emerald-600" : "bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100"
-                            )}
-                          >
-                            <UploadCloud size={20} />
-                            <span className="text-[9px] mt-1 font-bold">{value ? "Modifer" : "Choisir"}</span>
-                          </label>
-                        </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="file_retenue"
-                  render={({ field: { value, onChange, ...field } }) => (
-                    <FormItem>
-                      <FormLabel className="text-[10px] uppercase text-slate-500">Retenue</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input 
-                            type="file" 
-                            className="hidden" 
-                            id="file-retenue" 
-                            onChange={(e) => onChange(e.target.files?.[0])} 
-                            {...field} 
-                          />
-                          <label 
-                            htmlFor="file-retenue" 
-                            className={cn(
-                              "flex flex-col items-center justify-center h-20 border-2 border-dashed rounded-xl cursor-pointer transition-colors",
-                              value ? "bg-emerald-50 border-emerald-200 text-emerald-600" : "bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100"
-                            )}
-                          >
-                            <UploadCloud size={20} />
-                            <span className="text-[9px] mt-1 font-bold">{value ? "Modifer" : "Choisir"}</span>
-                          </label>
-                        </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                {['file_facture', 'file_decharge', 'file_retenue'].map((fieldName) => (
+                  <FormField
+                    key={fieldName}
+                    control={form.control}
+                    name={fieldName as any}
+                    render={({ field: { value, onChange, ...field } }) => (
+                      <FormItem>
+                        <FormLabel className="text-[10px] uppercase text-slate-500">
+                          {fieldName === 'file_facture' ? 'Facture' : fieldName === 'file_decharge' ? 'Décharge' : 'Retenue'}
+                        </FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input 
+                              type="file" 
+                              className="hidden" 
+                              id={fieldName} 
+                              onChange={(e) => onChange(e.target.files?.[0])} 
+                              // On ne passe pas field.value ici car les inputs file ne supportent pas les objets File comme value
+                            />
+                            <label 
+                              htmlFor={fieldName} 
+                              className={cn(
+                                "flex flex-col items-center justify-center h-20 border-2 border-dashed rounded-xl cursor-pointer transition-colors",
+                                value ? "bg-emerald-50 border-emerald-200 text-emerald-600" : "bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100"
+                              )}
+                            >
+                              <UploadCloud size={20} />
+                              <span className="text-[9px] mt-1 font-bold">{value ? "Modifer" : "Choisir"}</span>
+                            </label>
+                          </div>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                ))}
               </div>
             </div>
 
