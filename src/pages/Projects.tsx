@@ -6,7 +6,9 @@ import {
   MoreHorizontal, 
   Eye, 
   Edit, 
-  Trash2
+  Trash2,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { fetcher } from "@/api/config";
@@ -32,6 +34,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { showSuccess, showError } from "@/utils/toast";
 import { ProjectModal } from "@/components/projects/ProjectModal";
 import { ProjectDetail } from "@/components/projects/ProjectDetail";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 const Projects = () => {
   const { selectedYear } = useYear();
@@ -43,6 +46,7 @@ const Projects = () => {
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
 
   const loadProjects = async () => {
@@ -66,25 +70,15 @@ const Projects = () => {
     loadProjects();
   }, [selectedYear, search, statusFilter]);
 
-  const handleAddProject = async (data: any) => {
+  const handleDelete = async () => {
     try {
-      // await fetcher('/projects', { method: 'POST', body: JSON.stringify(data) });
-      showSuccess("Projet créé avec succès");
-      setIsModalOpen(false);
+      // await fetcher(`/projects/${selectedProject.id}`, { method: 'DELETE' });
+      showSuccess("Projet supprimé");
+      setIsConfirmOpen(false);
       loadProjects();
     } catch (err) {
-      showError("Erreur lors de la création");
+      showError("Erreur lors de la suppression");
     }
-  };
-
-  const handleEditProject = (project: any) => {
-    setSelectedProject(project);
-    setIsModalOpen(true);
-  };
-
-  const handleViewProject = (project: any) => {
-    setSelectedProject(project);
-    setIsDetailOpen(true);
   };
 
   const getStatusBadge = (status: string) => {
@@ -179,13 +173,16 @@ const Projects = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
-                          <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleViewProject(project)}>
+                          <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsDetailOpen(true); }}>
                             <Eye size={14} /> Voir détails
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleEditProject(project)}>
+                          <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}>
                             <Edit size={14} /> Modifier
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600">
+                          <DropdownMenuItem 
+                            className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
+                            onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}
+                          >
                             <Trash2 size={14} /> Supprimer
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -196,13 +193,27 @@ const Projects = () => {
               </TableBody>
             </Table>
           </div>
+
+          {/* Pagination UI */}
+          <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/30">
+            <p className="text-xs text-slate-500 font-medium">Affichage de 1 à {projects.length} sur {projects.length} projets</p>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg" disabled>
+                <ChevronLeft size={14} />
+              </Button>
+              <Button variant="primary" size="sm" className="h-8 w-8 rounded-lg p-0">1</Button>
+              <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg" disabled>
+                <ChevronRight size={14} />
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
       <ProjectModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        onSubmit={handleAddProject}
+        onSubmit={() => { showSuccess("Action simulée"); setIsModalOpen(false); }}
         initialData={selectedProject}
       />
 
@@ -210,6 +221,16 @@ const Projects = () => {
         isOpen={isDetailOpen} 
         onClose={() => setIsDetailOpen(false)} 
         project={selectedProject}
+      />
+
+      <ConfirmDialog 
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleDelete}
+        title="Supprimer le projet ?"
+        description="Cette action est irréversible. Toutes les factures liées seront également impactées."
+        variant="destructive"
+        confirmText="Supprimer"
       />
     </div>
   );
