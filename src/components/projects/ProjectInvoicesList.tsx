@@ -1,5 +1,5 @@
 import React from "react";
-import { Receipt, Plus, Edit, CalendarCheck } from "lucide-react";
+import { Receipt, Plus, Edit, CalendarCheck, CalendarDays } from "lucide-react";
 import { formatCurrencyDT, formatDateFR } from "@/utils/formatters";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -53,30 +53,43 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
               key={inv.id || idx} 
               className="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-100 shadow-sm group hover:border-primary/30 transition-colors"
             >
-              <div className="flex items-center gap-4">
-                <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-[10px] font-bold text-slate-400">
+              <div className="flex items-center gap-4 w-1/4">
+                <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-[10px] font-bold text-slate-400 shrink-0">
                   #{idx + 1}
                 </div>
-                <div>
-                  <p className="text-xs font-mono font-bold text-primary">{inv.numero_facture}</p>
-                  <div className="flex flex-col gap-0.5">
-                    <p className="text-[10px] text-slate-500">Émise le : {formatDateFR(inv.date_emission || inv.date_facture)}</p>
-                    {inv.date_payement && (
-                      <p className="text-[10px] text-emerald-600 font-medium flex items-center gap-1">
-                        <CalendarCheck size={10} /> Payée le : {formatDateFR(inv.date_payement)}
-                      </p>
-                    )}
+                <div className="truncate">
+                  <p className="text-xs font-mono font-bold text-primary truncate">{inv.numero_facture}</p>
+                  <p className="text-[10px] text-slate-400 truncate">{inv.type_facture || 'Situation'}</p>
+                </div>
+              </div>
+              
+              <div className="flex-1 grid grid-cols-2 gap-4 px-4">
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Émission</span>
+                  <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
+                    <CalendarDays size={12} className="text-slate-400" />
+                    {formatDateFR(inv.date_emission || inv.date_facture)}
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Paiement</span>
+                  <div className={cn(
+                    "flex items-center gap-1.5 text-xs font-medium",
+                    inv.date_payement ? "text-emerald-600" : "text-slate-300 italic"
+                  )}>
+                    <CalendarCheck size={12} className={inv.date_payement ? "text-emerald-500" : "text-slate-200"} />
+                    {inv.date_payement ? formatDateFR(inv.date_payement) : "En attente"}
                   </div>
                 </div>
               </div>
               
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-6 w-1/3 justify-end">
                 <div className="text-right">
                   <p className="text-sm font-black text-slate-900">{formatCurrencyDT(inv.montant_ht)}</p>
-                  <p className="text-[10px] text-slate-400">{inv.type_facture || 'Situation'}</p>
+                  <p className="text-[10px] text-slate-400">HT</p>
                 </div>
                 <Badge variant="outline" className={cn(
-                  "text-[10px] font-bold px-2 py-0 whitespace-nowrap",
+                  "text-[10px] font-bold px-2 py-0 whitespace-nowrap min-w-[80px] justify-center",
                   getStatusStyles(inv.statut)
                 )}>
                   {inv.statut}
