@@ -46,19 +46,36 @@ interface SalesInvoiceModalProps {
 }
 
 export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, onClose, onSubmit, initialData }) => {
+  // On s'assure que les dates sont au format YYYY-MM-DD pour l'input type="date"
   const form = useForm({
     resolver: zodResolver(invoiceSchema),
-    defaultValues: initialData || {
-      numero_facture: "",
-      date_emission: new Date().toISOString().split('T')[0],
-      date_payement: "",
-      type_facture: "Situation",
-      montant_ht: 0,
-      tva_pct: 19,
-      statut: "Non facturé",
-      note: "",
+    defaultValues: {
+      numero_facture: initialData?.numero_facture || "",
+      date_emission: initialData?.date_emission || initialData?.date_facture || new Date().toISOString().split('T')[0],
+      date_payement: initialData?.date_payement || "",
+      type_facture: initialData?.type_facture || "Situation",
+      montant_ht: initialData?.montant_ht || 0,
+      tva_pct: initialData?.tva_pct || 19,
+      statut: initialData?.statut || "Non facturé",
+      note: initialData?.note || "",
     },
   });
+
+  // Réinitialiser le formulaire quand initialData change
+  React.useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        numero_facture: initialData?.numero_facture || "",
+        date_emission: initialData?.date_emission || initialData?.date_facture || new Date().toISOString().split('T')[0],
+        date_payement: initialData?.date_payement || "",
+        type_facture: initialData?.type_facture || "Situation",
+        montant_ht: initialData?.montant_ht || 0,
+        tva_pct: initialData?.tva_pct || 19,
+        statut: initialData?.statut || "Non facturé",
+        note: initialData?.note || "",
+      });
+    }
+  }, [isOpen, initialData, form]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
