@@ -67,7 +67,6 @@ const SortableProjectRow = ({
   getStatusBadge, 
   handleAddInvoiceClick, 
   handleEditInvoiceClick,
-  handleUpdateInvoice,
   setSelectedProject,
   setIsDetailOpen,
   setIsModalOpen,
@@ -189,7 +188,6 @@ const SortableProjectRow = ({
               invoices={invoices} 
               onAddInvoice={() => handleAddInvoiceClick(project)}
               onEditInvoice={(inv) => handleEditInvoiceClick(project, inv)}
-              onUpdateInvoice={(invId, data) => handleUpdateInvoice(project.id, invId, data)}
             />
           </TableCell>
         </TableRow>
@@ -237,8 +235,8 @@ const Projects = () => {
           montant_avenant_ht: 5000,
           tva_pct: 19,
           invoices: [
-            { id: 101, numero_facture: "FV-2026-001", date_facture: "2026-01-10", date_emission: "2026-01-10", date_payement: "2026-01-15", montant_ht: 5000, tva_pct: 19, statut: "Payé", type_facture: "Acompte", montant_retenue: 0 },
-            { id: 102, numero_facture: "FV-2026-002", date_facture: "2026-02-15", date_emission: "2026-02-15", date_payement: "", montant_ht: 10000, tva_pct: 19, statut: "Payement En Attente", type_facture: "Situation n°1", montant_retenue: 150 },
+            { id: 101, numero_facture: "FV-2026-001", date_facture: "2026-01-10", montant_ht: 5000, tva_pct: 19, statut: "Payé", type_facture: "Acompte" },
+            { id: 102, numero_facture: "FV-2026-002", date_facture: "2026-02-15", montant_ht: 10000, tva_pct: 19, statut: "Payement En Attente", type_facture: "Situation n°1" },
           ]
         },
         { 
@@ -250,7 +248,7 @@ const Projects = () => {
           montant_avenant_ht: 0,
           tva_pct: 19,
           invoices: [
-            { id: 201, numero_facture: "FV-2026-005", date_facture: "2026-03-01", date_emission: "2026-03-01", date_payement: "2026-03-05", montant_ht: 120000, tva_pct: 19, statut: "Payé", type_facture: "Unique", montant_retenue: 0 },
+            { id: 201, numero_facture: "FV-2026-005", date_facture: "2026-03-01", montant_ht: 120000, tva_pct: 19, statut: "Payé", type_facture: "Unique" },
           ]
         },
       ]);
@@ -304,29 +302,6 @@ const Projects = () => {
     setSelectedProject(project);
     setSelectedInvoice(invoice);
     setIsInvoiceModalOpen(true);
-  };
-
-  const handleUpdateInvoice = (projectId: number, invoiceId: number, data: any) => {
-    setProjects(prev => prev.map(p => {
-      if (p.id === projectId) {
-        return {
-          ...p,
-          invoices: p.invoices.map((inv: any) => {
-            if (inv.id === invoiceId) {
-              const updatedInv = { ...inv, ...data };
-              // Mise à jour automatique du statut si la date de paiement est renseignée
-              if (data.date_payement !== undefined) {
-                updatedInv.statut = data.date_payement ? "Payé" : "Payement En Attente";
-              }
-              return updatedInv;
-            }
-            return inv;
-          })
-        };
-      }
-      return p;
-    }));
-    showSuccess("Facture mise à jour");
   };
 
   return (
@@ -414,7 +389,6 @@ const Projects = () => {
                           getStatusBadge={getStatusBadge}
                           handleAddInvoiceClick={handleAddInvoiceClick}
                           handleEditInvoiceClick={handleEditInvoiceClick}
-                          handleUpdateInvoice={handleUpdateInvoice}
                           setSelectedProject={setSelectedProject}
                           setIsDetailOpen={setIsDetailOpen}
                           setIsModalOpen={setIsModalOpen}
