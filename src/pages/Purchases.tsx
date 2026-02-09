@@ -34,6 +34,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
+import { ColumnToggle } from "@/components/ui/ColumnToggle";
 
 // DND Kit Imports
 import {
@@ -54,11 +55,23 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+const PURCHASE_COLUMNS = [
+  { id: "fournisseur", label: "Fournisseur" },
+  { id: "numero", label: "N° Facture" },
+  { id: "date_facture", label: "Date Facture" },
+  { id: "date_paiement", label: "Date Paiement" },
+  { id: "categorie", label: "Catégorie" },
+  { id: "montant_ht", label: "Montant HT" },
+  { id: "ttc", label: "TTC" },
+  { id: "statut", label: "Statut" },
+];
+
 const SortablePurchaseRow = ({ 
   purchase, 
   setSelectedPurchase, 
   setIsModalOpen, 
-  setIsConfirmOpen 
+  setIsConfirmOpen,
+  visibleColumns
 }: any) => {
   const {
     attributes,
@@ -76,6 +89,8 @@ const SortablePurchaseRow = ({
     zIndex: isDragging ? 10 : 1,
   };
 
+  const isVisible = (id: string) => visibleColumns.includes(id);
+
   return (
     <TableRow 
       ref={setNodeRef}
@@ -86,32 +101,34 @@ const SortablePurchaseRow = ({
       )}
     >
       <TableCell>
-        <div 
-          {...attributes} 
-          {...listeners} 
-          className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors p-1"
-        >
+        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors p-1">
           <GripVertical size={16} />
         </div>
       </TableCell>
-      <TableCell className="font-bold text-slate-800 truncate">{purchase.fournisseur}</TableCell>
-      <TableCell className="font-mono text-xs text-slate-500 truncate">{purchase.numero_facture}</TableCell>
-      <TableCell className="text-slate-600 truncate">{formatDateFR(purchase.date_facture)}</TableCell>
-      <TableCell className="text-slate-600 font-medium truncate">{formatDateFR(purchase.date_payement)}</TableCell>
-      <TableCell>
-        <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded-lg truncate">
-          {purchase.categorie}
-        </span>
-      </TableCell>
-      <TableCell className="text-right font-medium truncate">{formatCurrencyDT(purchase.montant_ht)}</TableCell>
-      <TableCell className="text-right font-bold text-slate-900 truncate">
-        {formatCurrencyDT(computeTTC(purchase.montant_ht, purchase.tva_pct))}
-      </TableCell>
-      <TableCell>
-        <Badge className={cn("truncate", purchase.statut === "Payée" ? "bg-emerald-100 text-emerald-700 border-emerald-200" : "bg-rose-100 text-rose-700 border-rose-200")}>
-          {purchase.statut}
-        </Badge>
-      </TableCell>
+      {isVisible("fournisseur") && <TableCell className="font-bold text-slate-800 truncate">{purchase.fournisseur}</TableCell>}
+      {isVisible("numero") && <TableCell className="font-mono text-xs text-slate-500 truncate">{purchase.numero_facture}</TableCell>}
+      {isVisible("date_facture") && <TableCell className="text-slate-600 truncate">{formatDateFR(purchase.date_facture)}</TableCell>}
+      {isVisible("date_paiement") && <TableCell className="text-slate-600 font-medium truncate">{formatDateFR(purchase.date_payement)}</TableCell>}
+      {isVisible("categorie") && (
+        <TableCell>
+          <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded-lg truncate">
+            {purchase.categorie}
+          </span>
+        </TableCell>
+      )}
+      {isVisible("montant_ht") && <TableCell className="text-right font-medium truncate">{formatCurrencyDT(purchase.montant_ht)}</TableCell>}
+      {isVisible("ttc") && (
+        <TableCell className="text-right font-bold text-slate-900 truncate">
+          {formatCurrencyDT(computeTTC(purchase.montant_ht, purchase.tva_pct))}
+        </TableCell>
+      )}
+      {isVisible("statut") && (
+        <TableCell>
+          <Badge className={cn("truncate", purchase.statut === "Payée" ? "bg-emerald-100 text-emerald-700 border-emerald-200" : "bg-rose-100 text-rose-700 border-rose-200")}>
+            {purchase.statut}
+          </Badge>
+        </TableCell>
+      )}
       <TableCell>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -120,15 +137,8 @@ const SortablePurchaseRow = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
-            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedPurchase(purchase); setIsModalOpen(true); }}>
-              <Edit size={14} /> Modifier
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
-              onClick={() => { setSelectedPurchase(purchase); setIsConfirmOpen(true); }}
-            >
-              <Trash2 size={14} /> Supprimer
-            </DropdownMenuItem>
+            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedPurchase(purchase); setIsModalOpen(true); }}><Edit size={14} /> Modifier</DropdownMenuItem>
+            <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedPurchase(purchase); setIsConfirmOpen(true); }}><Trash2 size={14} /> Supprimer</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>
@@ -141,16 +151,12 @@ const Purchases = () => {
   const [purchases, setPurchases] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [visibleColumns, setVisibleColumns] = useState(PURCHASE_COLUMNS.map(c => c.id));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState<any>(null);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
   const loadPurchases = async () => {
     setLoading(true);
@@ -168,9 +174,7 @@ const Purchases = () => {
     }
   };
 
-  useEffect(() => {
-    loadPurchases();
-  }, [selectedYear, search]);
+  useEffect(() => { loadPurchases(); }, [selectedYear, search]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -183,20 +187,14 @@ const Purchases = () => {
     }
   };
 
-  const handleExport = () => {
-    exportToCSV(purchases, `achats_${selectedYear}`);
-    showSuccess("Exportation CSV lancée");
+  const toggleColumn = (id: string) => {
+    setVisibleColumns(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
   };
 
-  const handleDelete = async () => {
-    try {
-      showSuccess("Achat supprimé");
-      setIsConfirmOpen(false);
-      loadPurchases();
-    } catch (err) {
-      showError("Erreur lors de la suppression");
-    }
-  };
+  const handleExport = () => { exportToCSV(purchases, `achats_${selectedYear}`); showSuccess("Exportation CSV lancée"); };
+  const handleDelete = async () => { try { showSuccess("Achat supprimé"); setIsConfirmOpen(false); loadPurchases(); } catch (err) { showError("Erreur lors de la suppression"); } };
+
+  const isVisible = (id: string) => visibleColumns.includes(id);
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -206,19 +204,9 @@ const Purchases = () => {
           <p className="text-slate-500">Suivez vos factures fournisseurs et vos coûts opérationnels</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button 
-            variant="outline" 
-            className="rounded-xl gap-2 h-11 px-4 border-slate-200"
-            onClick={handleExport}
-          >
-            <Download size={18} /> Export
-          </Button>
-          <Button 
-            onClick={() => { setSelectedPurchase(null); setIsModalOpen(true); }}
-            className="rounded-xl shadow-lg shadow-rose-500/20 bg-rose-600 hover:bg-rose-700 gap-2 h-11 px-6"
-          >
-            <Plus size={18} /> Nouvel Achat
-          </Button>
+          <ColumnToggle columns={PURCHASE_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
+          <Button variant="outline" className="rounded-xl gap-2 h-11 px-4 border-slate-200" onClick={handleExport}><Download size={18} /> Export</Button>
+          <Button onClick={() => { setSelectedPurchase(null); setIsModalOpen(true); }} className="rounded-xl shadow-lg shadow-rose-500/20 bg-rose-600 hover:bg-rose-700 gap-2 h-11 px-6"><Plus size={18} /> Nouvel Achat</Button>
         </div>
       </div>
 
@@ -227,52 +215,34 @@ const Purchases = () => {
           <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-50/30">
             <div className="relative w-full md:w-96">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-              <Input 
-                placeholder="Fournisseur ou N° facture..." 
-                className="pl-10 rounded-xl border-slate-200 focus:ring-rose-500/10"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+              <Input placeholder="Fournisseur ou N° facture..." className="pl-10 rounded-xl border-slate-200 focus:ring-rose-500/10" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
           </div>
 
           <div className="overflow-x-auto">
-            <DndContext 
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <Table className="table-fixed w-full">
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="hover:bg-transparent border-slate-100">
                     <ResizableHeader initialWidth={60} minWidth={40}></ResizableHeader>
-                    <ResizableHeader initialWidth={200} minWidth={100} className="font-bold text-slate-700">Fournisseur</ResizableHeader>
-                    <ResizableHeader initialWidth={150} minWidth={80} className="font-bold text-slate-700">N° Facture</ResizableHeader>
-                    <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Date Facture</ResizableHeader>
-                    <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Date Paiement</ResizableHeader>
-                    <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Catégorie</ResizableHeader>
-                    <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700 text-right">Montant HT</ResizableHeader>
-                    <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700 text-right">TTC</ResizableHeader>
-                    <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Statut</ResizableHeader>
+                    {isVisible("fournisseur") && <ResizableHeader initialWidth={200} minWidth={100} className="font-bold text-slate-700">Fournisseur</ResizableHeader>}
+                    {isVisible("numero") && <ResizableHeader initialWidth={150} minWidth={80} className="font-bold text-slate-700">N° Facture</ResizableHeader>}
+                    {isVisible("date_facture") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Date Facture</ResizableHeader>}
+                    {isVisible("date_paiement") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Date Paiement</ResizableHeader>}
+                    {isVisible("categorie") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Catégorie</ResizableHeader>}
+                    {isVisible("montant_ht") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700 text-right">Montant HT</ResizableHeader>}
+                    {isVisible("ttc") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700 text-right">TTC</ResizableHeader>}
+                    {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Statut</ResizableHeader>}
                     <ResizableHeader initialWidth={80} minWidth={60}></ResizableHeader>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loading ? (
-                    <TableRow><TableCell colSpan={10} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={visibleColumns.length + 2} className="h-16 text-center">Chargement...</TableCell></TableRow>
                   ) : (
-                    <SortableContext 
-                      items={purchases.map(p => p.id)}
-                      strategy={verticalListSortingStrategy}
-                    >
+                    <SortableContext items={purchases.map(p => p.id)} strategy={verticalListSortingStrategy}>
                       {purchases.map((purchase) => (
-                        <SortablePurchaseRow 
-                          key={purchase.id}
-                          purchase={purchase}
-                          setSelectedPurchase={setSelectedPurchase}
-                          setIsModalOpen={setIsModalOpen}
-                          setIsConfirmOpen={setIsConfirmOpen}
-                        />
+                        <SortablePurchaseRow key={purchase.id} purchase={purchase} setSelectedPurchase={setSelectedPurchase} setIsModalOpen={setIsModalOpen} setIsConfirmOpen={setIsConfirmOpen} visibleColumns={visibleColumns} />
                       ))}
                     </SortableContext>
                   )}
@@ -283,22 +253,8 @@ const Purchases = () => {
         </CardContent>
       </Card>
 
-      <PurchaseModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSubmit={() => { showSuccess("Action simulée"); setIsModalOpen(false); }}
-        initialData={selectedPurchase}
-      />
-
-      <ConfirmDialog 
-        isOpen={isConfirmOpen}
-        onClose={() => setIsConfirmOpen(false)}
-        onConfirm={handleDelete}
-        title="Supprimer cet achat ?"
-        description="Cette action est irréversible. La dépense sera retirée de vos statistiques."
-        variant="destructive"
-        confirmText="Supprimer"
-      />
+      <PurchaseModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSubmit={() => { showSuccess("Action simulée"); setIsModalOpen(false); }} initialData={selectedPurchase} />
+      <ConfirmDialog isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={handleDelete} title="Supprimer cet achat ?" description="Cette action est irréversible. La dépense sera retirée de vos statistiques." variant="destructive" confirmText="Supprimer" />
     </div>
   );
 };

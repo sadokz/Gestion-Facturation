@@ -42,6 +42,7 @@ import { ProjectInvoicesList } from "@/components/projects/ProjectInvoicesList";
 import { SalesInvoiceModal } from "@/components/projects/SalesInvoiceModal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
+import { ColumnToggle } from "@/components/ui/ColumnToggle";
 
 // DND Kit Imports
 import {
@@ -62,7 +63,20 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-// Composant pour une ligne de projet triable
+const PROJECT_COLUMNS = [
+  { id: "reference", label: "Référence" },
+  { id: "nom", label: "Projet" },
+  { id: "contrat", label: "Contrat" },
+  { id: "total_ht", label: "Total HT" },
+  { id: "avenant_ht", label: "Avenant HT" },
+  { id: "tva", label: "TVA" },
+  { id: "total_ttc", label: "Total TTC" },
+  { id: "facture_ht", label: "Facturé HT" },
+  { id: "paye_ttc", label: "Payé TTC" },
+  { id: "reste_ttc", label: "Reste TTC" },
+  { id: "statut", label: "Statut" },
+];
+
 const SortableProjectRow = ({ 
   project, 
   expandedProjects, 
@@ -73,7 +87,8 @@ const SortableProjectRow = ({
   setSelectedProject,
   setIsDetailOpen,
   setIsModalOpen,
-  setIsConfirmOpen
+  setIsConfirmOpen,
+  visibleColumns
 }: any) => {
   const {
     attributes,
@@ -106,7 +121,6 @@ const SortableProjectRow = ({
   
   const resteAPayeTTC = totalTTC - totalPayeTTC;
 
-  // Calcul automatique du statut
   let calculatedStatus = "Non facturé";
   if (totalFactureHT > 0) {
     if (totalFactureHT < totalHT) {
@@ -115,6 +129,8 @@ const SortableProjectRow = ({
       calculatedStatus = resteAPayeTTC <= 0.001 ? "Soldé" : "Totalement Facturé";
     }
   }
+
+  const isVisible = (id: string) => visibleColumns.includes(id);
 
   return (
     <React.Fragment>
@@ -128,59 +144,44 @@ const SortableProjectRow = ({
       >
         <TableCell>
           <div className="flex items-center gap-1">
-            <div 
-              {...attributes} 
-              {...listeners} 
-              className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors p-1"
-            >
+            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors p-1">
               <GripVertical size={16} />
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
-              onClick={() => toggleExpand(project.id)}
-            >
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => toggleExpand(project.id)}>
               {expandedProjects.has(project.id) ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
             </Button>
           </div>
         </TableCell>
-        <TableCell className="font-mono text-[11px] font-bold text-primary">{project.reference_projet}</TableCell>
-        <TableCell>
-          <div className="flex flex-col">
-            <span className="font-bold text-slate-800 text-sm truncate">{project.nom_projet}</span>
-            <span className="text-[10px] text-slate-500 uppercase font-medium truncate">{project.client}</span>
-          </div>
-        </TableCell>
-        <TableCell>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button 
-                onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}
-                className={cn(
-                  "flex flex-col items-center justify-center w-10 h-10 rounded-xl border transition-all",
-                  project.file_contrat 
-                    ? "bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100" 
-                    : "bg-slate-50 border-slate-200 text-slate-400 hover:border-primary/30 hover:text-primary"
-                )}
-              >
-                {project.file_contrat ? <CheckCircle2 size={18} /> : <UploadCloud size={18} />}
-                <span className="text-[7px] font-bold uppercase mt-0.5">Contrat</span>
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-xs">{project.file_contrat ? "Voir/Modifier le contrat" : "Téléverser le contrat"}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TableCell>
-        <TableCell className="text-right font-medium text-slate-600">{formatCurrencyDT(baseHT)}</TableCell>
-        <TableCell className="text-right font-medium text-amber-600">{formatCurrencyDT(avenantHT)}</TableCell>
-        <TableCell className="text-right font-medium text-slate-500">{formatCurrencyDT(totalTVA)}</TableCell>
-        <TableCell className="text-right font-bold text-slate-900">{formatCurrencyDT(totalTTC)}</TableCell>
-        <TableCell className="text-right text-blue-600 font-bold">{formatCurrencyDT(totalFactureHT)}</TableCell>
-        <TableCell className="text-right text-emerald-600 font-bold">{formatCurrencyDT(totalPayeTTC)}</TableCell>
-        <TableCell className="text-right text-rose-600 font-black">{formatCurrencyDT(resteAPayeTTC)}</TableCell>
-        <TableCell>{getStatusBadge(calculatedStatus)}</TableCell>
+        {isVisible("reference") && <TableCell className="font-mono text-[11px] font-bold text-primary">{project.reference_projet}</TableCell>}
+        {isVisible("nom") && (
+          <TableCell>
+            <div className="flex flex-col">
+              <span className="font-bold text-slate-800 text-sm truncate">{project.nom_projet}</span>
+              <span className="text-[10px] text-slate-500 uppercase font-medium truncate">{project.client}</span>
+            </div>
+          </TableCell>
+        )}
+        {isVisible("contrat") && (
+          <TableCell>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button onClick={() => { setSelectedProject(project); setIsModalOpen(true); }} className={cn("flex flex-col items-center justify-center w-10 h-10 rounded-xl border transition-all", project.file_contrat ? "bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100" : "bg-slate-50 border-slate-200 text-slate-400 hover:border-primary/30 hover:text-primary")}>
+                  {project.file_contrat ? <CheckCircle2 size={18} /> : <UploadCloud size={18} />}
+                  <span className="text-[7px] font-bold uppercase mt-0.5">Contrat</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent><p className="text-xs">{project.file_contrat ? "Voir/Modifier le contrat" : "Téléverser le contrat"}</p></TooltipContent>
+            </Tooltip>
+          </TableCell>
+        )}
+        {isVisible("total_ht") && <TableCell className="text-right font-medium text-slate-600">{formatCurrencyDT(baseHT)}</TableCell>}
+        {isVisible("avenant_ht") && <TableCell className="text-right font-medium text-amber-600">{formatCurrencyDT(avenantHT)}</TableCell>}
+        {isVisible("tva") && <TableCell className="text-right font-medium text-slate-500">{formatCurrencyDT(totalTVA)}</TableCell>}
+        {isVisible("total_ttc") && <TableCell className="text-right font-bold text-slate-900">{formatCurrencyDT(totalTTC)}</TableCell>}
+        {isVisible("facture_ht") && <TableCell className="text-right text-blue-600 font-bold">{formatCurrencyDT(totalFactureHT)}</TableCell>}
+        {isVisible("paye_ttc") && <TableCell className="text-right text-emerald-600 font-bold">{formatCurrencyDT(totalPayeTTC)}</TableCell>}
+        {isVisible("reste_ttc") && <TableCell className="text-right text-rose-600 font-black">{formatCurrencyDT(resteAPayeTTC)}</TableCell>}
+        {isVisible("statut") && <TableCell>{getStatusBadge(calculatedStatus)}</TableCell>}
         <TableCell>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -189,30 +190,17 @@ const SortableProjectRow = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
-              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsDetailOpen(true); }}>
-                <Eye size={14} /> Analyse complète
-              </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}>
-                <Edit size={14} /> Modifier Projet
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600"
-                onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}
-              >
-                <Trash2 size={14} /> Supprimer
-              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsDetailOpen(true); }}><Eye size={14} /> Analyse complète</DropdownMenuItem>
+              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}><Edit size={14} /> Modifier Projet</DropdownMenuItem>
+              <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}><Trash2 size={14} /> Supprimer</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </TableCell>
       </TableRow>
       {expandedProjects.has(project.id) && (
         <TableRow className="hover:bg-transparent border-none">
-          <TableCell colSpan={13} className="p-0">
-            <ProjectInvoicesList 
-              invoices={invoices} 
-              onAddInvoice={() => handleAddInvoiceClick(project)}
-              onEditInvoice={(inv) => handleEditInvoiceClick(project, inv)}
-            />
+          <TableCell colSpan={visibleColumns.length + 2} className="p-0">
+            <ProjectInvoicesList invoices={invoices} onAddInvoice={() => handleAddInvoiceClick(project)} onEditInvoice={(inv) => handleEditInvoiceClick(project, inv)} />
           </TableCell>
         </TableRow>
       )}
@@ -226,6 +214,7 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [visibleColumns, setVisibleColumns] = useState(PROJECT_COLUMNS.map(c => c.id));
   
   const [expandedProjects, setExpandedProjects] = useState<Set<number>>(new Set());
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -236,12 +225,7 @@ const Projects = () => {
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
   const loadProjects = async () => {
     setLoading(true);
@@ -250,42 +234,15 @@ const Projects = () => {
       setProjects(data);
     } catch (err) {
       setProjects([
-        { 
-          id: 1, 
-          reference_projet: "PRJ-2026-001", 
-          nom_projet: "Eclairage Avenue", 
-          client: "Commune X", 
-          montant_total_ht: 50000, 
-          montant_avenant_ht: 5000,
-          tva_pct: 19,
-          file_contrat: { name: "contrat_001.pdf" },
-          invoices: [
-            { id: 101, numero_facture: "FV-2026-001", date_facture: "2026-01-10", montant_ht: 5000, tva_pct: 19, statut: "Payé", type_facture: "Acompte" },
-            { id: 102, numero_facture: "FV-2026-002", date_facture: "2026-02-15", montant_ht: 10000, tva_pct: 19, statut: "Payement En Attente", type_facture: "Situation n°1" },
-          ]
-        },
-        { 
-          id: 2, 
-          reference_projet: "PRJ-2026-002", 
-          nom_projet: "Rénovation Pont", 
-          client: "Ministère Y", 
-          montant_total_ht: 120000, 
-          montant_avenant_ht: 0,
-          tva_pct: 19,
-          file_contrat: null,
-          invoices: [
-            { id: 201, numero_facture: "FV-2026-005", date_facture: "2026-03-01", montant_ht: 120000, tva_pct: 19, statut: "Payé", type_facture: "Unique" },
-          ]
-        },
+        { id: 1, reference_projet: "PRJ-2026-001", nom_projet: "Eclairage Avenue", client: "Commune X", montant_total_ht: 50000, montant_avenant_ht: 5000, tva_pct: 19, file_contrat: { name: "contrat_001.pdf" }, invoices: [{ id: 101, numero_facture: "FV-2026-001", date_facture: "2026-01-10", montant_ht: 5000, tva_pct: 19, statut: "Payé", type_facture: "Acompte" }, { id: 102, numero_facture: "FV-2026-002", date_facture: "2026-02-15", montant_ht: 10000, tva_pct: 19, statut: "Payement En Attente", type_facture: "Situation n°1" }] },
+        { id: 2, reference_projet: "PRJ-2026-002", nom_projet: "Rénovation Pont", client: "Ministère Y", montant_total_ht: 120000, montant_avenant_ht: 0, tva_pct: 19, file_contrat: null, invoices: [{ id: 201, numero_facture: "FV-2026-005", date_facture: "2026-03-01", montant_ht: 120000, tva_pct: 19, statut: "Payé", type_facture: "Unique" }] },
       ]);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadProjects();
-  }, [selectedYear, search, statusFilter]);
+  useEffect(() => { loadProjects(); }, [selectedYear, search, statusFilter]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -298,13 +255,14 @@ const Projects = () => {
     }
   };
 
+  const toggleColumn = (id: string) => {
+    setVisibleColumns(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
+  };
+
   const toggleExpand = (id: number) => {
     const newExpanded = new Set(expandedProjects);
-    if (newExpanded.has(id)) {
-      newExpanded.delete(id);
-    } else {
-      newExpanded.add(id);
-    }
+    if (newExpanded.has(id)) newExpanded.delete(id);
+    else newExpanded.add(id);
     setExpandedProjects(newExpanded);
   };
 
@@ -318,17 +276,10 @@ const Projects = () => {
     }
   };
 
-  const handleAddInvoiceClick = (project: any) => {
-    setSelectedProject(project);
-    setSelectedInvoice(null);
-    setIsInvoiceModalOpen(true);
-  };
+  const handleAddInvoiceClick = (project: any) => { setSelectedProject(project); setSelectedInvoice(null); setIsInvoiceModalOpen(true); };
+  const handleEditInvoiceClick = (project: any, invoice: any) => { setSelectedProject(project); setSelectedInvoice(invoice); setIsInvoiceModalOpen(true); };
 
-  const handleEditInvoiceClick = (project: any, invoice: any) => {
-    setSelectedProject(project);
-    setSelectedInvoice(invoice);
-    setIsInvoiceModalOpen(true);
-  };
+  const isVisible = (id: string) => visibleColumns.includes(id);
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -337,12 +288,12 @@ const Projects = () => {
           <h1 className="text-3xl font-bold text-slate-900">Projets & Facturation</h1>
           <p className="text-slate-500">Gérez vos contrats et suivez l'avancement de la facturation</p>
         </div>
-        <Button 
-          onClick={() => { setSelectedProject(null); setIsModalOpen(true); }}
-          className="rounded-xl shadow-lg shadow-primary/20 gap-2 h-11 px-6"
-        >
-          <Plus size={18} /> Nouveau Projet
-        </Button>
+        <div className="flex items-center gap-3">
+          <ColumnToggle columns={PROJECT_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
+          <Button onClick={() => { setSelectedProject(null); setIsModalOpen(true); }} className="rounded-xl shadow-lg shadow-primary/20 gap-2 h-11 px-6">
+            <Plus size={18} /> Nouveau Projet
+          </Button>
+        </div>
       </div>
 
       <Card className="border-none shadow-md overflow-hidden">
@@ -350,21 +301,12 @@ const Projects = () => {
           <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-50/30">
             <div className="relative w-full md:w-96">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-              <Input 
-                placeholder="Référence, nom ou client..." 
-                className="pl-10 rounded-xl border-slate-200"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+              <Input placeholder="Référence, nom ou client..." className="pl-10 rounded-xl border-slate-200" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5">
                 <Filter size={14} className="text-slate-500" />
-                <select 
-                  className="text-sm font-medium bg-transparent outline-none border-none cursor-pointer"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                >
+                <select className="text-sm font-medium bg-transparent outline-none border-none cursor-pointer" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="all">Tous les statuts</option>
                   <option value="Soldé">Soldé</option>
                   <option value="Totalement Facturé">Totalement Facturé</option>
@@ -376,51 +318,32 @@ const Projects = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <DndContext 
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <Table className="table-fixed w-full">
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="hover:bg-transparent border-slate-100">
                     <ResizableHeader initialWidth={80} minWidth={60}></ResizableHeader>
-                    <ResizableHeader initialWidth={120} minWidth={80} className="font-bold text-slate-700">Référence</ResizableHeader>
-                    <ResizableHeader initialWidth={200} minWidth={100} className="font-bold text-slate-700">Projet</ResizableHeader>
-                    <ResizableHeader initialWidth={100} minWidth={80} className="font-bold text-slate-700">Contrat</ResizableHeader>
-                    <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Total HT</ResizableHeader>
-                    <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Avenant HT</ResizableHeader>
-                    <ResizableHeader initialWidth={120} minWidth={80} className="font-bold text-slate-700 text-right">TVA</ResizableHeader>
-                    <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Total TTC</ResizableHeader>
-                    <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Facturé HT</ResizableHeader>
-                    <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Payé TTC</ResizableHeader>
-                    <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Reste TTC</ResizableHeader>
-                    <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Statut</ResizableHeader>
+                    {isVisible("reference") && <ResizableHeader initialWidth={120} minWidth={80} className="font-bold text-slate-700">Référence</ResizableHeader>}
+                    {isVisible("nom") && <ResizableHeader initialWidth={200} minWidth={100} className="font-bold text-slate-700">Projet</ResizableHeader>}
+                    {isVisible("contrat") && <ResizableHeader initialWidth={100} minWidth={80} className="font-bold text-slate-700">Contrat</ResizableHeader>}
+                    {isVisible("total_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Total HT</ResizableHeader>}
+                    {isVisible("avenant_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Avenant HT</ResizableHeader>}
+                    {isVisible("tva") && <ResizableHeader initialWidth={120} minWidth={80} className="font-bold text-slate-700 text-right">TVA</ResizableHeader>}
+                    {isVisible("total_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Total TTC</ResizableHeader>}
+                    {isVisible("facture_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Facturé HT</ResizableHeader>}
+                    {isVisible("paye_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Payé TTC</ResizableHeader>}
+                    {isVisible("reste_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Reste TTC</ResizableHeader>}
+                    {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Statut</ResizableHeader>}
                     <ResizableHeader initialWidth={60} minWidth={40}></ResizableHeader>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loading ? (
-                    <TableRow><TableCell colSpan={13} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={visibleColumns.length + 2} className="h-16 text-center">Chargement...</TableCell></TableRow>
                   ) : (
-                    <SortableContext 
-                      items={projects.map(p => p.id)}
-                      strategy={verticalListSortingStrategy}
-                    >
+                    <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
                       {projects.map((project) => (
-                        <SortableProjectRow 
-                          key={project.id}
-                          project={project}
-                          expandedProjects={expandedProjects}
-                          toggleExpand={toggleExpand}
-                          getStatusBadge={getStatusBadge}
-                          handleAddInvoiceClick={handleAddInvoiceClick}
-                          handleEditInvoiceClick={handleEditInvoiceClick}
-                          setSelectedProject={setSelectedProject}
-                          setIsDetailOpen={setIsDetailOpen}
-                          setIsModalOpen={setIsModalOpen}
-                          setIsConfirmOpen={setIsConfirmOpen}
-                        />
+                        <SortableProjectRow key={project.id} project={project} expandedProjects={expandedProjects} toggleExpand={toggleExpand} getStatusBadge={getStatusBadge} handleAddInvoiceClick={handleAddInvoiceClick} handleEditInvoiceClick={handleEditInvoiceClick} setSelectedProject={setSelectedProject} setIsDetailOpen={setIsDetailOpen} setIsModalOpen={setIsModalOpen} setIsConfirmOpen={setIsConfirmOpen} visibleColumns={visibleColumns} />
                       ))}
                     </SortableContext>
                   )}
@@ -434,13 +357,7 @@ const Projects = () => {
       <ProjectModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSubmit={() => { showSuccess("Projet enregistré"); setIsModalOpen(false); loadProjects(); }} initialData={selectedProject} />
       <ProjectDetail isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} project={selectedProject} />
       <ConfirmDialog isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={() => { showSuccess("Projet supprimé"); setIsConfirmOpen(false); loadProjects(); }} title="Supprimer le projet ?" description="Cette action supprimera également toutes les factures liées." variant="destructive" confirmText="Supprimer" />
-      
-      <SalesInvoiceModal 
-        isOpen={isInvoiceModalOpen} 
-        onClose={() => setIsInvoiceModalOpen(false)} 
-        onSubmit={() => { showSuccess("Facture enregistrée"); setIsInvoiceModalOpen(false); loadProjects(); }} 
-        initialData={selectedInvoice} 
-      />
+      <SalesInvoiceModal isOpen={isInvoiceModalOpen} onClose={() => setIsInvoiceModalOpen(false)} onSubmit={() => { showSuccess("Facture enregistrée"); setIsInvoiceModalOpen(false); loadProjects(); }} initialData={selectedInvoice} />
     </div>
   );
 };
