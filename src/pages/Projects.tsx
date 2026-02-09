@@ -288,12 +288,9 @@ const Projects = () => {
           <h1 className="text-3xl font-bold text-slate-900">Projets & Facturation</h1>
           <p className="text-slate-500">Gérez vos contrats et suivez l'avancement de la facturation</p>
         </div>
-        <div className="flex items-center gap-3">
-          <ColumnToggle columns={PROJECT_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
-          <Button onClick={() => { setSelectedProject(null); setIsModalOpen(true); }} className="rounded-xl shadow-lg shadow-primary/20 gap-2 h-11 px-6">
-            <Plus size={18} /> Nouveau Projet
-          </Button>
-        </div>
+        <Button onClick={() => { setSelectedProject(null); setIsModalOpen(true); }} className="rounded-xl shadow-lg shadow-primary/20 gap-2 h-11 px-6">
+          <Plus size={18} /> Nouveau Projet
+        </Button>
       </div>
 
       <Card className="border-none shadow-md overflow-hidden">
@@ -334,7 +331,9 @@ const Projects = () => {
                     {isVisible("paye_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Payé TTC</ResizableHeader>}
                     {isVisible("reste_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Reste TTC</ResizableHeader>}
                     {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Statut</ResizableHeader>}
-                    <ResizableHeader initialWidth={60} minWidth={40}></ResizableHeader>
+                    <ResizableHeader initialWidth={60} minWidth={40}>
+                      <ColumnToggle columns={PROJECT_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
+                    </ResizableHeader>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

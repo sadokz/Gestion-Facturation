@@ -243,12 +243,9 @@ const Companies = () => {
           <h1 className="text-3xl font-bold text-slate-900">Annuaire Entreprises</h1>
           <p className="text-slate-500">Gérez vos partenaires, sous-traitants et autres entreprises</p>
         </div>
-        <div className="flex items-center gap-3">
-          <ColumnToggle columns={COMPANY_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
-          <Button onClick={() => { setSelectedCompany(null); setIsCompanyModalOpen(true); }} className="rounded-xl shadow-lg shadow-amber-500/20 bg-amber-600 hover:bg-amber-700 gap-2 h-11 px-6 text-white">
-            <Plus size={18} /> Nouvelle Entreprise
-          </Button>
-        </div>
+        <Button onClick={() => { setSelectedCompany(null); setIsCompanyModalOpen(true); }} className="rounded-xl shadow-lg shadow-amber-500/20 bg-amber-600 hover:bg-amber-700 gap-2 h-11 px-6 text-white">
+          <Plus size={18} /> Nouvelle Entreprise
+        </Button>
       </div>
 
       <Card className="border-none shadow-md overflow-hidden">
@@ -271,7 +268,9 @@ const Companies = () => {
                     {isVisible("tel") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Téléphone</ResizableHeader>}
                     {isVisible("fax") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Fax</ResizableHeader>}
                     {isVisible("email") && <ResizableHeader initialWidth={250} minWidth={150} className="font-bold text-slate-700">Email</ResizableHeader>}
-                    <ResizableHeader initialWidth={60} minWidth={40}></ResizableHeader>
+                    <ResizableHeader initialWidth={60} minWidth={40}>
+                      <ColumnToggle columns={COMPANY_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
+                    </ResizableHeader>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

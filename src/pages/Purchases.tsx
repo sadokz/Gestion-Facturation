@@ -204,7 +204,6 @@ const Purchases = () => {
           <p className="text-slate-500">Suivez vos factures fournisseurs et vos coûts opérationnels</p>
         </div>
         <div className="flex items-center gap-3">
-          <ColumnToggle columns={PURCHASE_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
           <Button variant="outline" className="rounded-xl gap-2 h-11 px-4 border-slate-200" onClick={handleExport}><Download size={18} /> Export</Button>
           <Button onClick={() => { setSelectedPurchase(null); setIsModalOpen(true); }} className="rounded-xl shadow-lg shadow-rose-500/20 bg-rose-600 hover:bg-rose-700 gap-2 h-11 px-6"><Plus size={18} /> Nouvel Achat</Button>
         </div>
@@ -233,7 +232,9 @@ const Purchases = () => {
                     {isVisible("montant_ht") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700 text-right">Montant HT</ResizableHeader>}
                     {isVisible("ttc") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700 text-right">TTC</ResizableHeader>}
                     {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Statut</ResizableHeader>}
-                    <ResizableHeader initialWidth={80} minWidth={60}></ResizableHeader>
+                    <ResizableHeader initialWidth={80} minWidth={60}>
+                      <ColumnToggle columns={PURCHASE_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
+                    </ResizableHeader>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

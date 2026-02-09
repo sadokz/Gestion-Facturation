@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Settings2 } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 
 interface Column {
   id: string;
@@ -25,8 +25,8 @@ export const ColumnToggle: React.FC<ColumnToggleProps> = ({ columns, visibleColu
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="rounded-xl border-slate-200 h-11 w-11">
-          <Settings2 size={18} className="text-slate-500" />
+        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-slate-200">
+          <MoreVertical size={16} className="text-slate-500" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-xl border-slate-200">
