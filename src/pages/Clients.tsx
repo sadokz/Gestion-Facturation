@@ -11,7 +11,8 @@ import {
   Mail,
   MapPin,
   Printer,
-  GripVertical
+  GripVertical,
+  Briefcase
 } from "lucide-react";
 import { fetcher } from "@/api/config";
 import {
@@ -26,6 +27,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,25 +41,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/utils";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
 import { ColumnToggle } from "@/components/ui/ColumnToggle";
-
-// DND Kit Imports
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  useSortable,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { useNavigate } from "react-router-dom";
 
 const CLIENT_COLUMNS = [
   { id: "nom", label: "Client" },
@@ -77,6 +62,7 @@ const SortableClientRow = ({
   setIsRespModalOpen,
   visibleColumns
 }: any) => {
+  const navigate = useNavigate();
   const {
     attributes,
     listeners,
@@ -153,9 +139,27 @@ const SortableClientRow = ({
                 <MoreHorizontal size={16} />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
+            <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl w-56">
+              <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold">Actions</DropdownMenuLabel>
               <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedClient(client); setIsClientModalOpen(true); }}><Edit size={14} /> Modifier Client</DropdownMenuItem>
               <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedClient(client); setIsConfirmOpen(true); }}><Trash2 size={14} /> Supprimer</DropdownMenuItem>
+              
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold">Projets associés</DropdownMenuLabel>
+              {client.projects && client.projects.length > 0 ? (
+                client.projects.map((project: any) => (
+                  <DropdownMenuItem 
+                    key={project.id} 
+                    className="gap-2 cursor-pointer text-xs"
+                    onClick={() => navigate(`/projects?search=${project.nom_projet}`)}
+                  >
+                    <Briefcase size={12} className="text-indigo-500" />
+                    <span className="truncate">{project.nom_projet}</span>
+                  </DropdownMenuItem>
+                ))
+              ) : (
+                <div className="px-2 py-1.5 text-[10px] text-slate-400 italic">Aucun projet enregistré</div>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </TableCell>
@@ -195,8 +199,36 @@ const Clients = () => {
       setClients(data);
     } catch (err) {
       setClients([
-        { id: 1, nom: "Commune de Tunis", adresse: "Avenue Habib Bourguiba, Tunis", tel: "71 123 456", fax: "71 123 457", email: "contact@commune-tunis.gov.tn", responsibles: [{ id: 101, nom: "M. Ahmed Ben Salah", role: "Directeur Technique", tel: "98 000 111", email: "ahmed.salah@commune.tn" }, { id: 102, nom: "Mme. Sarra Mansour", role: "Chef de Projet", tel: "22 333 444", email: "sarra.m@commune.tn" }] },
-        { id: 2, nom: "STEG", adresse: "Rue Kamel Ataturk, Tunis", tel: "71 333 444", fax: "71 333 445", email: "info@steg.com.tn", responsibles: [{ id: 201, nom: "M. Sami Trabelsi", role: "Ingénieur Principal", tel: "55 666 777", email: "s.trabelsi@steg.com.tn" }] },
+        { 
+          id: 1, 
+          nom: "Commune de Tunis", 
+          adresse: "Avenue Habib Bourguiba, Tunis", 
+          tel: "71 123 456", 
+          fax: "71 123 457", 
+          email: "contact@commune-tunis.gov.tn", 
+          projects: [
+            { id: 1, nom_projet: "Eclairage Avenue" },
+            { id: 2, nom_projet: "Rénovation Pont" }
+          ],
+          responsibles: [
+            { id: 101, nom: "M. Ahmed Ben Salah", role: "Directeur Technique", tel: "98 000 111", email: "ahmed.salah@commune.tn" }, 
+            { id: 102, nom: "Mme. Sarra Mansour", role: "Chef de Projet", tel: "22 333 444", email: "sarra.m@commune.tn" }
+          ] 
+        },
+        { 
+          id: 2, 
+          nom: "STEG", 
+          adresse: "Rue Kamel Ataturk, Tunis", 
+          tel: "71 333 444", 
+          fax: "71 333 445", 
+          email: "info@steg.com.tn", 
+          projects: [
+            { id: 3, nom_projet: "Audit STEG" }
+          ],
+          responsibles: [
+            { id: 201, nom: "M. Sami Trabelsi", role: "Ingénieur Principal", tel: "55 666 777", email: "s.trabelsi@steg.com.tn" }
+          ] 
+        },
       ]);
     } finally {
       setLoading(false);
