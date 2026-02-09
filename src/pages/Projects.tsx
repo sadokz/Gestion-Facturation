@@ -10,7 +10,6 @@ import {
   ChevronDown,
   ChevronRight,
   GripVertical,
-  FileText,
   UploadCloud,
   CheckCircle2
 } from "lucide-react";
@@ -22,7 +21,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
@@ -43,6 +41,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { ProjectInvoicesList } from "@/components/projects/ProjectInvoicesList";
 import { SalesInvoiceModal } from "@/components/projects/SalesInvoiceModal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { ResizableHeader } from "@/components/ui/ResizableHeader";
 
 // DND Kit Imports
 import {
@@ -149,8 +148,8 @@ const SortableProjectRow = ({
         <TableCell className="font-mono text-[11px] font-bold text-primary">{project.reference_projet}</TableCell>
         <TableCell>
           <div className="flex flex-col">
-            <span className="font-bold text-slate-800 text-sm">{project.nom_projet}</span>
-            <span className="text-[10px] text-slate-500 uppercase font-medium">{project.client}</span>
+            <span className="font-bold text-slate-800 text-sm truncate">{project.nom_projet}</span>
+            <span className="text-[10px] text-slate-500 uppercase font-medium truncate">{project.client}</span>
           </div>
         </TableCell>
         <TableCell>
@@ -382,22 +381,22 @@ const Projects = () => {
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
             >
-              <Table>
+              <Table className="table-fixed w-full">
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="hover:bg-transparent border-slate-100">
-                    <TableHead className="w-[80px]"></TableHead>
-                    <TableHead className="font-bold text-slate-700">Référence</TableHead>
-                    <TableHead className="font-bold text-slate-700">Projet</TableHead>
-                    <TableHead className="font-bold text-slate-700">Contrat</TableHead>
-                    <TableHead className="font-bold text-slate-700 text-right">Montant Total HT</TableHead>
-                    <TableHead className="font-bold text-slate-700 text-right">Montant Avenant HT</TableHead>
-                    <TableHead className="font-bold text-slate-700 text-right">Total TVA</TableHead>
-                    <TableHead className="font-bold text-slate-700 text-right">Montant Total TTC</TableHead>
-                    <TableHead className="font-bold text-slate-700 text-right">Total Facturé HT</TableHead>
-                    <TableHead className="font-bold text-slate-700 text-right">Total Payé TTC</TableHead>
-                    <TableHead className="font-bold text-slate-700 text-right">Reste à Payé TTC</TableHead>
-                    <TableHead className="font-bold text-slate-700">Statut</TableHead>
-                    <TableHead className="w-[60px]"></TableHead>
+                    <ResizableHeader initialWidth={80} minWidth={60}></ResizableHeader>
+                    <ResizableHeader initialWidth={120} minWidth={80} className="font-bold text-slate-700">Référence</ResizableHeader>
+                    <ResizableHeader initialWidth={200} minWidth={100} className="font-bold text-slate-700">Projet</ResizableHeader>
+                    <ResizableHeader initialWidth={100} minWidth={80} className="font-bold text-slate-700">Contrat</ResizableHeader>
+                    <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Total HT</ResizableHeader>
+                    <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Avenant HT</ResizableHeader>
+                    <ResizableHeader initialWidth={120} minWidth={80} className="font-bold text-slate-700 text-right">TVA</ResizableHeader>
+                    <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Total TTC</ResizableHeader>
+                    <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Facturé HT</ResizableHeader>
+                    <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Payé TTC</ResizableHeader>
+                    <ResizableHeader initialWidth={140} minWidth={100} className="font-bold text-slate-700 text-right">Reste TTC</ResizableHeader>
+                    <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Statut</ResizableHeader>
+                    <ResizableHeader initialWidth={60} minWidth={40}></ResizableHeader>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

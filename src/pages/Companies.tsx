@@ -19,7 +19,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
@@ -38,6 +37,7 @@ import { CompanyResponsibleModal } from "@/components/companies/CompanyResponsib
 import { CompanyResponsiblesList } from "@/components/companies/CompanyResponsiblesList";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/utils";
+import { ResizableHeader } from "@/components/ui/ResizableHeader";
 
 // DND Kit Imports
 import {
@@ -113,31 +113,31 @@ const SortableCompanyRow = ({
             </Button>
           </div>
         </TableCell>
-        <TableCell className="font-bold text-slate-800">
-          <div className="flex items-center gap-2">
-            <Building2 size={14} className="text-amber-500" />
+        <TableCell className="font-bold text-slate-800 truncate">
+          <div className="flex items-center gap-2 truncate">
+            <Building2 size={14} className="text-amber-500 shrink-0" />
             {company.nom}
           </div>
         </TableCell>
-        <TableCell className="max-w-[200px] truncate text-slate-500 text-xs">
-          <div className="flex items-center gap-1">
+        <TableCell className="text-slate-500 text-xs">
+          <div className="flex items-center gap-1 truncate">
             <MapPin size={12} className="shrink-0" /> {company.adresse}
           </div>
         </TableCell>
         <TableCell className="text-slate-600 text-sm">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 truncate">
             <Phone size={12} className="shrink-0" /> {company.tel}
           </div>
         </TableCell>
         <TableCell className="text-slate-400 text-sm">
           {company.fax ? (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 truncate">
               <Printer size={12} className="shrink-0" /> {company.fax}
             </div>
           ) : "-"}
         </TableCell>
         <TableCell className="text-amber-700 text-sm font-medium">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 truncate">
             <Mail size={12} className="shrink-0" /> {company.email}
           </div>
         </TableCell>
@@ -293,16 +293,16 @@ const Companies = () => {
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
             >
-              <Table>
+              <Table className="table-fixed w-full">
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="hover:bg-transparent border-slate-100">
-                    <TableHead className="w-[80px]"></TableHead>
-                    <TableHead className="font-bold text-slate-700">Entreprise</TableHead>
-                    <TableHead className="font-bold text-slate-700">Adresse</TableHead>
-                    <TableHead className="font-bold text-slate-700">Téléphone</TableHead>
-                    <TableHead className="font-bold text-slate-700">Fax</TableHead>
-                    <TableHead className="font-bold text-slate-700">Email</TableHead>
-                    <TableHead className="w-[60px]"></TableHead>
+                    <ResizableHeader initialWidth={80} minWidth={60}></ResizableHeader>
+                    <ResizableHeader initialWidth={250} minWidth={100} className="font-bold text-slate-700">Entreprise</ResizableHeader>
+                    <ResizableHeader initialWidth={300} minWidth={150} className="font-bold text-slate-700">Adresse</ResizableHeader>
+                    <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Téléphone</ResizableHeader>
+                    <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Fax</ResizableHeader>
+                    <ResizableHeader initialWidth={250} minWidth={150} className="font-bold text-slate-700">Email</ResizableHeader>
+                    <ResizableHeader initialWidth={60} minWidth={40}></ResizableHeader>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

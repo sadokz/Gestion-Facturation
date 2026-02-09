@@ -2,13 +2,9 @@ import React, { useEffect, useState } from "react";
 import { 
   Plus, 
   Search, 
-  Filter, 
   MoreHorizontal, 
   Edit, 
   Trash2,
-  Tag,
-  ChevronLeft,
-  ChevronRight,
   Download,
   GripVertical
 } from "lucide-react";
@@ -20,7 +16,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
@@ -38,6 +33,7 @@ import { PurchaseModal } from "@/components/purchases/PurchaseModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
+import { ResizableHeader } from "@/components/ui/ResizableHeader";
 
 // DND Kit Imports
 import {
@@ -98,21 +94,21 @@ const SortablePurchaseRow = ({
           <GripVertical size={16} />
         </div>
       </TableCell>
-      <TableCell className="font-bold text-slate-800">{purchase.fournisseur}</TableCell>
-      <TableCell className="font-mono text-xs text-slate-500">{purchase.numero_facture}</TableCell>
-      <TableCell className="text-slate-600">{formatDateFR(purchase.date_facture)}</TableCell>
-      <TableCell className="text-slate-600 font-medium">{formatDateFR(purchase.date_payement)}</TableCell>
+      <TableCell className="font-bold text-slate-800 truncate">{purchase.fournisseur}</TableCell>
+      <TableCell className="font-mono text-xs text-slate-500 truncate">{purchase.numero_facture}</TableCell>
+      <TableCell className="text-slate-600 truncate">{formatDateFR(purchase.date_facture)}</TableCell>
+      <TableCell className="text-slate-600 font-medium truncate">{formatDateFR(purchase.date_payement)}</TableCell>
       <TableCell>
-        <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded-lg">
+        <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded-lg truncate">
           {purchase.categorie}
         </span>
       </TableCell>
-      <TableCell className="text-right font-medium">{formatCurrencyDT(purchase.montant_ht)}</TableCell>
-      <TableCell className="text-right font-bold text-slate-900">
+      <TableCell className="text-right font-medium truncate">{formatCurrencyDT(purchase.montant_ht)}</TableCell>
+      <TableCell className="text-right font-bold text-slate-900 truncate">
         {formatCurrencyDT(computeTTC(purchase.montant_ht, purchase.tva_pct))}
       </TableCell>
       <TableCell>
-        <Badge className={purchase.statut === "Payée" ? "bg-emerald-100 text-emerald-700 border-emerald-200" : "bg-rose-100 text-rose-700 border-rose-200"}>
+        <Badge className={cn("truncate", purchase.statut === "Payée" ? "bg-emerald-100 text-emerald-700 border-emerald-200" : "bg-rose-100 text-rose-700 border-rose-200")}>
           {purchase.statut}
         </Badge>
       </TableCell>
@@ -246,19 +242,19 @@ const Purchases = () => {
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
             >
-              <Table>
+              <Table className="table-fixed w-full">
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="hover:bg-transparent border-slate-100">
-                    <TableHead className="w-[60px]"></TableHead>
-                    <TableHead className="font-bold text-slate-700">Fournisseur</TableHead>
-                    <TableHead className="font-bold text-slate-700">N° Facture</TableHead>
-                    <TableHead className="font-bold text-slate-700">Date Facture</TableHead>
-                    <TableHead className="font-bold text-slate-700">Date Paiement</TableHead>
-                    <TableHead className="font-bold text-slate-700">Catégorie</TableHead>
-                    <TableHead className="font-bold text-slate-700 text-right">Montant HT</TableHead>
-                    <TableHead className="font-bold text-slate-700 text-right">TTC</TableHead>
-                    <TableHead className="font-bold text-slate-700">Statut</TableHead>
-                    <TableHead className="w-[80px]"></TableHead>
+                    <ResizableHeader initialWidth={60} minWidth={40}></ResizableHeader>
+                    <ResizableHeader initialWidth={200} minWidth={100} className="font-bold text-slate-700">Fournisseur</ResizableHeader>
+                    <ResizableHeader initialWidth={150} minWidth={80} className="font-bold text-slate-700">N° Facture</ResizableHeader>
+                    <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Date Facture</ResizableHeader>
+                    <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Date Paiement</ResizableHeader>
+                    <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Catégorie</ResizableHeader>
+                    <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700 text-right">Montant HT</ResizableHeader>
+                    <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700 text-right">TTC</ResizableHeader>
+                    <ResizableHeader initialWidth={150} minWidth={100} className="font-bold text-slate-700">Statut</ResizableHeader>
+                    <ResizableHeader initialWidth={80} minWidth={60}></ResizableHeader>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
