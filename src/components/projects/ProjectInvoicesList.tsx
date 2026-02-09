@@ -1,9 +1,10 @@
 import React from "react";
-import { Receipt, Plus, Edit, CalendarCheck, CalendarDays } from "lucide-react";
+import { Receipt, Plus, Edit, CalendarCheck, CalendarDays, FileText, UploadCloud, CheckCircle2 } from "lucide-react";
 import { formatCurrencyDT, formatDateFR } from "@/utils/formatters";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ProjectInvoicesListProps {
   invoices: any[];
@@ -29,6 +30,28 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
     }
   };
 
+  const FileStatus = ({ label, hasFile, onUpload }: { label: string, hasFile: boolean, onUpload: () => void }) => (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button 
+          onClick={(e) => { e.stopPropagation(); onUpload(); }}
+          className={cn(
+            "flex flex-col items-center justify-center w-10 h-10 rounded-xl border transition-all",
+            hasFile 
+              ? "bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100" 
+              : "bg-slate-50 border-slate-200 text-slate-400 hover:border-primary/30 hover:text-primary"
+          )}
+        >
+          {hasFile ? <CheckCircle2 size={16} /> : <UploadCloud size={16} />}
+          <span className="text-[7px] font-bold uppercase mt-0.5">{label}</span>
+        </button>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p className="text-xs">{hasFile ? `Voir ${label}` : `Téléverser ${label}`}</p>
+      </TooltipContent>
+    </Tooltip>
+  );
+
   return (
     <div className="bg-slate-50/50 p-6 rounded-b-2xl border-t border-slate-100 animate-in slide-in-from-top-2 duration-300">
       <div className="flex items-center justify-between mb-4">
@@ -53,7 +76,8 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
               key={inv.id || idx} 
               className="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-100 shadow-sm group hover:border-primary/30 transition-colors"
             >
-              <div className="flex items-center gap-4 w-1/4">
+              {/* Info Facture */}
+              <div className="flex items-center gap-4 w-[18%]">
                 <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-[10px] font-bold text-slate-400 shrink-0">
                   #{idx + 1}
                 </div>
@@ -63,7 +87,8 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
                 </div>
               </div>
               
-              <div className="flex-1 grid grid-cols-2 gap-4 px-4">
+              {/* Dates */}
+              <div className="flex-1 grid grid-cols-2 gap-4 px-4 max-w-[25%]">
                 <div className="flex flex-col">
                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Émission</span>
                   <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
@@ -82,8 +107,16 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
                   </div>
                 </div>
               </div>
+
+              {/* Fichiers Téléversables */}
+              <div className="flex items-center gap-3 px-4 border-x border-slate-100">
+                <FileStatus label="Facture" hasFile={!!inv.file_facture} onUpload={() => onEditInvoice(inv)} />
+                <FileStatus label="Décharge" hasFile={!!inv.file_decharge} onUpload={() => onEditInvoice(inv)} />
+                <FileStatus label="Retenue" hasFile={!!inv.file_retenue} onUpload={() => onEditInvoice(inv)} />
+              </div>
               
-              <div className="flex items-center gap-6 w-1/3 justify-end">
+              {/* Montant & Statut */}
+              <div className="flex items-center gap-6 w-[30%] justify-end">
                 <div className="text-right">
                   <p className="text-sm font-black text-slate-900">{formatCurrencyDT(inv.montant_ht)}</p>
                   <p className="text-[10px] text-slate-400">HT</p>
