@@ -8,7 +8,8 @@ import {
   PieChart as PieChartIcon,
   Activity,
   Users,
-  Briefcase
+  Briefcase,
+  CalendarDays
 } from "lucide-react";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { useYear } from "@/context/YearContext";
@@ -179,10 +180,10 @@ const Dashboard = () => {
           <CardContent className="p-0">
             <div className="divide-y divide-slate-100">
               {[
-                { type: 'invoice', title: 'Facture FV-2026-012 émise', project: 'Eclairage Avenue', amount: 4500, date: '2026-03-15' },
-                { type: 'purchase', title: 'Nouvel achat : Bureau Vallée', project: 'Frais Généraux', amount: 120, date: '2026-03-14' },
-                { type: 'project', title: 'Nouveau projet signé : Audit STEG', project: 'Audit STEG', amount: 15000, date: '2026-03-12' },
-                { type: 'payment', title: 'Paiement reçu : Commune X', project: 'Rénovation Pont', amount: 12000, date: '2026-03-10' },
+                { type: 'invoice', title: 'Facture FV-2026-012', project: 'Eclairage Avenue', amount: 4500, date_emission: '2026-03-15', date_payement: '2026-03-20' },
+                { type: 'purchase', title: 'Nouvel achat : Bureau Vallée', project: 'Frais Généraux', amount: 120, date_emission: '2026-03-14' },
+                { type: 'project', title: 'Nouveau projet signé : Audit STEG', project: 'Audit STEG', amount: 15000, date_emission: '2026-03-12' },
+                { type: 'invoice', title: 'Facture FV-2026-011', project: 'Rénovation Pont', amount: 12000, date_emission: '2026-03-10', date_payement: null },
               ].map((item, i) => (
                 <div key={i} className="p-4 flex items-center gap-4 hover:bg-slate-50 transition-colors">
                   <div className={cn(
@@ -199,9 +200,21 @@ const Dashboard = () => {
                     <p className="text-sm font-bold text-slate-800">{item.title}</p>
                     <p className="text-xs text-slate-500">{item.project}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right flex flex-col items-end gap-1">
                     <p className="text-sm font-bold text-slate-700">{formatCurrencyDT(item.amount)}</p>
-                    <p className="text-[10px] text-slate-400">{formatDateFR(item.date)}</p>
+                    <div className="flex flex-col items-end">
+                      <p className="text-[10px] text-slate-400 flex items-center gap-1">
+                        <CalendarDays size={10} /> Émise : {formatDateFR(item.date_emission)}
+                      </p>
+                      {item.type === 'invoice' && item.date_payement && (
+                        <p className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                          <CheckCircle2 size={10} /> Payée : {formatDateFR(item.date_payement)}
+                        </p>
+                      )}
+                      {item.type === 'invoice' && !item.date_payement && (
+                        <p className="text-[10px] text-amber-500 font-bold">En attente</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
