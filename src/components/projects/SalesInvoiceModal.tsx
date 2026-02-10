@@ -76,6 +76,8 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({
     },
   });
 
+  const currentStatus = form.watch("statut");
+
   React.useEffect(() => {
     if (isOpen) {
       form.reset({
@@ -250,8 +252,12 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({
               name="mode_paiement"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Mode de paiement</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <FormLabel className={cn(currentStatus !== "Payé" && "opacity-50")}>Mode de paiement</FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    value={field.value}
+                    disabled={currentStatus !== "Payé"}
+                  >
                     <FormControl>
                       <SelectTrigger className="rounded-xl">
                         <SelectValue placeholder="Choisir un mode" />
@@ -263,6 +269,9 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({
                       <SelectItem value="Espèce">Espèce</SelectItem>
                     </SelectContent>
                   </Select>
+                  {currentStatus !== "Payé" && (
+                    <p className="text-[10px] text-amber-600 font-medium">Disponible uniquement si le statut est "Payé"</p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
