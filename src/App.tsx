@@ -5,8 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { YearProvider } from "./context/YearContext";
 import { NavigationProvider } from "./context/NavigationContext";
-import { DashboardProvider } from "./context/DashboardContext"; // Import DashboardProvider
+import { DashboardProvider } from "./context/DashboardContext";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
+import { ThemeProvider } from "./components/theme-provider";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import Clients from "./pages/Clients";
@@ -23,33 +24,35 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <YearProvider>
-      <NavigationProvider>
-        <DashboardProvider> {/* Wrap with DashboardProvider */}
-          <TooltipProvider>
-            <Toaster />
-            <Sonner position="top-right" expand={false} richColors />
-            <BrowserRouter>
-              <DashboardLayout>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/projects" element={<Projects />} />
-                  <Route path="/clients" element={<Clients />} />
-                  <Route path="/companies" element={<Companies />} />
-                  <Route path="/purchases" element={<Purchases />} />
-                  <Route path="/salaries" element={<Salaries />} />
-                  <Route path="/hr" element={<HR />} />
-                  <Route path="/cnss" element={<CNSS />} />
-                  <Route path="/accounting" element={<Accounting />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </DashboardLayout>
-            </BrowserRouter>
-          </TooltipProvider>
-        </DashboardProvider>
-      </NavigationProvider>
-    </YearProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <YearProvider>
+        <NavigationProvider>
+          <DashboardProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner position="top-right" expand={false} richColors />
+              <BrowserRouter>
+                <DashboardLayout>
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/projects" element={<Projects />} />
+                    <Route path="/clients" element={<Clients />} />
+                    <Route path="/companies" element={<Companies />} />
+                    <Route path="/purchases" element={<Purchases />} />
+                    <Route path="/salaries" element={<Salaries />} />
+                    <Route path="/hr" element={<HR />} />
+                    <Route path="/cnss" element={<CNSS />} />
+                    <Route path="/accounting" element={<Accounting />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </DashboardLayout>
+              </BrowserRouter>
+            </TooltipProvider>
+          </DashboardProvider>
+        </NavigationProvider>
+      </YearProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

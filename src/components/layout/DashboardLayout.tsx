@@ -30,6 +30,7 @@ import { GlobalSearch } from "./GlobalSearch";
 import { Button } from "@/components/ui/button";
 import { DashboardCustomizationModal } from "../dashboard/DashboardCustomizationModal";
 import { YearManagementModal } from "./YearManagementModal";
+import { ThemeToggle } from "../theme-toggle";
 
 const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
   <Link
@@ -56,11 +57,11 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   const [isYearModalOpen, setIsYearModalOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC] overflow-hidden">
+    <div className="flex min-h-screen bg-[#F8FAFC] dark:bg-slate-950 overflow-hidden">
       {/* Sidebar */}
       <aside 
         className={cn(
-          "bg-white border-r border-slate-200 p-6 flex flex-col gap-8 sticky top-0 h-screen transition-all duration-300 ease-in-out z-30 shrink-0",
+          "bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-8 sticky top-0 h-screen transition-all duration-300 ease-in-out z-30 shrink-0",
           isSidebarOpen ? "w-64 translate-x-0" : "w-0 p-0 -translate-x-full border-none"
         )}
       >
@@ -74,7 +75,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/30 shrink-0">
             B
           </div>
-          <span className="font-bold text-xl tracking-tight text-slate-800 whitespace-nowrap">Bureau d'Étude</span>
+          <span className="font-bold text-xl tracking-tight text-slate-800 dark:text-slate-100 whitespace-nowrap">Bureau d'Étude</span>
         </button>
 
         <nav className={cn("flex flex-col gap-2 transition-opacity duration-200 overflow-y-auto pr-2", !isSidebarOpen && "opacity-0")}>
@@ -160,9 +161,9 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
           )}
         </nav>
 
-        <div className={cn("mt-auto p-4 bg-slate-50 rounded-2xl border border-slate-100 transition-opacity duration-200", !isSidebarOpen && "opacity-0")}>
-          <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-2 whitespace-nowrap">Support</p>
-          <p className="text-sm text-slate-700 whitespace-nowrap">Besoin d'aide ?</p>
+        <div className={cn("mt-auto p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 transition-opacity duration-200", !isSidebarOpen && "opacity-0")}>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mb-2 whitespace-nowrap">Support</p>
+          <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">Besoin d'aide ?</p>
           <button className="text-xs text-primary font-semibold mt-1 hover:underline whitespace-nowrap">Consulter la doc</button>
         </div>
       </aside>
@@ -170,7 +171,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Topbar */}
-        <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-20">
+        <header className="h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-8 flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-4 flex-1">
             {!isSidebarOpen && (
               <button 
@@ -180,27 +181,28 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                 <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/30 shrink-0">
                   B
                 </div>
-                <span className="font-bold text-xl tracking-tight text-slate-800 whitespace-nowrap hidden sm:block">Bureau d'Étude</span>
+                <span className="font-bold text-xl tracking-tight text-slate-800 dark:text-slate-100 whitespace-nowrap hidden sm:block">Bureau d'Étude</span>
               </button>
             )}
             <GlobalSearch />
           </div>
 
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             <Button 
               variant="outline" 
               size="sm" 
-              className="rounded-xl gap-2 h-9 px-4 border-slate-200 text-slate-600 hover:bg-slate-50"
+              className="rounded-xl gap-2 h-9 px-4 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
               onClick={() => setIsCustomizationModalOpen(true)}
             >
               <Settings2 size={16} /> Personnaliser
             </Button>
-            <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm">
+            <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
               <Calendar size={16} className="text-slate-500" />
-              <span className="text-sm font-medium text-slate-600">Exercice :</span>
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Exercice :</span>
               <div className="flex items-center gap-1">
                 <Select value={selectedYear.toString()} onValueChange={(v) => setSelectedYear(parseInt(v))}>
-                  <SelectTrigger className="w-[100px] border-none shadow-none h-8 focus:ring-0 font-bold text-primary">
+                  <SelectTrigger className="w-[100px] border-none shadow-none h-8 focus:ring-0 font-bold text-primary bg-transparent">
                     <SelectValue placeholder="Année" />
                   </SelectTrigger>
                   <SelectContent>
@@ -212,14 +214,14 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-6 w-6 rounded-full hover:bg-slate-100 text-slate-400"
+                  className="h-6 w-6 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
                   onClick={() => setIsYearModalOpen(true)}
                 >
                   <Plus size={14} />
                 </Button>
               </div>
             </div>
-            <div className="w-10 h-10 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden shrink-0">
+            <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-white dark:border-slate-700 shadow-sm overflow-hidden shrink-0">
               <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" />
             </div>
           </div>
