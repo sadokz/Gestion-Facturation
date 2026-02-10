@@ -114,7 +114,7 @@ const SortableInvoiceItem = ({
 
       <div className="flex items-center gap-1.5 justify-center border-x border-slate-100 px-1">
         <FileStatus label="Fact" hasFile={!!inv.file_facture} onUpload={() => onEditInvoice(inv)} />
-        <FileStatus label="Déch" hasFile={!!inv.file_decharge} onUpload={() => onEditInvoice(inv)} />
+        <FileStatus label="Dépôt" hasFile={!!inv.file_decharge} onUpload={() => onEditInvoice(inv)} />
         <FileStatus label="Ret" hasFile={!!inv.file_retenue} onUpload={() => onEditInvoice(inv)} />
       </div>
       

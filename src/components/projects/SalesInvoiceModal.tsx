@@ -288,7 +288,7 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({
                     render={({ field: { value, onChange, ...field } }) => (
                       <FormItem>
                         <FormLabel className="text-[10px] uppercase text-slate-500">
-                          {fieldName === 'file_facture' ? 'Facture' : fieldName === 'file_decharge' ? 'Décharge' : 'Retenue'}
+                          {fieldName === 'file_facture' ? 'Facture' : fieldName === 'file_decharge' ? 'Décharge dépots' : 'Retenue'}
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
