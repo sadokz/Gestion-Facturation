@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useDashboard } from "@/context/DashboardContext";
-import { Card, TrendingUp, PieChart as PieChartIcon, Activity, Users, LayoutDashboard, ShieldCheck, Banknote, DollarSign, Wallet } from "lucide-react";
+import { Card, TrendingUp, PieChart as PieChartIcon, Activity, Users, LayoutDashboard, ShieldCheck, Banknote, DollarSign, Wallet, FileText, CheckCircle2, Clock, ShoppingBag } from "lucide-react";
 
 interface DashboardCustomizationModalProps {
   isOpen: boolean;
@@ -21,13 +21,16 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
   const { preferences, togglePreference } = useDashboard();
 
   const sections = [
-    { id: "showKpiCards", label: "Cartes KPIs Générales", icon: LayoutDashboard },
+    { id: "totalContractsHT", label: "KPI : Total Contrats (HT)", icon: FileText },
+    { id: "totalInvoicedHT", label: "KPI : Total Facturé (HT)", icon: CheckCircle2 },
+    { id: "totalRemainingHT", label: "KPI : Reste à Facturer (HT)", icon: Clock },
+    { id: "totalPurchasesHT", label: "KPI : Total Achats (HT)", icon: ShoppingBag },
     { id: "showTotalCnssPaid", label: "KPI : Total Payé CNSS", icon: ShieldCheck },
     { id: "showTotalSalaries", label: "KPI : Total Salaires", icon: Banknote },
     { id: "showTotalRevenue", label: "KPI : Chiffre d'affaires", icon: TrendingUp },
     { id: "showTotalProfit", label: "KPI : Bénéfice Total", icon: Wallet },
     { id: "showMonthlyFlux", label: "Flux Mensuel (Graphique)", icon: TrendingUp },
-    { id: "showProjectStatus", label: "Statut des Factures (Graphique)", icon: PieChartIcon }, // Changed label
+    { id: "showProjectStatus", label: "Statut des Factures (Graphique)", icon: PieChartIcon },
     { id: "showRecentActivity", label: "Activité Récente", icon: Activity },
     { id: "showTopClients", label: "Top Clients", icon: Users },
   ];

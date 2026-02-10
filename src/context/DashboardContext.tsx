@@ -1,15 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface DashboardPreferences {
-  showKpiCards: boolean;
+  totalContractsHT: boolean; // New individual preference
+  totalInvoicedHT: boolean;  // New individual preference
+  totalRemainingHT: boolean; // New individual preference
+  totalPurchasesHT: boolean; // New individual preference
   showMonthlyFlux: boolean;
   showProjectStatus: boolean;
   showRecentActivity: boolean;
   showTopClients: boolean;
-  showTotalCnssPaid: boolean; // New preference
-  showTotalSalaries: boolean; // New preference
-  showTotalRevenue: boolean; // New preference
-  showTotalProfit: boolean; // New preference
+  showTotalCnssPaid: boolean;
+  showTotalSalaries: boolean;
+  showTotalRevenue: boolean;
+  showTotalProfit: boolean;
 }
 
 // Define all possible KPI IDs for ordering
@@ -37,7 +40,10 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [preferences, setPreferences] = useState<DashboardPreferences>(() => {
     const saved = localStorage.getItem("dashboard_preferences");
     return saved ? JSON.parse(saved) : {
-      showKpiCards: true,
+      totalContractsHT: true, // Default to true
+      totalInvoicedHT: true,  // Default to true
+      totalRemainingHT: true, // Default to true
+      totalPurchasesHT: true, // Default to true
       showMonthlyFlux: true,
       showProjectStatus: true,
       showRecentActivity: true,

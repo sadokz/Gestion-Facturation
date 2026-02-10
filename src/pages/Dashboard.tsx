@@ -71,10 +71,10 @@ interface KpiCardData {
 
 // All possible KPI definitions
 const ALL_KPI_DEFINITIONS: KpiCardData[] = [
-  { id: "totalContractsHT", title: "Total Contrats (HT)", icon: FileText, color: "bg-indigo-500", description: "Signés", valueKey: "totalContractsHT", preferenceKey: "showKpiCards" },
-  { id: "totalInvoicedHT", title: "Total Facturé (HT)", icon: CheckCircle2, color: "bg-emerald-500", description: "Ventes", valueKey: "totalInvoicedHT", preferenceKey: "showKpiCards" },
-  { id: "totalRemainingHT", title: "Reste à Facturer (HT)", icon: Clock, color: "bg-amber-500", description: "En attente", valueKey: "totalRemainingHT", preferenceKey: "showKpiCards" },
-  { id: "totalPurchasesHT", title: "Total Achats (HT)", icon: ShoppingBag, color: "bg-rose-500", description: "Dépenses", valueKey: "totalPurchasesHT", preferenceKey: "showKpiCards" },
+  { id: "totalContractsHT", title: "Total Contrats (HT)", icon: FileText, color: "bg-indigo-500", description: "Signés", valueKey: "totalContractsHT", preferenceKey: "totalContractsHT" },
+  { id: "totalInvoicedHT", title: "Total Facturé (HT)", icon: CheckCircle2, color: "bg-emerald-500", description: "Ventes", valueKey: "totalInvoicedHT", preferenceKey: "totalInvoicedHT" },
+  { id: "totalRemainingHT", title: "Reste à Facturer (HT)", icon: Clock, color: "bg-amber-500", description: "En attente", valueKey: "totalRemainingHT", preferenceKey: "totalRemainingHT" },
+  { id: "totalPurchasesHT", title: "Total Achats (HT)", icon: ShoppingBag, color: "bg-rose-500", description: "Dépenses", valueKey: "totalPurchasesHT", preferenceKey: "totalPurchasesHT" },
   { id: "totalCnssPaid", title: "Total Payé CNSS", icon: ShieldCheck, color: "bg-blue-600", description: "Cotisations", valueKey: "totalCnssPaid", preferenceKey: "showTotalCnssPaid" },
   { id: "totalSalaries", title: "Total Salaires", icon: Banknote, color: "bg-purple-600", description: "Charges", valueKey: "totalSalaries", preferenceKey: "showTotalSalaries" },
   { id: "totalRevenue", title: "Chiffre d'affaires", icon: TrendingUp, color: "bg-green-600", description: "Ventes + Autres", valueKey: "totalRevenue", preferenceKey: "showTotalRevenue" },
@@ -200,14 +200,7 @@ const Dashboard = () => {
 
   // Filter and sort KPIs based on preferences and kpiOrder
   const visibleKpis = useMemo(() => {
-    const filteredKpis = ALL_KPI_DEFINITIONS.filter(kpi => {
-      // If the KPI is one of the original 4, its visibility is controlled by 'showKpiCards'
-      if (["totalContractsHT", "totalInvoicedHT", "totalRemainingHT", "totalPurchasesHT"].includes(kpi.id)) {
-        return preferences.showKpiCards;
-      }
-      // For the new KPIs, their visibility is controlled by their specific preference key
-      return preferences[kpi.preferenceKey];
-    });
+    const filteredKpis = ALL_KPI_DEFINITIONS.filter(kpi => preferences[kpi.preferenceKey]);
 
     // Sort filtered KPIs according to kpiOrder
     return kpiOrder
