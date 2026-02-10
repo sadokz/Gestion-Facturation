@@ -12,7 +12,8 @@ import {
   Banknote,
   UserCheck,
   ShieldCheck,
-  Calculator
+  Calculator,
+  Settings2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useYear } from "@/context/YearContext";
@@ -25,6 +26,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { GlobalSearch } from "./GlobalSearch";
+import { Button } from "@/components/ui/button"; // Import Button
+import { DashboardCustomizationModal } from "../dashboard/DashboardCustomizationModal"; // Import the new modal
 
 const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
   <Link
@@ -47,6 +50,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   const { selectedYear, setSelectedYear } = useYear();
   const { tabs } = useNavigation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isCustomizationModalOpen, setIsCustomizationModalOpen] = useState(false); // State for customization modal
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i + 1);
 
   return (
@@ -181,6 +185,14 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
           </div>
 
           <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="rounded-xl gap-2 h-9 px-4 border-slate-200 text-slate-600 hover:bg-slate-50"
+              onClick={() => setIsCustomizationModalOpen(true)}
+            >
+              <Settings2 size={16} /> Personnaliser
+            </Button>
             <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm">
               <Calendar size={16} className="text-slate-500" />
               <span className="text-sm font-medium text-slate-600">Exercice :</span>
@@ -206,6 +218,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
           {children}
         </div>
       </main>
+      <DashboardCustomizationModal isOpen={isCustomizationModalOpen} onClose={() => setIsCustomizationModalOpen(false)} />
     </div>
   );
 };
