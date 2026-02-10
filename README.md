@@ -10,6 +10,7 @@ Cette application est une solution complète de gestion financière et opératio
 - **Flux Mensuel** : Graphique comparatif des ventes et des achats par mois.
 - **Activité Récente** : Flux chronologique des dernières factures émise/payées, nouveaux projets et achats.
 - **Top Clients** : Classement des clients par volume d'affaires avec barre de progression relative.
+- **Statut des Factures** : Graphique circulaire montrant la répartition des factures par statut (Payée, En attente, Non facturée).
 
 ### 🏗️ Gestion des Projets & Ventes
 - **Organisation par Priorité** : Système de **glisser-déposer (Drag & Drop)** pour réorganiser la liste des projets.

@@ -44,7 +44,7 @@ const Dashboard = () => {
   const [summary, setSummary] = useState<any>(null);
   const [monthlyData, setMonthlyData] = useState<any[]>([]);
   const [categoryData, setCategoryData] = useState<any[]>([]);
-  const [statusData, setStatusData] = useState<any[]>([]);
+  const [statusData, setStatusData] = useState<any[]>([]); // This will now be invoice status data
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -62,6 +62,13 @@ const Dashboard = () => {
           name: new Date(2000, d.month - 1).toLocaleString('fr-FR', { month: 'short' })
         })));
         setCategoryData(c);
+        // Assuming an API endpoint for invoice statuses would return data like:
+        // [{ name: 'Payée', value: 15 }, { name: 'En attente', value: 7 }, { name: 'Non facturée', value: 3 }]
+        setStatusData([
+          { name: 'Payée', value: 15 },
+          { name: 'En attente', value: 7 },
+          { name: 'Non facturée', value: 3 },
+        ]);
       } catch (err) {
         // Fallback mock data
         setSummary({
@@ -89,9 +96,9 @@ const Dashboard = () => {
           { category: 'Divers', amountHT: 2000 },
         ]);
         setStatusData([
-          { name: 'En cours', value: 12 },
-          { name: 'Terminé', value: 8 },
-          { name: 'En attente', value: 5 },
+          { name: 'Payée', value: 15 },
+          { name: 'En attente', value: 7 },
+          { name: 'Non facturée', value: 3 },
         ]);
       } finally {
         setLoading(false);
@@ -177,7 +184,7 @@ const Dashboard = () => {
             <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50">
               <div className="flex items-center gap-2">
                 <PieChartIcon size={18} className="text-primary" />
-                <CardTitle className="text-lg font-bold">Statut des Projets</CardTitle>
+                <CardTitle className="text-lg font-bold">Statut des Factures</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="p-6">

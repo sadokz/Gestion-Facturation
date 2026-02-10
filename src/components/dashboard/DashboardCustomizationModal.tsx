@@ -27,7 +27,7 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
     { id: "showTotalRevenue", label: "KPI : Chiffre d'affaires", icon: TrendingUp },
     { id: "showTotalProfit", label: "KPI : Bénéfice Total", icon: Wallet },
     { id: "showMonthlyFlux", label: "Flux Mensuel (Graphique)", icon: TrendingUp },
-    { id: "showProjectStatus", label: "Statut des Projets (Graphique)", icon: PieChartIcon },
+    { id: "showProjectStatus", label: "Statut des Factures (Graphique)", icon: PieChartIcon }, // Changed label
     { id: "showRecentActivity", label: "Activité Récente", icon: Activity },
     { id: "showTopClients", label: "Top Clients", icon: Users },
   ];
