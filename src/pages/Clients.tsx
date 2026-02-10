@@ -12,7 +12,9 @@ import {
   MapPin,
   Printer,
   GripVertical,
-  Briefcase
+  Briefcase,
+  Map as MapIcon,
+  ExternalLink
 } from "lucide-react";
 import { fetcher } from "@/api/config";
 import {
@@ -67,6 +69,7 @@ import { CSS } from "@dnd-kit/utilities";
 const CLIENT_COLUMNS = [
   { id: "nom", label: "Client" },
   { id: "adresse", label: "Adresse" },
+  { id: "google_maps", label: "Google Maps" },
   { id: "tel", label: "Téléphone" },
   { id: "fax", label: "Fax" },
   { id: "email", label: "Email" },
@@ -140,6 +143,22 @@ const SortableClientRow = ({
             <div className="flex items-center gap-1 truncate">
               <MapPin size={12} className="shrink-0" /> {client.adresse}
             </div>
+          </TableCell>
+        )}
+        {isVisible("google_maps") && (
+          <TableCell>
+            {client.google_maps_link ? (
+              <a 
+                href={client.google_maps_link} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg hover:bg-emerald-100 transition-colors w-fit"
+              >
+                <MapIcon size={12} /> Maps <ExternalLink size={10} />
+              </a>
+            ) : (
+              <span className="text-[10px] text-slate-300 italic">Non défini</span>
+            )}
           </TableCell>
         )}
         {isVisible("tel") && (
@@ -251,6 +270,7 @@ const Clients = () => {
           id: 1, 
           nom: "Commune de Tunis", 
           adresse: "Avenue Habib Bourguiba, Tunis", 
+          google_maps_link: "https://goo.gl/maps/tunis",
           tel: "71 123 456", 
           fax: "71 123 457", 
           email: "contact@commune-tunis.gov.tn", 
@@ -267,6 +287,7 @@ const Clients = () => {
           id: 2, 
           nom: "STEG", 
           adresse: "Rue Kamel Ataturk, Tunis", 
+          google_maps_link: "",
           tel: "71 333 444", 
           fax: "71 333 445", 
           email: "info@steg.com.tn", 
@@ -363,6 +384,7 @@ const Clients = () => {
                     <ResizableHeader initialWidth={80} minWidth={60}></ResizableHeader>
                     {isVisible("nom") && <ResizableHeader initialWidth={250} minWidth={100} sortKey="nom" currentSort={sortConfig} onSort={handleSort}>Client</ResizableHeader>}
                     {isVisible("adresse") && <ResizableHeader initialWidth={300} minWidth={150} sortKey="adresse" currentSort={sortConfig} onSort={handleSort}>Adresse</ResizableHeader>}
+                    {isVisible("google_maps") && <ResizableHeader initialWidth={120} minWidth={100}>Google Maps</ResizableHeader>}
                     {isVisible("tel") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="tel" currentSort={sortConfig} onSort={handleSort}>Téléphone</ResizableHeader>}
                     {isVisible("fax") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="fax" currentSort={sortConfig} onSort={handleSort}>Fax</ResizableHeader>}
                     {isVisible("email") && <ResizableHeader initialWidth={250} minWidth={150} sortKey="email" currentSort={sortConfig} onSort={handleSort}>Email</ResizableHeader>}

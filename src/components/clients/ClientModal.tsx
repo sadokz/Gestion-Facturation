@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 const clientSchema = z.object({
   nom: z.string().min(1, "Le nom est requis"),
   adresse: z.string().min(1, "L'adresse est requise"),
+  google_maps_link: z.string().url("Lien Google Maps invalide").optional().or(z.literal("")),
   tel: z.string().min(1, "Le téléphone est requis"),
   fax: z.string().optional(),
   email: z.string().email("Email invalide").min(1, "L'email est requis"),
@@ -41,6 +42,7 @@ export const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSub
     defaultValues: initialData || {
       nom: "",
       adresse: "",
+      google_maps_link: "",
       tel: "",
       fax: "",
       email: "",
@@ -48,7 +50,7 @@ export const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSub
   });
 
   React.useEffect(() => {
-    if (isOpen) form.reset(initialData || { nom: "", adresse: "", tel: "", fax: "", email: "" });
+    if (isOpen) form.reset(initialData || { nom: "", adresse: "", google_maps_link: "", tel: "", fax: "", email: "" });
   }, [isOpen, initialData, form]);
 
   return (
@@ -82,6 +84,19 @@ export const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSub
                   <FormLabel>Adresse</FormLabel>
                   <FormControl>
                     <Input placeholder="Adresse complète" {...field} className="rounded-xl" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="google_maps_link"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Lien Google Maps (Optionnel)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://goo.gl/maps/..." {...field} className="rounded-xl" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
