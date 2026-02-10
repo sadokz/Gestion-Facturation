@@ -50,6 +50,9 @@ Cette application est une solution complète de gestion financière et opératio
   - **En-têtes Redimensionnables** : Ajustez la largeur des colonnes à la souris.
   - **Tri Dynamique** : Cliquez sur les en-têtes pour trier les données.
 - **Gestion des Modules** : Activez ou désactivez les onglets du menu depuis les paramètres.
+- **Confidentialité & Thèmes** :
+  - **Mode Discret** : Masquage instantané de tous les chiffres (`*****`) pour la confidentialité.
+  - **Mode Sombre** : Support complet des thèmes Clair, Sombre et Système.
 
 ## 📂 Gestion des Documents (Uploads)
 
@@ -66,5 +69,5 @@ L'application permet de centraliser vos documents importants aux emplacements su
 ## 🛠️ Détails Techniques
 - **Framework** : React 19 / TypeScript.
 - **Design** : Tailwind CSS / Shadcn UI (Thème moderne "Slate & Indigo").
-- **Données** : Context API pour la gestion de l'année d'exercice et de la navigation.
+- **Données** : Context API pour la gestion de l'année d'exercice, de la navigation et de la confidentialité.
 - **Formatage** : Monétaire en Dinar Tunisien (DT) avec 3 décimales.
