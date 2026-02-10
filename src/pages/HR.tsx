@@ -26,6 +26,7 @@ import { LeaveModal } from "@/components/hr/LeaveModal";
 import { EmployeeLeaveList } from "@/components/hr/EmployeeLeaveList";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
 import { useYear } from "@/context/YearContext";
+import { cn } from "@/lib/utils";
 
 const HR = () => {
   const { selectedYear } = useYear();
@@ -44,6 +45,7 @@ const HR = () => {
       const data = await fetcher(`/employees?q=${search}`);
       setEmployees(data);
     } catch (err) {
+      // Données de secours pour la démonstration
       setEmployees([
         { 
           id: 1, 
@@ -72,7 +74,7 @@ const HR = () => {
     }
   };
 
-  useEffect(() => { loadEmployees(); }, [search]);
+  useEffect(() => { loadEmployees(); }, [search, selectedYear]);
 
   const toggleExpand = (id: number) => {
     const newExpanded = new Set(expandedEmployees);
@@ -82,9 +84,10 @@ const HR = () => {
   };
 
   const getLeaveSummary = (leaves: any[], type: string) => {
+    if (!leaves) return 0;
     return leaves
       .filter(l => l.type === type && l.statut === "Validé")
-      .reduce((sum, l) => sum + l.nb_jours, 0);
+      .reduce((sum, l) => sum + (l.nb_jours || 0), 0);
   };
 
   return (
@@ -99,7 +102,12 @@ const HR = () => {
           <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-50/30">
             <div className="relative w-full md:w-96">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-              <Input placeholder="Rechercher un employé..." className="pl-10 rounded-xl border-slate-200 focus:ring-indigo-500/10" value={search} onChange={(e) => setSearch(e.target.value)} />
+              <Input 
+                placeholder="Rechercher un employé..." 
+                className="pl-10 rounded-xl border-slate-200 focus:ring-indigo-500/10" 
+                value={search} 
+                onChange={(e) => setSearch(e.target.value)} 
+              />
             </div>
           </div>
 
