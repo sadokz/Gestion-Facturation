@@ -145,7 +145,7 @@ const SortableProjectRow = ({
           isDragging && "bg-slate-100 shadow-lg"
         )}
       >
-        <TableCell className="w-[70px] p-0">
+        <TableCell className="p-0 text-center">
           <div className="flex items-center justify-center gap-0.5">
             <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors p-1">
               <GripVertical size={14} />
@@ -155,20 +155,20 @@ const SortableProjectRow = ({
             </Button>
           </div>
         </TableCell>
-        {isVisible("reference_projet") && <TableCell className="font-mono text-[11px] font-bold text-primary">{project.reference_projet}</TableCell>}
+        {isVisible("reference_projet") && <TableCell className="font-mono text-[11px] font-bold text-primary truncate">{project.reference_projet}</TableCell>}
         {isVisible("nom_projet") && (
-          <TableCell>
-            <div className="flex flex-col">
+          <TableCell className="truncate">
+            <div className="flex flex-col truncate">
               <span className="font-bold text-slate-800 text-sm truncate">{project.nom_projet}</span>
               <span className="text-[10px] text-slate-500 uppercase font-medium truncate">{project.client}</span>
             </div>
           </TableCell>
         )}
         {isVisible("contrat") && (
-          <TableCell>
+          <TableCell className="text-center">
             <Tooltip>
               <TooltipTrigger asChild>
-                <button onClick={(e) => { e.stopPropagation(); setSelectedProject(project); setIsModalOpen(true); }} className={cn("flex flex-col items-center justify-center w-10 h-10 rounded-xl border transition-all", project.file_contrat ? "bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100" : "bg-slate-50 border-slate-200 text-slate-400 hover:border-primary/30 hover:text-primary")}>
+                <button onClick={(e) => { e.stopPropagation(); setSelectedProject(project); setIsModalOpen(true); }} className={cn("flex flex-col items-center justify-center w-10 h-10 rounded-xl border transition-all mx-auto", project.file_contrat ? "bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100" : "bg-slate-50 border-slate-200 text-slate-400 hover:border-primary/30 hover:text-primary")}>
                   {project.file_contrat ? <CheckCircle2 size={18} /> : <UploadCloud size={18} />}
                   <span className="text-[7px] font-bold uppercase mt-0.5">Contrat</span>
                 </button>
@@ -177,16 +177,16 @@ const SortableProjectRow = ({
             </Tooltip>
           </TableCell>
         )}
-        {isVisible("montant_total_ht") && <TableCell className="text-right font-medium text-slate-600">{formatCurrencyDT(baseHT)}</TableCell>}
-        {isVisible("montant_avenant_ht") && <TableCell className="text-right font-medium text-amber-600">{formatCurrencyDT(avenantHT)}</TableCell>}
-        {isVisible("tva_pct") && <TableCell className="text-right font-medium text-slate-500">{formatCurrencyDT(totalTVA)}</TableCell>}
-        {isVisible("total_ttc") && <TableCell className="text-right font-bold text-slate-900">{formatCurrencyDT(totalTTC)}</TableCell>}
-        {isVisible("facture_ht") && <TableCell className="text-right text-blue-600 font-bold">{formatCurrencyDT(totalFactureHT)}</TableCell>}
-        {isVisible("facture_ttc") && <TableCell className="text-right text-indigo-600 font-bold">{formatCurrencyDT(totalFactureTTC)}</TableCell>}
-        {isVisible("paye_ttc") && <TableCell className="text-right text-emerald-600 font-bold">{formatCurrencyDT(totalPayeTTC)}</TableCell>}
-        {isVisible("reste_ttc") && <TableCell className="text-right text-rose-600 font-black">{formatCurrencyDT(resteAFacturerTTC)}</TableCell>}
-        {isVisible("statut") && <TableCell>{getStatusBadge(calculatedStatus)}</TableCell>}
-        <TableCell className="w-[50px] p-0 text-center">
+        {isVisible("montant_total_ht") && <TableCell className="text-right font-medium text-slate-600 truncate">{formatCurrencyDT(baseHT)}</TableCell>}
+        {isVisible("montant_avenant_ht") && <TableCell className="text-right font-medium text-amber-600 truncate">{formatCurrencyDT(avenantHT)}</TableCell>}
+        {isVisible("tva_pct") && <TableCell className="text-right font-medium text-slate-500 truncate">{formatCurrencyDT(totalTVA)}</TableCell>}
+        {isVisible("total_ttc") && <TableCell className="text-right font-bold text-slate-900 truncate">{formatCurrencyDT(totalTTC)}</TableCell>}
+        {isVisible("facture_ht") && <TableCell className="text-right text-blue-600 font-bold truncate">{formatCurrencyDT(totalFactureHT)}</TableCell>}
+        {isVisible("facture_ttc") && <TableCell className="text-right text-indigo-600 font-bold truncate">{formatCurrencyDT(totalFactureTTC)}</TableCell>}
+        {isVisible("paye_ttc") && <TableCell className="text-right text-emerald-600 font-bold truncate">{formatCurrencyDT(totalPayeTTC)}</TableCell>}
+        {isVisible("reste_ttc") && <TableCell className="text-right text-rose-600 font-black truncate">{formatCurrencyDT(resteAFacturerTTC)}</TableCell>}
+        {isVisible("statut") && <TableCell className="truncate">{getStatusBadge(calculatedStatus)}</TableCell>}
+        <TableCell className="p-0 text-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
@@ -355,12 +355,12 @@ const Projects = () => {
 
           <div className="overflow-x-auto">
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <Table className="table-fixed w-full">
+              <Table className="table-fixed w-max min-w-full">
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="hover:bg-transparent border-slate-100">
                     <ResizableHeader initialWidth={70} resizable={false}></ResizableHeader>
                     {isVisible("reference_projet") && <ResizableHeader initialWidth={120} minWidth={80} sortKey="reference_projet" currentSort={sortConfig} onSort={handleSort}>Référence</ResizableHeader>}
-                    {isVisible("nom_projet") && <ResizableHeader initialWidth={200} minWidth={100} sortKey="nom_projet" currentSort={sortConfig} onSort={handleSort}>Projet</ResizableHeader>}
+                    {isVisible("nom_projet") && <ResizableHeader initialWidth={250} minWidth={100} sortKey="nom_projet" currentSort={sortConfig} onSort={handleSort}>Projet</ResizableHeader>}
                     {isVisible("contrat") && <ResizableHeader initialWidth={100} minWidth={80}>Contrat</ResizableHeader>}
                     {isVisible("montant_total_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right" sortKey="montant_total_ht" currentSort={sortConfig} onSort={handleSort}>Total Contrat HT</ResizableHeader>}
                     {isVisible("montant_avenant_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right" sortKey="montant_avenant_ht" currentSort={sortConfig} onSort={handleSort}>Avenant HT</ResizableHeader>}
@@ -371,7 +371,7 @@ const Projects = () => {
                     {isVisible("paye_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right">Total Reçu TTC</ResizableHeader>}
                     {isVisible("reste_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right">Reste à Facturer TTC</ResizableHeader>}
                     {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="statut" currentSort={sortConfig} onSort={handleSort}>Statut</ResizableHeader>}
-                    <ResizableHeader initialWidth={50} resizable={false}>
+                    <ResizableHeader initialWidth={60} resizable={false}>
                       <ColumnToggle columns={PROJECT_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
                     </ResizableHeader>
                   </TableRow>
