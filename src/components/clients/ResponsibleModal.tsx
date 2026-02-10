@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
 const responsibleSchema = z.object({
@@ -25,6 +26,7 @@ const responsibleSchema = z.object({
   role: z.string().min(1, "Le rôle est requis"),
   tel: z.string().min(1, "Le téléphone est requis"),
   email: z.string().email("Email invalide").min(1, "L'email est requis"),
+  projets_suivis: z.string().optional().or(z.literal("")),
 });
 
 interface ResponsibleModalProps {
@@ -42,16 +44,17 @@ export const ResponsibleModal: React.FC<ResponsibleModalProps> = ({ isOpen, onCl
       role: "",
       tel: "",
       email: "",
+      projets_suivis: "",
     },
   });
 
   React.useEffect(() => {
-    if (isOpen) form.reset(initialData || { nom: "", role: "", tel: "", email: "" });
+    if (isOpen) form.reset(initialData || { nom: "", role: "", tel: "", email: "", projets_suivis: "" });
   }, [isOpen, initialData, form]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[400px] rounded-2xl">
+      <DialogContent className="sm:max-w-[450px] rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-slate-800">
             {initialData ? "Modifier le responsable" : "Nouveau responsable"}
@@ -85,27 +88,46 @@ export const ResponsibleModal: React.FC<ResponsibleModalProps> = ({ isOpen, onCl
                 </FormItem>
               )}
             />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="tel"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Téléphone direct</FormLabel>
+                    <FormControl>
+                      <Input placeholder="+216 ..." {...field} className="rounded-xl" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email professionnel</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="nom@client.tn" {...field} className="rounded-xl" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
-              name="tel"
+              name="projets_suivis"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Téléphone direct</FormLabel>
+                  <FormLabel>Projets suivis</FormLabel>
                   <FormControl>
-                    <Input placeholder="+216 ..." {...field} className="rounded-xl" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email professionnel</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="nom@client.tn" {...field} className="rounded-xl" />
+                    <Textarea 
+                      placeholder="Listez les projets gérés par ce contact..." 
+                      {...field} 
+                      className="rounded-xl min-h-[80px] resize-none" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

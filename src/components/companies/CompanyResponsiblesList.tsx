@@ -1,5 +1,5 @@
 import React from "react";
-import { Users, Plus, Edit, Phone, Mail, Briefcase } from "lucide-react";
+import { Users, Plus, Edit, Phone, Mail, Briefcase, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface CompanyResponsiblesListProps {
@@ -35,7 +35,7 @@ export const CompanyResponsiblesList: React.FC<CompanyResponsiblesListProps> = (
           responsibles.map((resp, idx) => (
             <div 
               key={resp.id || idx} 
-              className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm group hover:border-amber-300 transition-all"
+              className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm group hover:border-amber-300 transition-all flex flex-col"
             >
               <div className="flex justify-between items-start mb-3">
                 <div className="flex items-center gap-3">
@@ -54,7 +54,7 @@ export const CompanyResponsiblesList: React.FC<CompanyResponsiblesListProps> = (
                 </Button>
               </div>
               
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 mb-3">
                 <div className="flex items-center gap-2 text-xs text-slate-500">
                   <Phone size={12} className="text-slate-400" />
                   <span>{resp.tel}</span>
@@ -64,6 +64,17 @@ export const CompanyResponsiblesList: React.FC<CompanyResponsiblesListProps> = (
                   <span className="truncate">{resp.email}</span>
                 </div>
               </div>
+
+              {resp.projets_suivis && (
+                <div className="mt-auto pt-3 border-t border-slate-50">
+                  <p className="text-[9px] font-bold text-amber-600 uppercase mb-1 flex items-center gap-1">
+                    <FileText size={10} /> Projets suivis
+                  </p>
+                  <p className="text-[11px] text-slate-600 line-clamp-2 italic">
+                    {resp.projets_suivis}
+                  </p>
+                </div>
+              )}
             </div>
           ))
         ) : (
