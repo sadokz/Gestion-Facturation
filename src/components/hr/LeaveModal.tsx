@@ -27,6 +27,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { UploadCloud, FileCheck } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const leaveSchema = z.object({
   type: z.string().min(1, "Le type est requis"),
@@ -35,6 +37,7 @@ const leaveSchema = z.object({
   nb_jours: z.coerce.number().min(0.5, "Minimum 0.5 jour"),
   statut: z.string().default("Validé"),
   commentaire: z.string().optional(),
+  file_justificatif: z.any().optional(),
 });
 
 interface LeaveModalProps {
@@ -77,7 +80,7 @@ export const LeaveModal: React.FC<LeaveModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[450px] rounded-2xl">
+      <DialogContent className="sm:max-w-[450px] rounded-2xl overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-slate-800">
             Absence : {employeeName}
@@ -174,6 +177,42 @@ export const LeaveModal: React.FC<LeaveModalProps> = ({
                 )}
               />
             </div>
+
+            <div className="space-y-2">
+              <FormLabel className="text-sm font-bold text-slate-700">Justificatif (PDF, Image)</FormLabel>
+              <FormField
+                control={form.control}
+                name="file_justificatif"
+                render={({ field: { value, onChange, ...field } }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="relative">
+                        <Input 
+                          type="file" 
+                          className="hidden" 
+                          id="file_justificatif" 
+                          onChange={(e) => onChange(e.target.files?.[0])} 
+                        />
+                        <label 
+                          htmlFor="file_justificatif" 
+                          className={cn(
+                            "flex flex-col items-center justify-center h-24 border-2 border-dashed rounded-2xl cursor-pointer transition-all",
+                            value ? "bg-indigo-50 border-indigo-200 text-indigo-600" : "bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100"
+                          )}
+                        >
+                          {value ? <FileCheck size={24} /> : <UploadCloud size={24} />}
+                          <span className="text-xs mt-2 font-bold">
+                            {value ? (value.name || "Justificatif sélectionné") : "Téléverser le justificatif"}
+                          </span>
+                        </label>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <FormField
               control={form.control}
               name="commentaire"

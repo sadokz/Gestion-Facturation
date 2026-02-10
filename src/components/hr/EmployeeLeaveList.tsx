@@ -1,10 +1,11 @@
 import React from "react";
-import { Calendar, Plus, Edit, Trash2, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { Calendar, Plus, Edit, Trash2, Clock, CheckCircle2, XCircle, FileText, UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDateFR } from "@/utils/formatters";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface EmployeeLeaveListProps {
   leaves: any[];
@@ -50,6 +51,7 @@ export const EmployeeLeaveList: React.FC<EmployeeLeaveListProps> = ({
               <TableHead className="text-[10px] font-bold uppercase">Type</TableHead>
               <TableHead className="text-[10px] font-bold uppercase">Période</TableHead>
               <TableHead className="text-[10px] font-bold uppercase text-center">Jours</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase text-center">Justificatif</TableHead>
               <TableHead className="text-[10px] font-bold uppercase">Statut</TableHead>
               <TableHead className="text-[10px] font-bold uppercase">Commentaire</TableHead>
               <TableHead className="w-[50px]"></TableHead>
@@ -73,6 +75,26 @@ export const EmployeeLeaveList: React.FC<EmployeeLeaveListProps> = ({
                   <TableCell className="text-xs font-bold text-center text-slate-700">
                     {leave.nb_jours} j
                   </TableCell>
+                  <TableCell className="text-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); onEdit(leave); }}
+                          className={cn(
+                            "mx-auto flex items-center justify-center w-8 h-8 rounded-lg border transition-all",
+                            leave.file_justificatif 
+                              ? "bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100" 
+                              : "bg-slate-50 border-slate-200 text-slate-400 hover:border-indigo-300 hover:text-indigo-600"
+                          )}
+                        >
+                          {leave.file_justificatif ? <FileText size={14} /> : <UploadCloud size={14} />}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">{leave.file_justificatif ? "Voir le justificatif" : "Ajouter un justificatif"}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1.5 text-xs font-medium text-slate-600">
                       {getStatutIcon(leave.statut)}
@@ -91,7 +113,7 @@ export const EmployeeLeaveList: React.FC<EmployeeLeaveListProps> = ({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-slate-400 text-xs italic">
+                <TableCell colSpan={7} className="text-center py-8 text-slate-400 text-xs italic">
                   Aucune absence enregistrée pour cet employé.
                 </TableCell>
               </TableRow>
