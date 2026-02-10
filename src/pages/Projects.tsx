@@ -68,13 +68,14 @@ const PROJECT_COLUMNS = [
   { id: "reference_projet", label: "Référence" },
   { id: "nom_projet", label: "Projet" },
   { id: "contrat", label: "Contrat" },
-  { id: "montant_total_ht", label: "Total HT" },
+  { id: "montant_total_ht", label: "Total Contrat HT" },
   { id: "montant_avenant_ht", label: "Avenant HT" },
   { id: "tva_pct", label: "TVA" },
-  { id: "total_ttc", label: "Total TTC" },
-  { id: "facture_ht", label: "Facturé HT" },
-  { id: "paye_ttc", label: "Payé TTC" },
-  { id: "reste_ttc", label: "Reste TTC" },
+  { id: "total_ttc", label: "Total Contrat TTC" },
+  { id: "facture_ht", label: "Total Facturé HT" },
+  { id: "facture_ttc", label: "Facturé TTC" },
+  { id: "paye_ttc", label: "Total Reçu TTC" },
+  { id: "reste_ttc", label: "Reste à Facturer TTC" },
   { id: "statut", label: "Statut" },
 ];
 
@@ -116,11 +117,12 @@ const SortableProjectRow = ({
   
   const invoices = project.invoices || [];
   const totalFactureHT = invoices.reduce((sum: number, inv: any) => sum + inv.montant_ht, 0);
+  const totalFactureTTC = invoices.reduce((sum: number, inv: any) => sum + computeTTC(inv.montant_ht, inv.tva_pct || 19), 0);
   const totalPayeTTC = invoices
     .filter((inv: any) => inv.statut === "Payé")
     .reduce((sum: number, inv: any) => sum + computeTTC(inv.montant_ht, inv.tva_pct || 19), 0);
   
-  const resteAPayeTTC = totalTTC - totalPayeTTC;
+  const resteAFacturerTTC = totalTTC - totalFactureTTC;
 
   let calculatedStatus = "Non facturé";
   if (totalFactureHT > 0) {
@@ -180,8 +182,9 @@ const SortableProjectRow = ({
         {isVisible("tva_pct") && <TableCell className="text-right font-medium text-slate-500">{formatCurrencyDT(totalTVA)}</TableCell>}
         {isVisible("total_ttc") && <TableCell className="text-right font-bold text-slate-900">{formatCurrencyDT(totalTTC)}</TableCell>}
         {isVisible("facture_ht") && <TableCell className="text-right text-blue-600 font-bold">{formatCurrencyDT(totalFactureHT)}</TableCell>}
+        {isVisible("facture_ttc") && <TableCell className="text-right text-indigo-600 font-bold">{formatCurrencyDT(totalFactureTTC)}</TableCell>}
         {isVisible("paye_ttc") && <TableCell className="text-right text-emerald-600 font-bold">{formatCurrencyDT(totalPayeTTC)}</TableCell>}
-        {isVisible("reste_ttc") && <TableCell className="text-right text-rose-600 font-black">{formatCurrencyDT(resteAPayeTTC)}</TableCell>}
+        {isVisible("reste_ttc") && <TableCell className="text-right text-rose-600 font-black">{formatCurrencyDT(resteAFacturerTTC)}</TableCell>}
         {isVisible("statut") && <TableCell>{getStatusBadge(calculatedStatus)}</TableCell>}
         <TableCell className="w-[50px] p-0 text-center">
           <DropdownMenu>
@@ -359,13 +362,14 @@ const Projects = () => {
                     {isVisible("reference_projet") && <ResizableHeader initialWidth={120} minWidth={80} sortKey="reference_projet" currentSort={sortConfig} onSort={handleSort}>Référence</ResizableHeader>}
                     {isVisible("nom_projet") && <ResizableHeader initialWidth={200} minWidth={100} sortKey="nom_projet" currentSort={sortConfig} onSort={handleSort}>Projet</ResizableHeader>}
                     {isVisible("contrat") && <ResizableHeader initialWidth={100} minWidth={80}>Contrat</ResizableHeader>}
-                    {isVisible("montant_total_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right" sortKey="montant_total_ht" currentSort={sortConfig} onSort={handleSort}>Total HT</ResizableHeader>}
+                    {isVisible("montant_total_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right" sortKey="montant_total_ht" currentSort={sortConfig} onSort={handleSort}>Total Contrat HT</ResizableHeader>}
                     {isVisible("montant_avenant_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right" sortKey="montant_avenant_ht" currentSort={sortConfig} onSort={handleSort}>Avenant HT</ResizableHeader>}
                     {isVisible("tva_pct") && <ResizableHeader initialWidth={120} minWidth={80} className="text-right" sortKey="tva_pct" currentSort={sortConfig} onSort={handleSort}>TVA</ResizableHeader>}
-                    {isVisible("total_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right" sortKey="total_ttc" currentSort={sortConfig} onSort={handleSort}>Total TTC</ResizableHeader>}
-                    {isVisible("facture_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right">Facturé HT</ResizableHeader>}
-                    {isVisible("paye_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right">Payé TTC</ResizableHeader>}
-                    {isVisible("reste_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right">Reste TTC</ResizableHeader>}
+                    {isVisible("total_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right" sortKey="total_ttc" currentSort={sortConfig} onSort={handleSort}>Total Contrat TTC</ResizableHeader>}
+                    {isVisible("facture_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right">Total Facturé HT</ResizableHeader>}
+                    {isVisible("facture_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right">Facturé TTC</ResizableHeader>}
+                    {isVisible("paye_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right">Total Reçu TTC</ResizableHeader>}
+                    {isVisible("reste_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right">Reste à Facturer TTC</ResizableHeader>}
                     {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="statut" currentSort={sortConfig} onSort={handleSort}>Statut</ResizableHeader>}
                     <ResizableHeader initialWidth={50} resizable={false}>
                       <ColumnToggle columns={PROJECT_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
