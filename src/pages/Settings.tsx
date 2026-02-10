@@ -33,12 +33,13 @@ const Settings = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   
-  // Mock users data with permissions
+  // Mock users data with permissions and passwords
   const [users, setUsers] = useState([
     { 
       id: 1, 
       nom: "Admin Principal", 
       email: "admin@bureau.tn", 
+      password: "password123",
       poste: "Proprietaire", 
       statut: "Actif",
       permissions: { dashboard: true, projects: true, clients: true, companies: true, purchases: true, salaries: true, hr: true, cnss: true, accounting: true, settings: true }
@@ -47,6 +48,7 @@ const Settings = () => {
       id: 2, 
       nom: "Mohamed Ben Ali", 
       email: "m.benali@bureau.tn", 
+      password: "password123",
       poste: "CEO", 
       statut: "Actif",
       permissions: { dashboard: true, projects: true, clients: true, companies: true, purchases: true, salaries: true, hr: true, cnss: true, accounting: true, settings: false }
@@ -55,6 +57,7 @@ const Settings = () => {
       id: 3, 
       nom: "Sarra Mansour", 
       email: "s.mansour@bureau.tn", 
+      password: "password123",
       poste: "Comptable", 
       statut: "Actif",
       permissions: { dashboard: true, projects: false, clients: false, companies: false, purchases: true, salaries: true, hr: false, cnss: true, accounting: true, settings: false }

@@ -28,10 +28,12 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Eye, EyeOff } from "lucide-react";
 
 const userSchema = z.object({
   nom: z.string().min(1, "Le nom est requis"),
   email: z.string().email("Email invalide"),
+  password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
   poste: z.string().min(1, "Le poste est requis"),
   statut: z.string().default("Actif"),
   permissions: z.record(z.boolean()).default({
@@ -69,11 +71,14 @@ const MODULES = [
 ];
 
 export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, initialData }) => {
+  const [showPassword, setShowPassword] = React.useState(false);
+
   const form = useForm({
     resolver: zodResolver(userSchema),
     defaultValues: initialData || {
       nom: "",
       email: "",
+      password: "",
       poste: "Ingénieur",
       statut: "Actif",
       permissions: {
@@ -96,6 +101,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
       form.reset(initialData || { 
         nom: "", 
         email: "", 
+        password: "",
         poste: "Ingénieur", 
         statut: "Actif",
         permissions: {
@@ -148,6 +154,33 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
                       <FormLabel>Email</FormLabel>
                       <FormControl>
                         <Input type="email" placeholder="email@bureau.tn" {...field} className="rounded-xl" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mot de passe</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input 
+                            type={showPassword ? "text" : "password"} 
+                            placeholder="••••••••" 
+                            {...field} 
+                            className="rounded-xl pr-10" 
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                          >
+                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
