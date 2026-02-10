@@ -10,7 +10,9 @@ import {
   Building2,
   Settings as SettingsIcon,
   Banknote,
-  UserCheck
+  UserCheck,
+  ShieldCheck,
+  Calculator
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useYear } from "@/context/YearContext";
@@ -69,7 +71,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
           <span className="font-bold text-xl tracking-tight text-slate-800 whitespace-nowrap">Bureau d'Étude</span>
         </button>
 
-        <nav className={cn("flex flex-col gap-2 transition-opacity duration-200", !isSidebarOpen && "opacity-0")}>
+        <nav className={cn("flex flex-col gap-2 transition-opacity duration-200 overflow-y-auto pr-2", !isSidebarOpen && "opacity-0")}>
           {tabs.dashboard && (
             <SidebarItem 
               to="/" 
@@ -124,6 +126,22 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               icon={UserCheck} 
               label="RH (Congés)" 
               active={location.pathname === "/hr"} 
+            />
+          )}
+          {tabs.cnss && (
+            <SidebarItem 
+              to="/cnss" 
+              icon={ShieldCheck} 
+              label="Déclaration CNSS" 
+              active={location.pathname === "/cnss"} 
+            />
+          )}
+          {tabs.accounting && (
+            <SidebarItem 
+              to="/accounting" 
+              icon={Calculator} 
+              label="Bilan Comptable" 
+              active={location.pathname === "/accounting"} 
             />
           )}
           {tabs.settings && (

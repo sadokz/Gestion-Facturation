@@ -8,6 +8,8 @@ interface NavigationState {
   purchases: boolean;
   salaries: boolean;
   hr: boolean;
+  cnss: boolean;
+  accounting: boolean;
   settings: boolean;
 }
 
@@ -29,6 +31,8 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       purchases: true,
       salaries: true,
       hr: true,
+      cnss: true,
+      accounting: true,
       settings: true,
     };
   });

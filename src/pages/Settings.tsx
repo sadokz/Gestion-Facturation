@@ -15,6 +15,8 @@ import {
   ShoppingCart, 
   Banknote, 
   UserCheck, 
+  ShieldCheck,
+  Calculator,
   Settings as SettingsIcon 
 } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
@@ -112,6 +114,8 @@ const Settings = () => {
             <TabToggle id="purchases" label="Achats" icon={ShoppingCart} />
             <TabToggle id="salaries" label="Salaires" icon={Banknote} />
             <TabToggle id="hr" label="RH (Congés)" icon={UserCheck} />
+            <TabToggle id="cnss" label="Déclaration CNSS" icon={ShieldCheck} />
+            <TabToggle id="accounting" label="Bilan Comptable" icon={Calculator} />
             <TabToggle id="settings" label="Paramètres" icon={SettingsIcon} />
           </CardContent>
         </Card>
