@@ -396,7 +396,13 @@ const Projects = () => {
       <ProjectModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSubmit={() => { showSuccess("Projet enregistré"); setIsModalOpen(false); loadProjects(); }} initialData={selectedProject} />
       <ProjectDetail isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} project={selectedProject} />
       <ConfirmDialog isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={() => { showSuccess("Projet supprimé"); setIsConfirmOpen(false); loadProjects(); }} title="Supprimer le projet ?" description="Cette action supprimera également toutes les factures liées." variant="destructive" confirmText="Supprimer" />
-      <SalesInvoiceModal isOpen={isInvoiceModalOpen} onClose={() => setIsInvoiceModalOpen(false)} onSubmit={() => { showSuccess("Facture enregistrée"); setIsInvoiceModalOpen(false); loadProjects(); }} initialData={selectedInvoice} />
+      <SalesInvoiceModal 
+        isOpen={isInvoiceModalOpen} 
+        onClose={() => setIsInvoiceModalOpen(false)} 
+        onSubmit={() => { showSuccess("Facture enregistrée"); setIsInvoiceModalOpen(false); loadProjects(); }} 
+        initialData={selectedInvoice} 
+        projectTva={selectedProject?.tva_pct}
+      />
     </div>
   );
 };

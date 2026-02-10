@@ -36,7 +36,7 @@ const invoiceSchema = z.object({
   type_facture: z.string().default("Mission S0"),
   montant_ht: z.coerce.number().min(0),
   montant_retenue: z.coerce.number().min(0).default(0),
-  tva_pct: z.coerce.number().default(19),
+  tva_pct: z.coerce.number(),
   statut: z.string().default("Non facturé"),
   note: z.string().optional(),
   file_facture: z.any().optional(),
@@ -49,9 +49,16 @@ interface SalesInvoiceModalProps {
   onClose: () => void;
   onSubmit: (data: any) => void;
   initialData?: any;
+  projectTva?: number;
 }
 
-export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, onClose, onSubmit, initialData }) => {
+export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  onSubmit, 
+  initialData,
+  projectTva = 19
+}) => {
   const form = useForm({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
@@ -61,7 +68,7 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
       type_facture: "Mission S0",
       montant_ht: 0,
       montant_retenue: 0,
-      tva_pct: 19,
+      tva_pct: projectTva,
       statut: "Non facturé",
       note: "",
     },
@@ -76,12 +83,12 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
         type_facture: initialData?.type_facture || "Mission S0",
         montant_ht: initialData?.montant_ht || 0,
         montant_retenue: initialData?.montant_retenue || 0,
-        tva_pct: initialData?.tva_pct || 19,
+        tva_pct: initialData?.tva_pct || projectTva,
         statut: initialData?.statut || "Non facturé",
         note: initialData?.note || "",
       });
     }
-  }, [isOpen, initialData, form]);
+  }, [isOpen, initialData, form, projectTva]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -192,9 +199,14 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
                 name="tva_pct"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>TVA (%)</FormLabel>
+                    <FormLabel>TVA (%) <span className="text-[10px] text-slate-400 font-normal">(Lié au projet)</span></FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} className="rounded-xl" />
+                      <Input 
+                        type="number" 
+                        {...field} 
+                        className="rounded-xl bg-slate-50 text-slate-500 cursor-not-allowed" 
+                        readOnly 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -207,7 +219,7 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
                 name="montant_ht"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Montant HT (DT)</FormLabel>
+                    <FormLabel>Montant Facture HT (DT)</FormLabel>
                     <FormControl>
                       <Input type="number" step="0.001" {...field} className="rounded-xl" />
                     </FormControl>
@@ -220,7 +232,7 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({ isOpen, on
                 name="montant_retenue"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Retenue à la source (DT)</FormLabel>
+                    <FormLabel>Montant Retenue (DT)</FormLabel>
                     <FormControl>
                       <Input type="number" step="0.001" {...field} className="rounded-xl" />
                     </FormControl>
