@@ -40,7 +40,6 @@ interface ProjectInvoicesListProps {
   onEditInvoice: (invoice: any) => void;
 }
 
-// Composant pour chaque ligne de facture triable
 const SortableInvoiceItem = ({ 
   inv, 
   idx, 
@@ -64,48 +63,46 @@ const SortableInvoiceItem = ({
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const tvaPct = inv.tva_pct || 19;
+  const montantFactureTTC = computeTTC(inv.montant_ht, tvaPct);
+  const montantRetenue = inv.montant_retenue || 0;
+  const montantRecuTTC = montantFactureTTC - montantRetenue;
+
   return (
     <div 
       ref={setNodeRef}
       style={style}
       className={cn(
-        "grid grid-cols-[30px_140px_180px_140px_1fr_1fr_1fr_100px_40px] items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm group hover:border-primary/30 transition-colors gap-4",
+        "grid grid-cols-[30px_120px_160px_110px_1fr_60px_1fr_1fr_1fr_100px_40px] items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm group hover:border-primary/30 transition-colors gap-3",
         isDragging && "shadow-xl border-primary/50"
       )}
     >
-      {/* Poignée de déplacement */}
-      <div 
-        {...attributes} 
-        {...listeners} 
-        className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors"
-      >
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors">
         <GripVertical size={18} />
       </div>
 
-      {/* Info Facture */}
-      <div className="flex items-center gap-3 overflow-hidden">
-        <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center text-[10px] font-bold text-slate-400 shrink-0">
+      <div className="flex items-center gap-2 overflow-hidden">
+        <div className="w-6 h-6 rounded-lg bg-slate-50 flex items-center justify-center text-[9px] font-bold text-slate-400 shrink-0">
           #{idx + 1}
         </div>
         <div className="truncate">
-          <p className="text-xs font-mono font-bold text-primary truncate">{inv.numero_facture}</p>
-          <p className="text-[10px] text-slate-400 truncate">{inv.type_facture || 'Situation'}</p>
+          <p className="text-[11px] font-mono font-bold text-primary truncate">{inv.numero_facture}</p>
+          <p className="text-[9px] text-slate-400 truncate">{inv.type_facture || 'Situation'}</p>
         </div>
       </div>
       
-      {/* Dates */}
       <div className="grid grid-cols-2 gap-2">
         <div className="flex flex-col">
-          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Émission</span>
-          <div className="flex items-center gap-1 text-[11px] text-slate-600 font-medium">
+          <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Émission</span>
+          <div className="flex items-center gap-1 text-[10px] text-slate-600 font-medium">
             <CalendarDays size={10} className="text-slate-400" />
             {formatDateFR(inv.date_emission || inv.date_facture)}
           </div>
         </div>
         <div className="flex flex-col">
-          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Paiement</span>
+          <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Paiement</span>
           <div className={cn(
-            "flex items-center gap-1 text-[11px] font-medium",
+            "flex items-center gap-1 text-[10px] font-medium",
             inv.date_payement ? "text-emerald-600" : "text-slate-300 italic"
           )}>
             <CalendarCheck size={10} className={inv.date_payement ? "text-emerald-500" : "text-slate-200"} />
@@ -114,44 +111,48 @@ const SortableInvoiceItem = ({
         </div>
       </div>
 
-      {/* Fichiers */}
-      <div className="flex items-center gap-2 justify-center border-x border-slate-100 px-2">
+      <div className="flex items-center gap-1.5 justify-center border-x border-slate-100 px-1">
         <FileStatus label="Fact" hasFile={!!inv.file_facture} onUpload={() => onEditInvoice(inv)} />
         <FileStatus label="Déch" hasFile={!!inv.file_decharge} onUpload={() => onEditInvoice(inv)} />
         <FileStatus label="Ret" hasFile={!!inv.file_retenue} onUpload={() => onEditInvoice(inv)} />
       </div>
       
-      {/* Montant HT */}
       <div className="text-right flex flex-col items-end">
-        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Montant HT</span>
-        <p className="text-xs font-bold text-slate-600">{formatCurrencyDT(inv.montant_ht)}</p>
+        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Montant Facture HT</span>
+        <p className="text-[11px] font-bold text-slate-600">{formatCurrencyDT(inv.montant_ht)}</p>
       </div>
 
-      {/* Retenue */}
+      <div className="text-center flex flex-col items-center">
+        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">TVA%</span>
+        <p className="text-[11px] font-bold text-slate-500">{tvaPct}%</p>
+      </div>
+
       <div className="text-right flex flex-col items-end">
-        <span className="text-[9px] font-bold text-rose-500 uppercase tracking-tighter">Retenue</span>
-        <p className="text-xs font-bold text-rose-600">
-          {inv.montant_retenue > 0 ? formatCurrencyDT(inv.montant_retenue) : "-"}
+        <span className="text-[8px] font-bold text-indigo-400 uppercase tracking-tighter">Montant Facture TTC</span>
+        <p className="text-[11px] font-bold text-indigo-600">{formatCurrencyDT(montantFactureTTC)}</p>
+      </div>
+
+      <div className="text-right flex flex-col items-end">
+        <span className="text-[8px] font-bold text-rose-400 uppercase tracking-tighter">Montant Retenue</span>
+        <p className="text-[11px] font-bold text-rose-600">
+          {montantRetenue > 0 ? formatCurrencyDT(montantRetenue) : "-"}
         </p>
       </div>
 
-      {/* Montant TTC */}
       <div className="text-right flex flex-col items-end">
-        <span className="text-[9px] font-bold text-primary uppercase tracking-tighter">Montant TTC</span>
-        <p className="text-sm font-black text-slate-900">{formatCurrencyDT(computeTTC(inv.montant_ht, inv.tva_pct || 19))}</p>
+        <span className="text-[8px] font-bold text-primary uppercase tracking-tighter">Montant Reçu TTC</span>
+        <p className="text-[12px] font-black text-slate-900">{formatCurrencyDT(montantRecuTTC)}</p>
       </div>
 
-      {/* Statut */}
       <div className="flex justify-center">
         <Badge variant="outline" className={cn(
-          "text-[9px] font-bold px-2 py-0 whitespace-nowrap w-full justify-center h-5",
+          "text-[8px] font-bold px-1.5 py-0 whitespace-nowrap w-full justify-center h-4",
           getStatusStyles(inv.statut)
         )}>
           {inv.statut}
         </Badge>
       </div>
 
-      {/* Actions */}
       <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
         <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => onEditInvoice(inv)}>
           <Edit size={14} />
@@ -181,14 +182,12 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-
     if (over && active.id !== over.id) {
       setInvoices((items) => {
         const oldIndex = items.findIndex((i) => i.id === active.id);
         const newIndex = items.findIndex((i) => i.id === over.id);
         return arrayMove(items, oldIndex, newIndex);
       });
-      // Ici, vous pourriez appeler une API pour sauvegarder le nouvel ordre
     }
   };
 
@@ -207,14 +206,14 @@ export const ProjectInvoicesList: React.FC<ProjectInvoicesListProps> = ({
         <button 
           onClick={(e) => { e.stopPropagation(); onUpload(); }}
           className={cn(
-            "flex flex-col items-center justify-center w-10 h-10 rounded-xl border transition-all",
+            "flex flex-col items-center justify-center w-8 h-8 rounded-lg border transition-all",
             hasFile 
               ? "bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100" 
               : "bg-slate-50 border-slate-200 text-slate-400 hover:border-primary/30 hover:text-primary"
           )}
         >
-          {hasFile ? <CheckCircle2 size={16} /> : <UploadCloud size={16} />}
-          <span className="text-[7px] font-bold uppercase mt-0.5">{label}</span>
+          {hasFile ? <CheckCircle2 size={14} /> : <UploadCloud size={14} />}
+          <span className="text-[6px] font-bold uppercase mt-0.5">{label}</span>
         </button>
       </TooltipTrigger>
       <TooltipContent>
