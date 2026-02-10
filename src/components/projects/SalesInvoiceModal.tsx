@@ -36,6 +36,7 @@ const invoiceSchema = z.object({
   type_facture: z.string().default("Mission S0"),
   montant_ht: z.coerce.number().min(0),
   montant_retenue: z.coerce.number().min(0).default(0),
+  mode_paiement: z.string().default("Virement"),
   tva_pct: z.coerce.number(),
   statut: z.string().default("Non facturé"),
   note: z.string().optional(),
@@ -68,6 +69,7 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({
       type_facture: "Mission S0",
       montant_ht: 0,
       montant_retenue: 0,
+      mode_paiement: "Virement",
       tva_pct: projectTva,
       statut: "Non facturé",
       note: "",
@@ -83,6 +85,7 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({
         type_facture: initialData?.type_facture || "Mission S0",
         montant_ht: initialData?.montant_ht || 0,
         montant_retenue: initialData?.montant_retenue || 0,
+        mode_paiement: initialData?.mode_paiement || "Virement",
         tva_pct: initialData?.tva_pct || projectTva,
         statut: initialData?.statut || "Non facturé",
         note: initialData?.note || "",
@@ -241,6 +244,29 @@ export const SalesInvoiceModal: React.FC<SalesInvoiceModalProps> = ({
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="mode_paiement"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mode de paiement</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="rounded-xl">
+                        <SelectValue placeholder="Choisir un mode" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Virement">Virement</SelectItem>
+                      <SelectItem value="Chèque">Chèque</SelectItem>
+                      <SelectItem value="Espèce">Espèce</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             
             <div className="space-y-3 border-t pt-4 mt-4">
               <h4 className="text-sm font-bold text-slate-700">Documents joints</h4>

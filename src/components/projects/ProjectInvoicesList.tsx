@@ -7,7 +7,8 @@ import {
   CalendarDays, 
   UploadCloud, 
   CheckCircle2, 
-  GripVertical 
+  GripVertical,
+  CreditCard
 } from "lucide-react";
 import { formatCurrencyDT, formatDateFR, computeTTC } from "@/utils/formatters";
 import { Button } from "@/components/ui/button";
@@ -73,7 +74,7 @@ const SortableInvoiceItem = ({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "grid grid-cols-[30px_120px_160px_110px_1fr_60px_1fr_1fr_1fr_100px_40px] items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm group hover:border-primary/30 transition-colors gap-3",
+        "grid grid-cols-[30px_120px_160px_110px_1fr_60px_1fr_1fr_100px_1fr_100px_40px] items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm group hover:border-primary/30 transition-colors gap-3",
         isDragging && "shadow-xl border-primary/50"
       )}
     >
@@ -137,6 +138,14 @@ const SortableInvoiceItem = ({
         <p className="text-[11px] font-bold text-rose-600">
           {montantRetenue > 0 ? formatCurrencyDT(montantRetenue) : "-"}
         </p>
+      </div>
+
+      <div className="text-center flex flex-col items-center border-x border-slate-50 px-1">
+        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Mode</span>
+        <div className="flex items-center gap-1 text-[10px] font-bold text-slate-700">
+          <CreditCard size={10} className="text-slate-400" />
+          {inv.mode_paiement || "Virement"}
+        </div>
       </div>
 
       <div className="text-right flex flex-col items-end">
