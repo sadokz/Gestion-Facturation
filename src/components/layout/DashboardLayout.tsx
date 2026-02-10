@@ -31,6 +31,7 @@ import { Button } from "@/components/ui/button";
 import { DashboardCustomizationModal } from "../dashboard/DashboardCustomizationModal";
 import { YearManagementModal } from "./YearManagementModal";
 import { ThemeToggle } from "../theme-toggle";
+import { PrivacyToggle } from "./PrivacyToggle";
 
 const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
   <Link
@@ -188,6 +189,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
           </div>
 
           <div className="flex items-center gap-4">
+            <PrivacyToggle />
             <ThemeToggle />
             <Button 
               variant="outline" 

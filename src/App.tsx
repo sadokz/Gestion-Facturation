@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { YearProvider } from "./context/YearContext";
 import { NavigationProvider } from "./context/NavigationContext";
 import { DashboardProvider } from "./context/DashboardContext";
+import { PrivacyProvider } from "./context/PrivacyContext";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { ThemeProvider } from "./components/theme-provider";
 import Dashboard from "./pages/Dashboard";
@@ -28,27 +29,29 @@ const App = () => (
       <YearProvider>
         <NavigationProvider>
           <DashboardProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner position="top-right" expand={false} richColors />
-              <BrowserRouter>
-                <DashboardLayout>
-                  <Routes>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/projects" element={<Projects />} />
-                    <Route path="/clients" element={<Clients />} />
-                    <Route path="/companies" element={<Companies />} />
-                    <Route path="/purchases" element={<Purchases />} />
-                    <Route path="/salaries" element={<Salaries />} />
-                    <Route path="/hr" element={<HR />} />
-                    <Route path="/cnss" element={<CNSS />} />
-                    <Route path="/accounting" element={<Accounting />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </DashboardLayout>
-              </BrowserRouter>
-            </TooltipProvider>
+            <PrivacyProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner position="top-right" expand={false} richColors />
+                <BrowserRouter>
+                  <DashboardLayout>
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/projects" element={<Projects />} />
+                      <Route path="/clients" element={<Clients />} />
+                      <Route path="/companies" element={<Companies />} />
+                      <Route path="/purchases" element={<Purchases />} />
+                      <Route path="/salaries" element={<Salaries />} />
+                      <Route path="/hr" element={<HR />} />
+                      <Route path="/cnss" element={<CNSS />} />
+                      <Route path="/accounting" element={<Accounting />} />
+                      <Route path="/settings" element={<Settings />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </DashboardLayout>
+                </BrowserRouter>
+              </TooltipProvider>
+            </PrivacyProvider>
           </DashboardProvider>
         </NavigationProvider>
       </YearProvider>

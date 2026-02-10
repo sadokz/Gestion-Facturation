@@ -14,6 +14,7 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
+import { usePrivacy } from "@/context/PrivacyContext";
 import { fetcher } from "@/api/config";
 import { formatCurrencyDT, computeTTC } from "@/utils/formatters";
 import { cn } from "@/lib/utils";
@@ -92,6 +93,7 @@ const SortableProjectRow = ({
   setIsConfirmOpen,
   visibleColumns
 }: any) => {
+  const { isPrivate } = usePrivacy();
   const {
     attributes,
     listeners,
@@ -134,6 +136,7 @@ const SortableProjectRow = ({
   }
 
   const isVisible = (id: string) => visibleColumns.includes(id);
+  const format = (val: number) => isPrivate ? "*****" : formatCurrencyDT(val);
 
   return (
     <React.Fragment>
@@ -177,14 +180,14 @@ const SortableProjectRow = ({
             </Tooltip>
           </TableCell>
         )}
-        {isVisible("montant_total_ht") && <TableCell className="text-right font-medium text-slate-600 truncate">{formatCurrencyDT(baseHT)}</TableCell>}
-        {isVisible("montant_avenant_ht") && <TableCell className="text-right font-medium text-amber-600 truncate">{formatCurrencyDT(avenantHT)}</TableCell>}
-        {isVisible("tva_pct") && <TableCell className="text-right font-medium text-slate-500 truncate">{formatCurrencyDT(totalTVA)}</TableCell>}
-        {isVisible("total_ttc") && <TableCell className="text-right font-bold text-slate-900 truncate">{formatCurrencyDT(totalTTC)}</TableCell>}
-        {isVisible("facture_ht") && <TableCell className="text-right text-blue-600 font-bold truncate">{formatCurrencyDT(totalFactureHT)}</TableCell>}
-        {isVisible("facture_ttc") && <TableCell className="text-right text-indigo-600 font-bold truncate">{formatCurrencyDT(totalFactureTTC)}</TableCell>}
-        {isVisible("paye_ttc") && <TableCell className="text-right text-emerald-600 font-bold truncate">{formatCurrencyDT(totalPayeTTC)}</TableCell>}
-        {isVisible("reste_ttc") && <TableCell className="text-right text-rose-600 font-black truncate">{formatCurrencyDT(resteAFacturerTTC)}</TableCell>}
+        {isVisible("montant_total_ht") && <TableCell className="text-right font-medium text-slate-600 truncate">{format(baseHT)}</TableCell>}
+        {isVisible("montant_avenant_ht") && <TableCell className="text-right font-medium text-amber-600 truncate">{format(avenantHT)}</TableCell>}
+        {isVisible("tva_pct") && <TableCell className="text-right font-medium text-slate-500 truncate">{format(totalTVA)}</TableCell>}
+        {isVisible("total_ttc") && <TableCell className="text-right font-bold text-slate-900 truncate">{format(totalTTC)}</TableCell>}
+        {isVisible("facture_ht") && <TableCell className="text-right text-blue-600 font-bold truncate">{format(totalFactureHT)}</TableCell>}
+        {isVisible("facture_ttc") && <TableCell className="text-right text-indigo-600 font-bold truncate">{format(totalFactureTTC)}</TableCell>}
+        {isVisible("paye_ttc") && <TableCell className="text-right text-emerald-600 font-bold truncate">{format(totalPayeTTC)}</TableCell>}
+        {isVisible("reste_ttc") && <TableCell className="text-right text-rose-600 font-black truncate">{format(resteAFacturerTTC)}</TableCell>}
         {isVisible("statut") && <TableCell className="truncate">{getStatusBadge(calculatedStatus)}</TableCell>}
         <TableCell className="p-0 text-center">
           <DropdownMenu>
