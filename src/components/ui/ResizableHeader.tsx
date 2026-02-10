@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { TableHead } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { ChevronUp, ChevronDown, ArrowUpDown } from "lucide-react";
@@ -26,24 +26,40 @@ export const ResizableHeader: React.FC<ResizableHeaderProps> = ({
 }) => {
   const [width, setWidth] = useState(initialWidth);
   const isResizing = useRef(false);
+  const startX = useRef(0);
+  const startWidth = useRef(0);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!resizable) return;
     isResizing.current = true;
+    startX.current = e.clientX;
+    startWidth.current = width;
+    
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
+    
+    // Empêcher la sélection de texte pendant le redimensionnement
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    
     e.preventDefault();
+    e.stopPropagation();
   };
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!isResizing.current) return;
-    // Logique simplifiée pour le redimensionnement
+    const deltaX = e.clientX - startX.current;
+    const newWidth = Math.max(minWidth, startWidth.current + deltaX);
+    setWidth(newWidth);
   };
 
   const handleMouseUp = () => {
     isResizing.current = false;
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
+    
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
   };
 
   const SortIcon = () => {
@@ -55,15 +71,19 @@ export const ResizableHeader: React.FC<ResizableHeaderProps> = ({
 
   return (
     <TableHead
-      style={{ width: `${initialWidth}px`, minWidth: `${initialWidth}px` }}
+      style={{ 
+        width: `${width}px`, 
+        minWidth: resizable ? `${minWidth}px` : `${initialWidth}px`,
+        maxWidth: !resizable ? `${initialWidth}px` : undefined
+      }}
       className={cn(
-        "relative h-12 px-2 text-left align-middle font-bold text-slate-700 bg-slate-50/50 border-r border-slate-200 last:border-r-0 transition-colors",
+        "relative h-12 px-3 text-left align-middle font-bold text-slate-700 bg-slate-50/50 border-r border-slate-200 last:border-r-0 transition-colors",
         sortKey && "cursor-pointer hover:bg-slate-100/80",
         className
       )}
       onClick={() => sortKey && onSort?.(sortKey)}
     >
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-between overflow-hidden">
         <span className="truncate uppercase tracking-wider text-[10px]">{children}</span>
         {sortKey && <SortIcon />}
       </div>
@@ -71,7 +91,8 @@ export const ResizableHeader: React.FC<ResizableHeaderProps> = ({
       {resizable && (
         <div
           onMouseDown={handleMouseDown}
-          className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-primary/30 transition-colors z-10"
+          className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize hover:bg-primary/40 transition-colors z-20"
+          onClick={(e) => e.stopPropagation()}
         />
       )}
     </TableHead>
