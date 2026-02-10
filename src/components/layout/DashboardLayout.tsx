@@ -13,7 +13,8 @@ import {
   UserCheck,
   ShieldCheck,
   Calculator,
-  Settings2
+  Settings2,
+  Plus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useYear } from "@/context/YearContext";
@@ -26,8 +27,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { GlobalSearch } from "./GlobalSearch";
-import { Button } from "@/components/ui/button"; // Import Button
-import { DashboardCustomizationModal } from "../dashboard/DashboardCustomizationModal"; // Import the new modal
+import { Button } from "@/components/ui/button";
+import { DashboardCustomizationModal } from "../dashboard/DashboardCustomizationModal";
+import { YearManagementModal } from "./YearManagementModal";
 
 const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
   <Link
@@ -47,11 +49,11 @@ const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any,
 
 export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
-  const { selectedYear, setSelectedYear } = useYear();
+  const { selectedYear, setSelectedYear, availableYears } = useYear();
   const { tabs } = useNavigation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isCustomizationModalOpen, setIsCustomizationModalOpen] = useState(false); // State for customization modal
-  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i + 1);
+  const [isCustomizationModalOpen, setIsCustomizationModalOpen] = useState(false);
+  const [isYearModalOpen, setIsYearModalOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFC] overflow-hidden">
@@ -196,16 +198,26 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm">
               <Calendar size={16} className="text-slate-500" />
               <span className="text-sm font-medium text-slate-600">Exercice :</span>
-              <Select value={selectedYear.toString()} onValueChange={(v) => setSelectedYear(parseInt(v))}>
-                <SelectTrigger className="w-[100px] border-none shadow-none h-8 focus:ring-0 font-bold text-primary">
-                  <SelectValue placeholder="Année" />
-                </SelectTrigger>
-                <SelectContent>
-                  {years.map(y => (
-                    <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-1">
+                <Select value={selectedYear.toString()} onValueChange={(v) => setSelectedYear(parseInt(v))}>
+                  <SelectTrigger className="w-[100px] border-none shadow-none h-8 focus:ring-0 font-bold text-primary">
+                    <SelectValue placeholder="Année" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableYears.map(y => (
+                      <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6 rounded-full hover:bg-slate-100 text-slate-400"
+                  onClick={() => setIsYearModalOpen(true)}
+                >
+                  <Plus size={14} />
+                </Button>
+              </div>
             </div>
             <div className="w-10 h-10 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden shrink-0">
               <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" />
@@ -219,6 +231,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
         </div>
       </main>
       <DashboardCustomizationModal isOpen={isCustomizationModalOpen} onClose={() => setIsCustomizationModalOpen(false)} />
+      <YearManagementModal isOpen={isYearModalOpen} onClose={() => setIsYearModalOpen(false)} />
     </div>
   );
 };
