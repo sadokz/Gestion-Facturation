@@ -14,7 +14,8 @@ import {
   GripVertical,
   Briefcase,
   Map as MapIcon,
-  ExternalLink
+  ExternalLink,
+  Fingerprint
 } from "lucide-react";
 import { fetcher } from "@/api/config";
 import {
@@ -68,6 +69,7 @@ import { CSS } from "@dnd-kit/utilities";
 
 const CLIENT_COLUMNS = [
   { id: "nom", label: "Client" },
+  { id: "matricule_fiscale", label: "Matricule Fiscal" },
   { id: "adresse", label: "Adresse" },
   { id: "google_maps", label: "Google Maps" },
   { id: "tel", label: "Téléphone" },
@@ -135,6 +137,14 @@ const SortableClientRow = ({
                   {projectCount}
                 </Badge>
               )}
+            </div>
+          </TableCell>
+        )}
+        {isVisible("matricule_fiscale") && (
+          <TableCell className="text-slate-600 font-mono text-xs">
+            <div className="flex items-center gap-1 truncate">
+              <Fingerprint size={12} className="text-slate-400 shrink-0" />
+              {client.matricule_fiscale || "-"}
             </div>
           </TableCell>
         )}
@@ -269,6 +279,7 @@ const Clients = () => {
         { 
           id: 1, 
           nom: "Commune de Tunis", 
+          matricule_fiscale: "1234567/A/M/000",
           adresse: "Avenue Habib Bourguiba, Tunis", 
           google_maps_link: "https://goo.gl/maps/tunis",
           tel: "71 123 456", 
@@ -286,6 +297,7 @@ const Clients = () => {
         { 
           id: 2, 
           nom: "STEG", 
+          matricule_fiscale: "7654321/B/N/001",
           adresse: "Rue Kamel Ataturk, Tunis", 
           google_maps_link: "",
           tel: "71 333 444", 
@@ -383,6 +395,7 @@ const Clients = () => {
                   <TableRow className="hover:bg-transparent border-slate-100">
                     <ResizableHeader initialWidth={80} minWidth={60}></ResizableHeader>
                     {isVisible("nom") && <ResizableHeader initialWidth={250} minWidth={100} sortKey="nom" currentSort={sortConfig} onSort={handleSort}>Client</ResizableHeader>}
+                    {isVisible("matricule_fiscale") && <ResizableHeader initialWidth={180} minWidth={120} sortKey="matricule_fiscale" currentSort={sortConfig} onSort={handleSort}>Matricule Fiscal</ResizableHeader>}
                     {isVisible("adresse") && <ResizableHeader initialWidth={300} minWidth={150} sortKey="adresse" currentSort={sortConfig} onSort={handleSort}>Adresse</ResizableHeader>}
                     {isVisible("google_maps") && <ResizableHeader initialWidth={120} minWidth={100}>Google Maps</ResizableHeader>}
                     {isVisible("tel") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="tel" currentSort={sortConfig} onSort={handleSort}>Téléphone</ResizableHeader>}

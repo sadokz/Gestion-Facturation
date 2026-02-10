@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 
 const clientSchema = z.object({
   nom: z.string().min(1, "Le nom est requis"),
+  matricule_fiscale: z.string().min(1, "Le matricule fiscal est requis"),
   adresse: z.string().min(1, "L'adresse est requise"),
   google_maps_link: z.string().url("Lien Google Maps invalide").optional().or(z.literal("")),
   tel: z.string().min(1, "Le téléphone est requis"),
@@ -41,6 +42,7 @@ export const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSub
     resolver: zodResolver(clientSchema),
     defaultValues: initialData || {
       nom: "",
+      matricule_fiscale: "",
       adresse: "",
       google_maps_link: "",
       tel: "",
@@ -50,7 +52,7 @@ export const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSub
   });
 
   React.useEffect(() => {
-    if (isOpen) form.reset(initialData || { nom: "", adresse: "", google_maps_link: "", tel: "", fax: "", email: "" });
+    if (isOpen) form.reset(initialData || { nom: "", matricule_fiscale: "", adresse: "", google_maps_link: "", tel: "", fax: "", email: "" });
   }, [isOpen, initialData, form]);
 
   return (
@@ -63,19 +65,34 @@ export const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSub
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-            <FormField
-              control={form.control}
-              name="nom"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nom / Raison Sociale</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ex: STEG, Commune de..." {...field} className="rounded-xl" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="nom"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nom / Raison Sociale</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ex: STEG, Commune de..." {...field} className="rounded-xl" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="matricule_fiscale"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Matricule Fiscal</FormLabel>
+                    <FormControl>
+                      <Input placeholder="1234567/A/M/000" {...field} className="rounded-xl" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
               name="adresse"
