@@ -6,6 +6,10 @@ interface DashboardPreferences {
   showProjectStatus: boolean;
   showRecentActivity: boolean;
   showTopClients: boolean;
+  showTotalCnssPaid: boolean; // New preference
+  showTotalSalaries: boolean; // New preference
+  showTotalRevenue: boolean; // New preference
+  showTotalProfit: boolean; // New preference
 }
 
 interface DashboardContextType {
@@ -24,6 +28,10 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       showProjectStatus: true,
       showRecentActivity: true,
       showTopClients: true,
+      showTotalCnssPaid: true, // Default to true
+      showTotalSalaries: true, // Default to true
+      showTotalRevenue: true, // Default to true
+      showTotalProfit: true, // Default to true
     };
   });
 

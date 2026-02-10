@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useDashboard } from "@/context/DashboardContext";
-import { Card, TrendingUp, PieChart as PieChartIcon, Activity, Users, LayoutDashboard } from "lucide-react";
+import { Card, TrendingUp, PieChart as PieChartIcon, Activity, Users, LayoutDashboard, ShieldCheck, Banknote, DollarSign, Wallet } from "lucide-react";
 
 interface DashboardCustomizationModalProps {
   isOpen: boolean;
@@ -21,7 +21,11 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
   const { preferences, togglePreference } = useDashboard();
 
   const sections = [
-    { id: "showKpiCards", label: "Cartes KPIs", icon: LayoutDashboard },
+    { id: "showKpiCards", label: "Cartes KPIs Générales", icon: LayoutDashboard },
+    { id: "showTotalCnssPaid", label: "KPI : Total Payé CNSS", icon: ShieldCheck },
+    { id: "showTotalSalaries", label: "KPI : Total Salaires", icon: Banknote },
+    { id: "showTotalRevenue", label: "KPI : Chiffre d'affaires", icon: TrendingUp },
+    { id: "showTotalProfit", label: "KPI : Bénéfice Total", icon: Wallet },
     { id: "showMonthlyFlux", label: "Flux Mensuel (Graphique)", icon: TrendingUp },
     { id: "showProjectStatus", label: "Statut des Projets (Graphique)", icon: PieChartIcon },
     { id: "showRecentActivity", label: "Activité Récente", icon: Activity },

@@ -6,7 +6,7 @@ Cette application est une solution complète de gestion financière et opératio
 
 ### 📊 Tableau de Bord (Dashboard)
 - **Personnalisation** : Choisissez les sections à afficher ou masquer (cartes KPIs, graphiques, activités récentes, top clients).
-- **Indicateurs de Performance (KPIs)** : Visualisation en temps réel du total des contrats, du montant facturé, du reste à facturer et des dépenses totales (en DT HT).
+- **Indicateurs de Performance (KPIs)** : Visualisation en temps réel du total des contrats, du montant facturé, du reste à facturer, des dépenses totales, du **Total Payé CNSS**, du **Total Salaires**, du **Chiffre d'affaires** et du **Bénéfice Total** (en DT HT).
 - **Flux Mensuel** : Graphique comparatif des ventes et des achats par mois.
 - **Activité Récente** : Flux chronologique des dernières factures émise/payées, nouveaux projets et achats.
 - **Top Clients** : Classement des clients par volume d'affaires avec barre de progression relative.

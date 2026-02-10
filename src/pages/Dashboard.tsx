@@ -9,7 +9,10 @@ import {
   Activity,
   Users,
   Briefcase,
-  CalendarDays
+  CalendarDays,
+  ShieldCheck, // New icon
+  Banknote,    // New icon
+  Wallet       // New icon
 } from "lucide-react";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { useYear } from "@/context/YearContext";
@@ -65,7 +68,11 @@ const Dashboard = () => {
           totalContractsHT: 125000,
           totalInvoicedHT: 78000,
           totalRemainingHT: 47000,
-          totalPurchasesHT: 22000
+          totalPurchasesHT: 22000,
+          totalCnssPaid: 15000, // New mock data
+          totalSalaries: 45000, // New mock data
+          totalRevenue: 95000, // New mock data (example: totalInvoicedHT + other income)
+          totalProfit: 30000, // New mock data (example: totalRevenue - totalPurchasesHT - totalSalaries - totalCnssPaid)
         });
         setMonthlyData([
           { name: 'Jan', invoicedHT: 4000, purchasesHT: 1200 },
@@ -122,6 +129,21 @@ const Dashboard = () => {
           <KPICard title="Total Achats (HT)" value={summary?.totalPurchasesHT || 0} icon={ShoppingBag} color="bg-rose-500" description="Dépenses" />
         </div>
       )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {preferences.showTotalCnssPaid && (
+          <KPICard title="Total Payé CNSS" value={summary?.totalCnssPaid || 0} icon={ShieldCheck} color="bg-blue-600" description="Cotisations" />
+        )}
+        {preferences.showTotalSalaries && (
+          <KPICard title="Total Salaires" value={summary?.totalSalaries || 0} icon={Banknote} color="bg-purple-600" description="Charges" />
+        )}
+        {preferences.showTotalRevenue && (
+          <KPICard title="Chiffre d'affaires" value={summary?.totalRevenue || 0} icon={TrendingUp} color="bg-green-600" description="Ventes + Autres" />
+        )}
+        {preferences.showTotalProfit && (
+          <KPICard title="Bénéfice Total" value={summary?.totalProfit || 0} icon={Wallet} color="bg-teal-600" description="Estimé" />
+        )}
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {preferences.showMonthlyFlux && (
