@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useYear } from "@/context/YearContext";
+import { useNavigation } from "@/context/NavigationContext";
 import {
   Select,
   SelectContent,
@@ -42,6 +43,7 @@ const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any,
 export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const { selectedYear, setSelectedYear } = useYear();
+  const { tabs } = useNavigation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i + 1);
 
@@ -68,54 +70,70 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
         </button>
 
         <nav className={cn("flex flex-col gap-2 transition-opacity duration-200", !isSidebarOpen && "opacity-0")}>
-          <SidebarItem 
-            to="/" 
-            icon={LayoutDashboard} 
-            label="Tableau de bord" 
-            active={location.pathname === "/"} 
-          />
-          <SidebarItem 
-            to="/projects" 
-            icon={Briefcase} 
-            label="Projets & Ventes" 
-            active={location.pathname.startsWith("/projects")} 
-          />
-          <SidebarItem 
-            to="/clients" 
-            icon={Users} 
-            label="Clients" 
-            active={location.pathname === "/clients"} 
-          />
-          <SidebarItem 
-            to="/companies" 
-            icon={Building2} 
-            label="Entreprises" 
-            active={location.pathname === "/companies"} 
-          />
-          <SidebarItem 
-            to="/purchases" 
-            icon={ShoppingCart} 
-            label="Achats" 
-            active={location.pathname === "/purchases"} 
-          />
-          <SidebarItem 
-            to="/salaries" 
-            icon={Banknote} 
-            label="Salaires" 
-            active={location.pathname === "/salaries"} 
-          />
-          <SidebarItem 
-            to="/hr" 
-            icon={UserCheck} 
-            label="RH (Congés)" 
-            active={location.pathname === "/hr"} 
-          />
-          <SidebarItem 
-            to="/settings" 
-            icon={SettingsIcon} 
-            label="Paramètres" 
-            active={location.pathname === "/settings"} 
-          />
+          {tabs.dashboard && (
+            <SidebarItem 
+              to="/" 
+              icon={LayoutDashboard} 
+              label="Tableau de bord" 
+              active={location.pathname === "/"} 
+            />
+          )}
+          {tabs.projects && (
+            <SidebarItem 
+              to="/projects" 
+              icon={Briefcase} 
+              label="Projets & Ventes" 
+              active={location.pathname.startsWith("/projects")} 
+            />
+          )}
+          {tabs.clients && (
+            <SidebarItem 
+              to="/clients" 
+              icon={Users} 
+              label="Clients" 
+              active={location.pathname === "/clients"} 
+            />
+          )}
+          {tabs.companies && (
+            <SidebarItem 
+              to="/companies" 
+              icon={Building2} 
+              label="Entreprises" 
+              active={location.pathname === "/companies"} 
+            />
+          )}
+          {tabs.purchases && (
+            <SidebarItem 
+              to="/purchases" 
+              icon={ShoppingCart} 
+              label="Achats" 
+              active={location.pathname === "/purchases"} 
+            />
+          )}
+          {tabs.salaries && (
+            <SidebarItem 
+              to="/salaries" 
+              icon={Banknote} 
+              label="Salaires" 
+              active={location.pathname === "/salaries"} 
+            />
+          )}
+          {tabs.hr && (
+            <SidebarItem 
+              to="/hr" 
+              icon={UserCheck} 
+              label="RH (Congés)" 
+              active={location.pathname === "/hr"} 
+            />
+          )}
+          {tabs.settings && (
+            <SidebarItem 
+              to="/settings" 
+              icon={SettingsIcon} 
+              label="Paramètres" 
+              active={location.pathname === "/settings"} 
+            />
+          )}
         </nav>
 
         <div className={cn("mt-auto p-4 bg-slate-50 rounded-2xl border border-slate-100 transition-opacity duration-200", !isSidebarOpen && "opacity-0")}>

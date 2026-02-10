@@ -1,16 +1,46 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Building2, ShieldCheck, Bell, Save } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { 
+  Building2, 
+  Save, 
+  LayoutDashboard, 
+  Briefcase, 
+  Users, 
+  Building, 
+  ShoppingCart, 
+  Banknote, 
+  UserCheck, 
+  Settings as SettingsIcon 
+} from "lucide-react";
 import { showSuccess } from "@/utils/toast";
+import { useNavigation } from "@/context/NavigationContext";
 
 const Settings = () => {
+  const { tabs, toggleTab } = useNavigation();
+
   const handleSave = () => {
     showSuccess("Paramètres enregistrés avec succès");
   };
+
+  const TabToggle = ({ id, label, icon: Icon }: { id: any, label: string, icon: any }) => (
+    <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-slate-100 rounded-lg text-slate-600">
+          <Icon size={18} />
+        </div>
+        <span className="text-sm font-medium text-slate-700">{label}</span>
+      </div>
+      <Switch 
+        checked={tabs[id as keyof typeof tabs]} 
+        onCheckedChange={() => toggleTab(id)} 
+      />
+    </div>
+  );
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -62,6 +92,27 @@ const Settings = () => {
                 <Input id="phone" defaultValue="+216 71 000 000" className="rounded-xl" />
               </div>
             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Separator />
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="space-y-1">
+          <h3 className="font-bold text-slate-800">Gestion des Onglets</h3>
+          <p className="text-sm text-slate-500">Activez ou désactivez les modules de l'application.</p>
+        </div>
+        <Card className="md:col-span-2 border-none shadow-md">
+          <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <TabToggle id="dashboard" label="Tableau de bord" icon={LayoutDashboard} />
+            <TabToggle id="projects" label="Projets & Ventes" icon={Briefcase} />
+            <TabToggle id="clients" label="Clients" icon={Users} />
+            <TabToggle id="companies" label="Entreprises" icon={Building} />
+            <TabToggle id="purchases" label="Achats" icon={ShoppingCart} />
+            <TabToggle id="salaries" label="Salaires" icon={Banknote} />
+            <TabToggle id="hr" label="RH (Congés)" icon={UserCheck} />
+            <TabToggle id="settings" label="Paramètres" icon={SettingsIcon} />
           </CardContent>
         </Card>
       </div>

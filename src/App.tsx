@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { YearProvider } from "./context/YearContext";
+import { NavigationProvider } from "./context/NavigationContext";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
@@ -20,25 +21,27 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <YearProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner position="top-right" expand={false} richColors />
-        <BrowserRouter>
-          <DashboardLayout>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/projects" element={<Projects />} />
-              <Route path="/clients" element={<Clients />} />
-              <Route path="/companies" element={<Companies />} />
-              <Route path="/purchases" element={<Purchases />} />
-              <Route path="/salaries" element={<Salaries />} />
-              <Route path="/hr" element={<HR />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </DashboardLayout>
-        </BrowserRouter>
-      </TooltipProvider>
+      <NavigationProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner position="top-right" expand={false} richColors />
+          <BrowserRouter>
+            <DashboardLayout>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/projects" element={<Projects />} />
+                <Route path="/clients" element={<Clients />} />
+                <Route path="/companies" element={<Companies />} />
+                <Route path="/purchases" element={<Purchases />} />
+                <Route path="/salaries" element={<Salaries />} />
+                <Route path="/hr" element={<HR />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </DashboardLayout>
+          </BrowserRouter>
+        </TooltipProvider>
+      </NavigationProvider>
     </YearProvider>
   </QueryClientProvider>
 );
