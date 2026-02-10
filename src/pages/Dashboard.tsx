@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { 
   FileText, 
   CheckCircle2, 
@@ -10,13 +10,14 @@ import {
   Users,
   Briefcase,
   CalendarDays,
-  ShieldCheck, // New icon
-  Banknote,    // New icon
-  Wallet       // New icon
+  ShieldCheck, 
+  Banknote,    
+  Wallet,
+  GripVertical // For drag handle
 } from "lucide-react";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { useYear } from "@/context/YearContext";
-import { useDashboard } from "@/context/DashboardContext"; // Import useDashboard
+import { useDashboard } from "@/context/DashboardContext"; 
 import { fetcher } from "@/api/config";
 import { 
   BarChart, 
@@ -36,16 +37,99 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrencyDT, formatDateFR } from "@/utils/formatters";
 import { cn } from "@/lib/utils";
 
+// DND Kit Imports
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy, // Use rectSortingStrategy for grid layout
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+
+// Define a type for KPI card data
+interface KpiCardData {
+  id: string;
+  title: string;
+  icon: any;
+  color: string;
+  description: string;
+  valueKey: string; // Key to get value from summary
+  preferenceKey: keyof DashboardPreferences; // Key to check visibility preference
+}
+
+// All possible KPI definitions
+const ALL_KPI_DEFINITIONS: KpiCardData[] = [
+  { id: "totalContractsHT", title: "Total Contrats (HT)", icon: FileText, color: "bg-indigo-500", description: "Signés", valueKey: "totalContractsHT", preferenceKey: "showKpiCards" },
+  { id: "totalInvoicedHT", title: "Total Facturé (HT)", icon: CheckCircle2, color: "bg-emerald-500", description: "Ventes", valueKey: "totalInvoicedHT", preferenceKey: "showKpiCards" },
+  { id: "totalRemainingHT", title: "Reste à Facturer (HT)", icon: Clock, color: "bg-amber-500", description: "En attente", valueKey: "totalRemainingHT", preferenceKey: "showKpiCards" },
+  { id: "totalPurchasesHT", title: "Total Achats (HT)", icon: ShoppingBag, color: "bg-rose-500", description: "Dépenses", valueKey: "totalPurchasesHT", preferenceKey: "showKpiCards" },
+  { id: "totalCnssPaid", title: "Total Payé CNSS", icon: ShieldCheck, color: "bg-blue-600", description: "Cotisations", valueKey: "totalCnssPaid", preferenceKey: "showTotalCnssPaid" },
+  { id: "totalSalaries", title: "Total Salaires", icon: Banknote, color: "bg-purple-600", description: "Charges", valueKey: "totalSalaries", preferenceKey: "showTotalSalaries" },
+  { id: "totalRevenue", title: "Chiffre d'affaires", icon: TrendingUp, color: "bg-green-600", description: "Ventes + Autres", valueKey: "totalRevenue", preferenceKey: "showTotalRevenue" },
+  { id: "totalProfit", title: "Bénéfice Total", icon: Wallet, color: "bg-teal-600", description: "Estimé", valueKey: "totalProfit", preferenceKey: "showTotalProfit" },
+];
+
+// Sortable KPICard component
+const SortableKPICard = ({ kpi, summary }: { kpi: KpiCardData; summary: any }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: kpi.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : 1,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="relative">
+      <div {...attributes} {...listeners} className="absolute top-2 left-2 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors z-20">
+        <GripVertical size={18} />
+      </div>
+      <KPICard
+        title={kpi.title}
+        value={summary?.[kpi.valueKey] || 0}
+        icon={kpi.icon}
+        color={kpi.color}
+        description={kpi.description}
+      />
+    </div>
+  );
+};
 
 const Dashboard = () => {
   const { selectedYear } = useYear();
-  const { preferences } = useDashboard(); // Use dashboard preferences
+  const { preferences, kpiOrder, setKpiOrder } = useDashboard(); 
   const [summary, setSummary] = useState<any>(null);
   const [monthlyData, setMonthlyData] = useState<any[]>([]);
   const [categoryData, setCategoryData] = useState<any[]>([]);
-  const [statusData, setStatusData] = useState<any[]>([]); // This will now be invoice status data
+  const [statusData, setStatusData] = useState<any[]>([]); 
   const [loading, setLoading] = useState(true);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     const loadData = async () => {
@@ -62,8 +146,6 @@ const Dashboard = () => {
           name: new Date(2000, d.month - 1).toLocaleString('fr-FR', { month: 'short' })
         })));
         setCategoryData(c);
-        // Assuming an API endpoint for invoice statuses would return data like:
-        // [{ name: 'Payée', value: 15 }, { name: 'En attente', value: 7 }, { name: 'Non facturée', value: 3 }]
         setStatusData([
           { name: 'Payée', value: 15 },
           { name: 'En attente', value: 7 },
@@ -76,10 +158,10 @@ const Dashboard = () => {
           totalInvoicedHT: 78000,
           totalRemainingHT: 47000,
           totalPurchasesHT: 22000,
-          totalCnssPaid: 15000, // New mock data
-          totalSalaries: 45000, // New mock data
-          totalRevenue: 95000, // New mock data (example: totalInvoicedHT + other income)
-          totalProfit: 30000, // New mock data (example: totalRevenue - totalPurchasesHT - totalSalaries - totalCnssPaid)
+          totalCnssPaid: 15000, 
+          totalSalaries: 45000, 
+          totalRevenue: 95000, 
+          totalProfit: 30000, 
         });
         setMonthlyData([
           { name: 'Jan', invoicedHT: 4000, purchasesHT: 1200 },
@@ -107,6 +189,32 @@ const Dashboard = () => {
     loadData();
   }, [selectedYear]);
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = kpiOrder.indexOf(active.id as string);
+      const newIndex = kpiOrder.indexOf(over.id as string);
+      setKpiOrder(arrayMove(kpiOrder, oldIndex, newIndex));
+    }
+  };
+
+  // Filter and sort KPIs based on preferences and kpiOrder
+  const visibleKpis = useMemo(() => {
+    const filteredKpis = ALL_KPI_DEFINITIONS.filter(kpi => {
+      // If the KPI is one of the original 4, its visibility is controlled by 'showKpiCards'
+      if (["totalContractsHT", "totalInvoicedHT", "totalRemainingHT", "totalPurchasesHT"].includes(kpi.id)) {
+        return preferences.showKpiCards;
+      }
+      // For the new KPIs, their visibility is controlled by their specific preference key
+      return preferences[kpi.preferenceKey];
+    });
+
+    // Sort filtered KPIs according to kpiOrder
+    return kpiOrder
+      .map(id => filteredKpis.find(kpi => kpi.id === id))
+      .filter(Boolean) as KpiCardData[];
+  }, [preferences, kpiOrder, summary]); 
+
   if (loading) {
     return (
       <div className="space-y-8">
@@ -128,29 +236,15 @@ const Dashboard = () => {
         <p className="text-slate-500">Aperçu de la performance pour l'exercice {selectedYear}</p>
       </div>
 
-      {preferences.showKpiCards && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <KPICard title="Total Contrats (HT)" value={summary?.totalContractsHT || 0} icon={FileText} color="bg-indigo-500" description="Signés" />
-          <KPICard title="Total Facturé (HT)" value={summary?.totalInvoicedHT || 0} icon={CheckCircle2} color="bg-emerald-500" description="Ventes" />
-          <KPICard title="Reste à Facturer (HT)" value={summary?.totalRemainingHT || 0} icon={Clock} color="bg-amber-500" description="En attente" />
-          <KPICard title="Total Achats (HT)" value={summary?.totalPurchasesHT || 0} icon={ShoppingBag} color="bg-rose-500" description="Dépenses" />
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {preferences.showTotalCnssPaid && (
-          <KPICard title="Total Payé CNSS" value={summary?.totalCnssPaid || 0} icon={ShieldCheck} color="bg-blue-600" description="Cotisations" />
-        )}
-        {preferences.showTotalSalaries && (
-          <KPICard title="Total Salaires" value={summary?.totalSalaries || 0} icon={Banknote} color="bg-purple-600" description="Charges" />
-        )}
-        {preferences.showTotalRevenue && (
-          <KPICard title="Chiffre d'affaires" value={summary?.totalRevenue || 0} icon={TrendingUp} color="bg-green-600" description="Ventes + Autres" />
-        )}
-        {preferences.showTotalProfit && (
-          <KPICard title="Bénéfice Total" value={summary?.totalProfit || 0} icon={Wallet} color="bg-teal-600" description="Estimé" />
-        )}
-      </div>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={visibleKpis.map(kpi => kpi.id)} strategy={rectSortingStrategy}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {visibleKpis.map((kpi) => (
+              <SortableKPICard key={kpi.id} kpi={kpi} summary={summary} />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {preferences.showMonthlyFlux && (
