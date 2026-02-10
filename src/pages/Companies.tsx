@@ -12,7 +12,10 @@ import {
   MapPin,
   Printer,
   Building2,
-  GripVertical
+  GripVertical,
+  Fingerprint,
+  Map as MapIcon,
+  ExternalLink
 } from "lucide-react";
 import { fetcher } from "@/api/config";
 import {
@@ -61,7 +64,9 @@ import { CSS } from "@dnd-kit/utilities";
 
 const COMPANY_COLUMNS = [
   { id: "nom", label: "Entreprise" },
+  { id: "matricule_fiscale", label: "Matricule Fiscal" },
   { id: "adresse", label: "Adresse" },
+  { id: "google_maps", label: "Google Maps" },
   { id: "tel", label: "Téléphone" },
   { id: "fax", label: "Fax" },
   { id: "email", label: "Email" },
@@ -124,11 +129,35 @@ const SortableCompanyRow = ({
             </div>
           </TableCell>
         )}
+        {isVisible("matricule_fiscale") && (
+          <TableCell className="text-slate-600 font-mono text-xs">
+            <div className="flex items-center gap-1 truncate">
+              <Fingerprint size={12} className="text-slate-400 shrink-0" />
+              {company.matricule_fiscale || "-"}
+            </div>
+          </TableCell>
+        )}
         {isVisible("adresse") && (
           <TableCell className="text-slate-500 text-xs">
             <div className="flex items-center gap-1 truncate">
               <MapPin size={12} className="shrink-0" /> {company.adresse}
             </div>
+          </TableCell>
+        )}
+        {isVisible("google_maps") && (
+          <TableCell>
+            {company.google_maps_link ? (
+              <a 
+                href={company.google_maps_link} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg hover:bg-emerald-100 transition-colors w-fit"
+              >
+                <MapIcon size={12} /> Maps <ExternalLink size={10} />
+              </a>
+            ) : (
+              <span className="text-[10px] text-slate-300 italic">Non défini</span>
+            )}
           </TableCell>
         )}
         {isVisible("tel") && (
@@ -203,8 +232,8 @@ const Companies = () => {
       setCompanies(data);
     } catch (err) {
       setCompanies([
-        { id: 1, nom: "Bureau d'Études Alpha", adresse: "Zone Industrielle, Sousse", tel: "73 444 555", fax: "73 444 556", email: "contact@alpha-etudes.tn", responsibles: [{ id: 101, nom: "M. Karim Jendoubi", role: "Gérant", tel: "98 111 222", email: "k.jendoubi@alpha.tn" }] },
-        { id: 2, nom: "Société de Travaux Publics (STP)", adresse: "Route de Gabès, Sfax", tel: "74 888 999", fax: "", email: "info@stp-travaux.tn", responsibles: [{ id: 201, nom: "Mme. Ines Ben Amor", role: "Responsable RH", tel: "22 555 666", email: "ines.ba@stp.tn" }, { id: 202, nom: "M. Walid Ghorbel", role: "Directeur Technique", tel: "55 777 888", email: "w.ghorbel@stp.tn" }] },
+        { id: 1, nom: "Bureau d'Études Alpha", matricule_fiscale: "1122334/X/Y/000", adresse: "Zone Industrielle, Sousse", google_maps_link: "https://goo.gl/maps/sousse", tel: "73 444 555", fax: "73 444 556", email: "contact@alpha-etudes.tn", responsibles: [{ id: 101, nom: "M. Karim Jendoubi", role: "Gérant", tel: "98 111 222", email: "k.jendoubi@alpha.tn" }] },
+        { id: 2, nom: "Société de Travaux Publics (STP)", matricule_fiscale: "5566778/Z/W/001", adresse: "Route de Gabès, Sfax", google_maps_link: "", tel: "74 888 999", fax: "", email: "info@stp-travaux.tn", responsibles: [{ id: 201, nom: "Mme. Ines Ben Amor", role: "Responsable RH", tel: "22 555 666", email: "ines.ba@stp.tn" }, { id: 202, nom: "M. Walid Ghorbel", role: "Directeur Technique", tel: "55 777 888", email: "w.ghorbel@stp.tn" }] },
       ]);
     } finally {
       setLoading(false);
@@ -290,7 +319,9 @@ const Companies = () => {
                   <TableRow className="hover:bg-transparent border-slate-100">
                     <ResizableHeader initialWidth={80} minWidth={60}></ResizableHeader>
                     {isVisible("nom") && <ResizableHeader initialWidth={250} minWidth={100} sortKey="nom" currentSort={sortConfig} onSort={handleSort}>Entreprise</ResizableHeader>}
+                    {isVisible("matricule_fiscale") && <ResizableHeader initialWidth={180} minWidth={120} sortKey="matricule_fiscale" currentSort={sortConfig} onSort={handleSort}>Matricule Fiscal</ResizableHeader>}
                     {isVisible("adresse") && <ResizableHeader initialWidth={300} minWidth={150} sortKey="adresse" currentSort={sortConfig} onSort={handleSort}>Adresse</ResizableHeader>}
+                    {isVisible("google_maps") && <ResizableHeader initialWidth={120} minWidth={100}>Google Maps</ResizableHeader>}
                     {isVisible("tel") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="tel" currentSort={sortConfig} onSort={handleSort}>Téléphone</ResizableHeader>}
                     {isVisible("fax") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="fax" currentSort={sortConfig} onSort={handleSort}>Fax</ResizableHeader>}
                     {isVisible("email") && <ResizableHeader initialWidth={250} minWidth={150} sortKey="email" currentSort={sortConfig} onSort={handleSort}>Email</ResizableHeader>}

@@ -22,10 +22,12 @@ import { Button } from "@/components/ui/button";
 
 const companySchema = z.object({
   nom: z.string().min(1, "Le nom est requis"),
-  adresse: z.string().min(1, "L'adresse est requise"),
-  tel: z.string().min(1, "Le téléphone est requis"),
-  fax: z.string().optional(),
-  email: z.string().email("Email invalide").min(1, "L'email est requis"),
+  matricule_fiscale: z.string().optional().or(z.literal("")),
+  adresse: z.string().optional().or(z.literal("")),
+  google_maps_link: z.string().url("Lien Google Maps invalide").optional().or(z.literal("")),
+  tel: z.string().optional().or(z.literal("")),
+  fax: z.string().optional().or(z.literal("")),
+  email: z.string().email("Email invalide").optional().or(z.literal("")),
 });
 
 interface CompanyModalProps {
@@ -40,7 +42,9 @@ export const CompanyModal: React.FC<CompanyModalProps> = ({ isOpen, onClose, onS
     resolver: zodResolver(companySchema),
     defaultValues: initialData || {
       nom: "",
+      matricule_fiscale: "",
       adresse: "",
+      google_maps_link: "",
       tel: "",
       fax: "",
       email: "",
@@ -48,7 +52,7 @@ export const CompanyModal: React.FC<CompanyModalProps> = ({ isOpen, onClose, onS
   });
 
   React.useEffect(() => {
-    if (isOpen) form.reset(initialData || { nom: "", adresse: "", tel: "", fax: "", email: "" });
+    if (isOpen) form.reset(initialData || { nom: "", matricule_fiscale: "", adresse: "", google_maps_link: "", tel: "", fax: "", email: "" });
   }, [isOpen, initialData, form]);
 
   return (
@@ -61,14 +65,42 @@ export const CompanyModal: React.FC<CompanyModalProps> = ({ isOpen, onClose, onS
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="nom"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nom / Raison Sociale</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nom de l'entreprise" {...field} className="rounded-xl" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="matricule_fiscale"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Matricule Fiscal (Optionnel)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="1234567/A/M/000" {...field} className="rounded-xl" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
-              name="nom"
+              name="adresse"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nom / Raison Sociale</FormLabel>
+                  <FormLabel>Adresse (Optionnel)</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nom de l'entreprise" {...field} className="rounded-xl" />
+                    <Input placeholder="Adresse complète" {...field} className="rounded-xl" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -76,12 +108,12 @@ export const CompanyModal: React.FC<CompanyModalProps> = ({ isOpen, onClose, onS
             />
             <FormField
               control={form.control}
-              name="adresse"
+              name="google_maps_link"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Adresse</FormLabel>
+                  <FormLabel>Lien Google Maps (Optionnel)</FormLabel>
                   <FormControl>
-                    <Input placeholder="Adresse complète" {...field} className="rounded-xl" />
+                    <Input placeholder="https://goo.gl/maps/..." {...field} className="rounded-xl" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -93,7 +125,7 @@ export const CompanyModal: React.FC<CompanyModalProps> = ({ isOpen, onClose, onS
                 name="tel"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Téléphone</FormLabel>
+                    <FormLabel>Téléphone (Optionnel)</FormLabel>
                     <FormControl>
                       <Input placeholder="+216 ..." {...field} className="rounded-xl" />
                     </FormControl>
@@ -120,7 +152,7 @@ export const CompanyModal: React.FC<CompanyModalProps> = ({ isOpen, onClose, onS
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Email (Optionnel)</FormLabel>
                   <FormControl>
                     <Input type="email" placeholder="contact@entreprise.tn" {...field} className="rounded-xl" />
                   </FormControl>
