@@ -30,6 +30,7 @@ const employeeSchema = z.object({
   poste: z.string().min(1, "Le poste est requis"),
   salaire_net: z.coerce.number().min(0, "Le salaire net doit être positif"),
   salaire_brut: z.coerce.number().min(0, "Le salaire brut doit être positif"),
+  total_leave_entitlement: z.coerce.number().min(0).default(30),
 });
 
 interface EmployeeModalProps {
@@ -52,6 +53,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, o
       poste: "",
       salaire_net: 0,
       salaire_brut: 0,
+      total_leave_entitlement: 30,
     },
   });
 
@@ -66,6 +68,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, o
       poste: "",
       salaire_net: 0,
       salaire_brut: 0,
+      total_leave_entitlement: 30,
     });
   }, [isOpen, initialData, form]);
 
@@ -123,12 +126,12 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, o
               />
               <FormField
                 control={form.control}
-                name="poste"
+                name="total_leave_entitlement"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Poste / Fonction</FormLabel>
+                    <FormLabel>Droit Congés (j/an)</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ingénieur, Technicien..." {...field} className="rounded-xl" />
+                      <Input type="number" {...field} className="rounded-xl border-indigo-200 focus:ring-indigo-500/10" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -179,18 +182,31 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, o
               />
               <FormField
                 control={form.control}
-                name="email"
+                name="poste"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Poste / Fonction</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="email@bureau.tn" {...field} className="rounded-xl" />
+                      <Input placeholder="Ingénieur, Technicien..." {...field} className="rounded-xl" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="email@bureau.tn" {...field} className="rounded-xl" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="adresse"
