@@ -22,12 +22,12 @@ import { Button } from "@/components/ui/button";
 
 const clientSchema = z.object({
   nom: z.string().min(1, "Le nom est requis"),
-  matricule_fiscale: z.string().min(1, "Le matricule fiscal est requis"),
-  adresse: z.string().min(1, "L'adresse est requise"),
+  matricule_fiscale: z.string().optional().or(z.literal("")),
+  adresse: z.string().optional().or(z.literal("")),
   google_maps_link: z.string().url("Lien Google Maps invalide").optional().or(z.literal("")),
-  tel: z.string().min(1, "Le téléphone est requis"),
-  fax: z.string().optional(),
-  email: z.string().email("Email invalide").min(1, "L'email est requis"),
+  tel: z.string().optional().or(z.literal("")),
+  fax: z.string().optional().or(z.literal("")),
+  email: z.string().email("Email invalide").optional().or(z.literal("")),
 });
 
 interface ClientModalProps {
@@ -84,7 +84,7 @@ export const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSub
                 name="matricule_fiscale"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Matricule Fiscal</FormLabel>
+                    <FormLabel>Matricule Fiscal (Optionnel)</FormLabel>
                     <FormControl>
                       <Input placeholder="1234567/A/M/000" {...field} className="rounded-xl" />
                     </FormControl>
@@ -98,7 +98,7 @@ export const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSub
               name="adresse"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Adresse</FormLabel>
+                  <FormLabel>Adresse (Optionnel)</FormLabel>
                   <FormControl>
                     <Input placeholder="Adresse complète" {...field} className="rounded-xl" />
                   </FormControl>
@@ -125,7 +125,7 @@ export const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSub
                 name="tel"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Téléphone</FormLabel>
+                    <FormLabel>Téléphone (Optionnel)</FormLabel>
                     <FormControl>
                       <Input placeholder="+216 ..." {...field} className="rounded-xl" />
                     </FormControl>
@@ -152,7 +152,7 @@ export const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSub
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Email (Optionnel)</FormLabel>
                   <FormControl>
                     <Input type="email" placeholder="contact@client.tn" {...field} className="rounded-xl" />
                   </FormControl>
