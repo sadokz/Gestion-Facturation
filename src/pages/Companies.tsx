@@ -38,6 +38,7 @@ import { showSuccess, showError } from "@/utils/toast";
 import { CompanyModal } from "@/components/companies/CompanyModal";
 import { CompanyResponsibleModal } from "@/components/companies/CompanyResponsibleModal";
 import { CompanyResponsiblesList } from "@/components/companies/CompanyResponsiblesList";
+import { CompanyProjectsList } from "@/components/companies/CompanyProjectsList";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/utils";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
@@ -200,7 +201,14 @@ const SortableCompanyRow = ({
       {expandedCompanies.has(company.id) && (
         <TableRow className="hover:bg-transparent border-none">
           <TableCell colSpan={visibleColumns.length + 2} className="p-0">
-            <CompanyResponsiblesList responsibles={company.responsibles || []} onAdd={() => { setSelectedCompany(company); setSelectedResp(null); setIsRespModalOpen(true); }} onEdit={(resp) => { setSelectedCompany(company); setSelectedResp(resp); setIsRespModalOpen(true); }} />
+            <div className="flex flex-col">
+              <CompanyResponsiblesList 
+                responsibles={company.responsibles || []} 
+                onAdd={() => { setSelectedCompany(company); setSelectedResp(null); setIsRespModalOpen(true); }} 
+                onEdit={(resp) => { setSelectedCompany(company); setSelectedResp(resp); setIsRespModalOpen(true); }} 
+              />
+              <CompanyProjectsList projects={company.projects || []} />
+            </div>
           </TableCell>
         </TableRow>
       )}
@@ -232,8 +240,34 @@ const Companies = () => {
       setCompanies(data);
     } catch (err) {
       setCompanies([
-        { id: 1, nom: "Bureau d'Études Alpha", matricule_fiscale: "1122334/X/Y/000", adresse: "Zone Industrielle, Sousse", google_maps_link: "https://goo.gl/maps/sousse", tel: "73 444 555", fax: "73 444 556", email: "contact@alpha-etudes.tn", responsibles: [{ id: 101, nom: "M. Karim Jendoubi", role: "Gérant", tel: "98 111 222", email: "k.jendoubi@alpha.tn" }] },
-        { id: 2, nom: "Société de Travaux Publics (STP)", matricule_fiscale: "5566778/Z/W/001", adresse: "Route de Gabès, Sfax", google_maps_link: "", tel: "74 888 999", fax: "", email: "info@stp-travaux.tn", responsibles: [{ id: 201, nom: "Mme. Ines Ben Amor", role: "Responsable RH", tel: "22 555 666", email: "ines.ba@stp.tn" }, { id: 202, nom: "M. Walid Ghorbel", role: "Directeur Technique", tel: "55 777 888", email: "w.ghorbel@stp.tn" }] },
+        { 
+          id: 1, 
+          nom: "Bureau d'Études Alpha", 
+          matricule_fiscale: "1122334/X/Y/000", 
+          adresse: "Zone Industrielle, Sousse", 
+          google_maps_link: "https://goo.gl/maps/sousse", 
+          tel: "73 444 555", 
+          fax: "73 444 556", 
+          email: "contact@alpha-etudes.tn", 
+          responsibles: [{ id: 101, nom: "M. Karim Jendoubi", role: "Gérant", tel: "98 111 222", email: "k.jendoubi@alpha.tn" }],
+          projects: [
+            { id: 10, nom_projet: "Extension Usine Sousse", reference_projet: "PRJ-2026-010", date_contrat: "2026-01-20" }
+          ]
+        },
+        { 
+          id: 2, 
+          nom: "Société de Travaux Publics (STP)", 
+          matricule_fiscale: "5566778/Z/W/001", 
+          adresse: "Route de Gabès, Sfax", 
+          google_maps_link: "", 
+          tel: "74 888 999", 
+          fax: "", 
+          email: "info@stp-travaux.tn", 
+          responsibles: [{ id: 201, nom: "Mme. Ines Ben Amor", role: "Responsable RH", tel: "22 555 666", email: "ines.ba@stp.tn" }, { id: 202, nom: "M. Walid Ghorbel", role: "Directeur Technique", tel: "55 777 888", email: "w.ghorbel@stp.tn" }],
+          projects: [
+            { id: 11, nom_projet: "Aménagement Route Gabès", reference_projet: "PRJ-2026-011", date_contrat: "2026-02-05" }
+          ]
+        },
       ]);
     } finally {
       setLoading(false);
