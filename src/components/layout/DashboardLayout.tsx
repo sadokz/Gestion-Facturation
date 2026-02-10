@@ -8,7 +8,8 @@ import {
   Calendar,
   Users,
   Building2,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  Banknote
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useYear } from "@/context/YearContext";
@@ -95,6 +96,12 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             icon={ShoppingCart} 
             label="Achats" 
             active={location.pathname === "/purchases"} 
+          />
+          <SidebarItem 
+            to="/salaries" 
+            icon={Banknote} 
+            label="Salaires" 
+            active={location.pathname === "/salaries"} 
           />
           <SidebarItem 
             to="/settings" 
