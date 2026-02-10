@@ -98,4 +98,13 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Ajout des lignes de séparation verticales pour les tableaux */
+  table th, table td {
+    @apply border-r border-slate-100 last:border-r-0;
+  }
+  
+  table thead th {
+    @apply border-r border-slate-200 last:border-r-0;
+  }
 }
