@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,16 +17,48 @@ import {
   UserCheck, 
   ShieldCheck,
   Calculator,
-  Settings as SettingsIcon 
+  Settings as SettingsIcon,
+  Plus,
+  UserPlus
 } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 import { useNavigation } from "@/context/NavigationContext";
+import { UserList } from "@/components/settings/UserList";
+import { UserModal } from "@/components/settings/UserModal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 const Settings = () => {
   const { tabs, toggleTab } = useNavigation();
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  
+  // Mock users data
+  const [users, setUsers] = useState([
+    { id: 1, nom: "Admin Principal", email: "admin@bureau.tn", poste: "Proprietaire", statut: "Actif" },
+    { id: 2, nom: "Mohamed Ben Ali", email: "m.benali@bureau.tn", poste: "CEO", statut: "Actif" },
+    { id: 3, nom: "Sarra Mansour", email: "s.mansour@bureau.tn", poste: "Comptable", statut: "Actif" },
+  ]);
 
   const handleSave = () => {
     showSuccess("Paramètres enregistrés avec succès");
+  };
+
+  const handleAddUser = (data: any) => {
+    if (selectedUser) {
+      setUsers(users.map(u => u.id === selectedUser.id ? { ...u, ...data } : u));
+      showSuccess("Utilisateur mis à jour");
+    } else {
+      setUsers([...users, { ...data, id: Date.now() }]);
+      showSuccess("Utilisateur ajouté");
+    }
+    setIsUserModalOpen(false);
+  };
+
+  const handleDeleteUser = () => {
+    setUsers(users.filter(u => u.id !== selectedUser.id));
+    showSuccess("Utilisateur supprimé");
+    setIsConfirmOpen(false);
   };
 
   const TabToggle = ({ id, label, icon: Icon }: { id: any, label: string, icon: any }) => (
@@ -45,12 +77,13 @@ const Settings = () => {
   );
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold text-slate-900">Paramètres</h1>
         <p className="text-slate-500">Gérez les informations de votre bureau et vos préférences</p>
       </div>
 
+      {/* Profil du Bureau */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
           <h3 className="font-bold text-slate-800">Profil du Bureau</h3>
@@ -100,6 +133,32 @@ const Settings = () => {
 
       <Separator />
 
+      {/* Gestion des Utilisateurs */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="space-y-1">
+          <h3 className="font-bold text-slate-800">Utilisateurs</h3>
+          <p className="text-sm text-slate-500">Gérez les accès des membres de votre équipe.</p>
+        </div>
+        <div className="md:col-span-2 space-y-4">
+          <div className="flex justify-end">
+            <Button 
+              onClick={() => { setSelectedUser(null); setIsUserModalOpen(true); }} 
+              className="rounded-xl gap-2 h-9 px-4 bg-indigo-600 hover:bg-indigo-700"
+            >
+              <UserPlus size={16} /> Ajouter un utilisateur
+            </Button>
+          </div>
+          <UserList 
+            users={users} 
+            onEdit={(user) => { setSelectedUser(user); setIsUserModalOpen(true); }} 
+            onDelete={(user) => { setSelectedUser(user); setIsConfirmOpen(true); }} 
+          />
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Gestion des Onglets */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
           <h3 className="font-bold text-slate-800">Gestion des Onglets</h3>
@@ -123,6 +182,7 @@ const Settings = () => {
 
       <Separator />
 
+      {/* Préférences Financières */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
           <h3 className="font-bold text-slate-800">Préférences Financières</h3>
@@ -150,6 +210,23 @@ const Settings = () => {
           <Save size={18} /> Enregistrer les modifications
         </Button>
       </div>
+
+      <UserModal 
+        isOpen={isUserModalOpen} 
+        onClose={() => setIsUserModalOpen(false)} 
+        onSubmit={handleAddUser} 
+        initialData={selectedUser} 
+      />
+      
+      <ConfirmDialog 
+        isOpen={isConfirmOpen} 
+        onClose={() => setIsConfirmOpen(false)} 
+        onConfirm={handleDeleteUser} 
+        title="Supprimer l'utilisateur ?" 
+        description="Cet utilisateur n'aura plus accès à l'application." 
+        variant="destructive" 
+        confirmText="Supprimer" 
+      />
     </div>
   );
 };
