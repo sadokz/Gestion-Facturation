@@ -122,7 +122,6 @@ const SortableProjectRow = ({
   
   const resteAPayeTTC = totalTTC - totalPayeTTC;
 
-  // Nouvelle logique de statut simplifiée
   let calculatedStatus = "Non facturé";
   if (totalFactureHT > 0) {
     if (totalFactureHT < totalHT) {
@@ -144,13 +143,13 @@ const SortableProjectRow = ({
           isDragging && "bg-slate-100 shadow-lg"
         )}
       >
-        <TableCell>
-          <div className="flex items-center gap-1">
+        <TableCell className="w-[70px] p-0">
+          <div className="flex items-center justify-center gap-0.5">
             <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors p-1">
-              <GripVertical size={16} />
+              <GripVertical size={14} />
             </div>
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => toggleExpand(project.id)}>
-              {expandedProjects.has(project.id) ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => toggleExpand(project.id)}>
+              {expandedProjects.has(project.id) ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
             </Button>
           </div>
         </TableCell>
@@ -184,7 +183,7 @@ const SortableProjectRow = ({
         {isVisible("paye_ttc") && <TableCell className="text-right text-emerald-600 font-bold">{formatCurrencyDT(totalPayeTTC)}</TableCell>}
         {isVisible("reste_ttc") && <TableCell className="text-right text-rose-600 font-black">{formatCurrencyDT(resteAPayeTTC)}</TableCell>}
         {isVisible("statut") && <TableCell>{getStatusBadge(calculatedStatus)}</TableCell>}
-        <TableCell>
+        <TableCell className="w-[50px] p-0 text-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
@@ -356,7 +355,7 @@ const Projects = () => {
               <Table className="table-fixed w-full">
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="hover:bg-transparent border-slate-100">
-                    <ResizableHeader initialWidth={80} minWidth={60}></ResizableHeader>
+                    <ResizableHeader initialWidth={70} resizable={false}></ResizableHeader>
                     {isVisible("reference_projet") && <ResizableHeader initialWidth={120} minWidth={80} sortKey="reference_projet" currentSort={sortConfig} onSort={handleSort}>Référence</ResizableHeader>}
                     {isVisible("nom_projet") && <ResizableHeader initialWidth={200} minWidth={100} sortKey="nom_projet" currentSort={sortConfig} onSort={handleSort}>Projet</ResizableHeader>}
                     {isVisible("contrat") && <ResizableHeader initialWidth={100} minWidth={80}>Contrat</ResizableHeader>}
@@ -368,7 +367,7 @@ const Projects = () => {
                     {isVisible("paye_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right">Payé TTC</ResizableHeader>}
                     {isVisible("reste_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-right">Reste TTC</ResizableHeader>}
                     {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="statut" currentSort={sortConfig} onSort={handleSort}>Statut</ResizableHeader>}
-                    <ResizableHeader initialWidth={60} minWidth={40}>
+                    <ResizableHeader initialWidth={50} resizable={false}>
                       <ColumnToggle columns={PROJECT_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
                     </ResizableHeader>
                   </TableRow>

@@ -100,9 +100,9 @@ const SortablePurchaseRow = ({
         isDragging && "bg-slate-100 shadow-lg"
       )}
     >
-      <TableCell>
+      <TableCell className="w-[40px] p-0 text-center">
         <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors p-1">
-          <GripVertical size={16} />
+          <GripVertical size={14} />
         </div>
       </TableCell>
       {isVisible("fournisseur") && <TableCell className="font-bold text-slate-800 truncate">{purchase.fournisseur}</TableCell>}
@@ -129,7 +129,7 @@ const SortablePurchaseRow = ({
           </Badge>
         </TableCell>
       )}
-      <TableCell>
+      <TableCell className="w-[50px] p-0 text-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
@@ -253,7 +253,7 @@ const Purchases = () => {
               <Table className="table-fixed w-full">
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="hover:bg-transparent border-slate-100">
-                    <ResizableHeader initialWidth={60} minWidth={40}></ResizableHeader>
+                    <ResizableHeader initialWidth={40} resizable={false}></ResizableHeader>
                     {isVisible("fournisseur") && <ResizableHeader initialWidth={200} minWidth={100} sortKey="fournisseur" currentSort={sortConfig} onSort={handleSort}>Fournisseur</ResizableHeader>}
                     {isVisible("numero_facture") && <ResizableHeader initialWidth={150} minWidth={80} sortKey="numero_facture" currentSort={sortConfig} onSort={handleSort}>N° Facture</ResizableHeader>}
                     {isVisible("date_facture") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="date_facture" currentSort={sortConfig} onSort={handleSort}>Date Facture</ResizableHeader>}
@@ -262,7 +262,7 @@ const Purchases = () => {
                     {isVisible("montant_ht") && <ResizableHeader initialWidth={150} minWidth={100} className="text-right" sortKey="montant_ht" currentSort={sortConfig} onSort={handleSort}>Montant HT</ResizableHeader>}
                     {isVisible("ttc") && <ResizableHeader initialWidth={150} minWidth={100} className="text-right" sortKey="ttc" currentSort={sortConfig} onSort={handleSort}>TTC</ResizableHeader>}
                     {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="statut" currentSort={sortConfig} onSort={handleSort}>Statut</ResizableHeader>}
-                    <ResizableHeader initialWidth={80} minWidth={60}>
+                    <ResizableHeader initialWidth={50} resizable={false}>
                       <ColumnToggle columns={PURCHASE_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
                     </ResizableHeader>
                   </TableRow>

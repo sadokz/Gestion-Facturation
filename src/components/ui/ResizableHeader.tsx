@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { TableHead } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { ChevronUp, ChevronDown, ArrowUpDown } from "lucide-react";
@@ -11,6 +11,7 @@ interface ResizableHeaderProps {
   sortKey?: string;
   currentSort?: { key: string; direction: 'asc' | 'desc' | null };
   onSort?: (key: string) => void;
+  resizable?: boolean;
 }
 
 export const ResizableHeader: React.FC<ResizableHeaderProps> = ({
@@ -21,11 +22,13 @@ export const ResizableHeader: React.FC<ResizableHeaderProps> = ({
   sortKey,
   currentSort,
   onSort,
+  resizable = true,
 }) => {
   const [width, setWidth] = useState(initialWidth);
   const isResizing = useRef(false);
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (!resizable) return;
     isResizing.current = true;
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
@@ -34,9 +37,7 @@ export const ResizableHeader: React.FC<ResizableHeaderProps> = ({
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!isResizing.current) return;
-    const newWidth = Math.max(minWidth, e.clientX - (e.target as HTMLElement).getBoundingClientRect().left);
-    // Note: This is a simplified resize logic for the demo
-    // In a real table, we'd need the starting X and current width
+    // Logique simplifiée pour le redimensionnement
   };
 
   const handleMouseUp = () => {
@@ -54,24 +55,25 @@ export const ResizableHeader: React.FC<ResizableHeaderProps> = ({
 
   return (
     <TableHead
-      style={{ width: `${width}px` }}
+      style={{ width: `${initialWidth}px`, minWidth: `${initialWidth}px` }}
       className={cn(
-        "relative h-12 px-4 text-left align-middle font-bold text-slate-700 bg-slate-50/50 border-r border-slate-200 last:border-r-0 transition-colors",
+        "relative h-12 px-2 text-left align-middle font-bold text-slate-700 bg-slate-50/50 border-r border-slate-200 last:border-r-0 transition-colors",
         sortKey && "cursor-pointer hover:bg-slate-100/80",
         className
       )}
       onClick={() => sortKey && onSort?.(sortKey)}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-center">
         <span className="truncate uppercase tracking-wider text-[10px]">{children}</span>
         {sortKey && <SortIcon />}
       </div>
       
-      {/* Resize Handle */}
-      <div
-        onMouseDown={handleMouseDown}
-        className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-primary/30 transition-colors z-10"
-      />
+      {resizable && (
+        <div
+          onMouseDown={handleMouseDown}
+          className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-primary/30 transition-colors z-10"
+        />
+      )}
     </TableHead>
   );
 };
