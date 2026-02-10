@@ -7,7 +7,8 @@ import {
   Calendar, 
   Stethoscope, 
   Palmtree,
-  Clock
+  Clock,
+  PieChart
 } from "lucide-react";
 import { fetcher } from "@/api/config";
 import {
@@ -49,6 +50,7 @@ const HR = () => {
           nom: "Ben Ali", 
           prenom: "Mohamed", 
           poste: "Ingénieur Structure",
+          total_leave_entitlement: 30,
           leaves: [
             { id: 101, type: "Congé Payé", date_debut: "2026-01-05", date_fin: "2026-01-10", nb_jours: 5, statut: "Validé", commentaire: "Vacances hiver" },
             { id: 102, type: "Maladie", date_debut: "2026-02-12", date_fin: "2026-02-13", nb_jours: 2, statut: "Validé", commentaire: "Grippe" }
@@ -59,6 +61,7 @@ const HR = () => {
           nom: "Trabelsi", 
           prenom: "Sarra", 
           poste: "Technicienne DAO",
+          total_leave_entitlement: 30,
           leaves: [
             { id: 201, type: "Congé Payé", date_debut: "2026-03-15", date_fin: "2026-03-16", nb_jours: 1.5, statut: "En attente" }
           ]
@@ -105,78 +108,100 @@ const HR = () => {
               <TableHeader className="bg-slate-50/50">
                 <TableRow className="hover:bg-transparent border-slate-100">
                   <ResizableHeader initialWidth={60} minWidth={60}></ResizableHeader>
-                  <ResizableHeader initialWidth={250} minWidth={150}>Employé</ResizableHeader>
-                  <ResizableHeader initialWidth={180} minWidth={120} className="text-center">Congés Validés</ResizableHeader>
-                  <ResizableHeader initialWidth={180} minWidth={120} className="text-center">Maladies</ResizableHeader>
-                  <ResizableHeader initialWidth={180} minWidth={120} className="text-center">En attente</ResizableHeader>
+                  <ResizableHeader initialWidth={220} minWidth={150}>Employé</ResizableHeader>
+                  <ResizableHeader initialWidth={130} minWidth={100} className="text-center">Total Congés</ResizableHeader>
+                  <ResizableHeader initialWidth={130} minWidth={100} className="text-center">Congés Pris</ResizableHeader>
+                  <ResizableHeader initialWidth={130} minWidth={100} className="text-center">Solde Restant</ResizableHeader>
+                  <ResizableHeader initialWidth={120} minWidth={100} className="text-center">Maladies</ResizableHeader>
+                  <ResizableHeader initialWidth={120} minWidth={100} className="text-center">En attente</ResizableHeader>
                   <ResizableHeader initialWidth={100} minWidth={80}></ResizableHeader>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow><TableCell colSpan={6} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={8} className="h-16 text-center">Chargement...</TableCell></TableRow>
                 ) : (
-                  employees.map((emp) => (
-                    <React.Fragment key={emp.id}>
-                      <TableRow className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
-                        <TableCell>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-indigo-100 hover:text-indigo-600 transition-colors" onClick={() => toggleExpand(emp.id)}>
-                            {expandedEmployees.has(emp.id) ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-                          </Button>
-                        </TableCell>
-                        <TableCell className="font-bold text-slate-800">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
-                              <User size={18} />
+                  employees.map((emp) => {
+                    const totalEntitlement = emp.total_leave_entitlement || 30;
+                    const takenLeave = getLeaveSummary(emp.leaves || [], "Congé Payé");
+                    const remainingLeave = totalEntitlement - takenLeave;
+                    const sicknessDays = getLeaveSummary(emp.leaves || [], "Maladie");
+                    const pendingRequests = (emp.leaves || []).filter((l: any) => l.statut === "En attente").length;
+
+                    return (
+                      <React.Fragment key={emp.id}>
+                        <TableRow className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
+                          <TableCell>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-indigo-100 hover:text-indigo-600 transition-colors" onClick={() => toggleExpand(emp.id)}>
+                              {expandedEmployees.has(emp.id) ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                            </Button>
+                          </TableCell>
+                          <TableCell className="font-bold text-slate-800">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
+                                <User size={18} />
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="truncate">{emp.prenom} {emp.nom}</span>
+                                <span className="text-[10px] text-slate-400 font-medium uppercase">{emp.poste}</span>
+                              </div>
                             </div>
-                            <div className="flex flex-col">
-                              <span className="truncate">{emp.prenom} {emp.nom}</span>
-                              <span className="text-[10px] text-slate-400 font-medium uppercase">{emp.poste}</span>
+                          </TableCell>
+                          <TableCell className="text-center font-medium text-slate-500">
+                            {totalEntitlement} j
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center gap-2 text-indigo-600 font-bold">
+                              <Palmtree size={14} />
+                              {takenLeave} j
                             </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex items-center justify-center gap-2 text-emerald-600 font-bold">
-                            <Palmtree size={14} />
-                            {getLeaveSummary(emp.leaves || [], "Congé Payé")} j
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex items-center justify-center gap-2 text-rose-600 font-bold">
-                            <Stethoscope size={14} />
-                            {getLeaveSummary(emp.leaves || [], "Maladie")} j
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex items-center justify-center gap-2 text-amber-600 font-bold">
-                            <Clock size={14} />
-                            {(emp.leaves || []).filter((l: any) => l.statut === "En attente").length} demande(s)
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 font-bold text-xs"
-                            onClick={() => { setSelectedEmployee(emp); setSelectedLeave(null); setIsLeaveModalOpen(true); }}
-                          >
-                            Ajouter
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                      {expandedEmployees.has(emp.id) && (
-                        <TableRow className="hover:bg-transparent border-none">
-                          <TableCell colSpan={6} className="p-0">
-                            <EmployeeLeaveList 
-                              leaves={emp.leaves || []} 
-                              onAdd={() => { setSelectedEmployee(emp); setSelectedLeave(null); setIsLeaveModalOpen(true); }} 
-                              onEdit={(leave) => { setSelectedEmployee(emp); setSelectedLeave(leave); setIsLeaveModalOpen(true); }} 
-                            />
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <div className={cn(
+                              "flex items-center justify-center gap-2 font-black",
+                              remainingLeave > 5 ? "text-emerald-600" : "text-amber-600"
+                            )}>
+                              <PieChart size={14} />
+                              {remainingLeave} j
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center gap-2 text-rose-600 font-bold">
+                              <Stethoscope size={14} />
+                              {sicknessDays} j
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center gap-2 text-amber-600 font-bold">
+                              <Clock size={14} />
+                              {pendingRequests}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 font-bold text-xs"
+                              onClick={() => { setSelectedEmployee(emp); setSelectedLeave(null); setIsLeaveModalOpen(true); }}
+                            >
+                              Ajouter
+                            </Button>
                           </TableCell>
                         </TableRow>
-                      )}
-                    </React.Fragment>
-                  ))
+                        {expandedEmployees.has(emp.id) && (
+                          <TableRow className="hover:bg-transparent border-none">
+                            <TableCell colSpan={8} className="p-0">
+                              <EmployeeLeaveList 
+                                leaves={emp.leaves || []} 
+                                onAdd={() => { setSelectedEmployee(emp); setSelectedLeave(null); setIsLeaveModalOpen(true); }} 
+                                onEdit={(leave) => { setSelectedEmployee(emp); setSelectedLeave(leave); setIsLeaveModalOpen(true); }} 
+                              />
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </React.Fragment>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
