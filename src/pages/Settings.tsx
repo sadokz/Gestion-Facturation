@@ -33,11 +33,32 @@ const Settings = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   
-  // Mock users data
+  // Mock users data with permissions
   const [users, setUsers] = useState([
-    { id: 1, nom: "Admin Principal", email: "admin@bureau.tn", poste: "Proprietaire", statut: "Actif" },
-    { id: 2, nom: "Mohamed Ben Ali", email: "m.benali@bureau.tn", poste: "CEO", statut: "Actif" },
-    { id: 3, nom: "Sarra Mansour", email: "s.mansour@bureau.tn", poste: "Comptable", statut: "Actif" },
+    { 
+      id: 1, 
+      nom: "Admin Principal", 
+      email: "admin@bureau.tn", 
+      poste: "Proprietaire", 
+      statut: "Actif",
+      permissions: { dashboard: true, projects: true, clients: true, companies: true, purchases: true, salaries: true, hr: true, cnss: true, accounting: true, settings: true }
+    },
+    { 
+      id: 2, 
+      nom: "Mohamed Ben Ali", 
+      email: "m.benali@bureau.tn", 
+      poste: "CEO", 
+      statut: "Actif",
+      permissions: { dashboard: true, projects: true, clients: true, companies: true, purchases: true, salaries: true, hr: true, cnss: true, accounting: true, settings: false }
+    },
+    { 
+      id: 3, 
+      nom: "Sarra Mansour", 
+      email: "s.mansour@bureau.tn", 
+      poste: "Comptable", 
+      statut: "Actif",
+      permissions: { dashboard: true, projects: false, clients: false, companies: false, purchases: true, salaries: true, hr: false, cnss: true, accounting: true, settings: false }
+    },
   ]);
 
   const handleSave = () => {
@@ -136,8 +157,8 @@ const Settings = () => {
       {/* Gestion des Utilisateurs */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
-          <h3 className="font-bold text-slate-800">Utilisateurs</h3>
-          <p className="text-sm text-slate-500">Gérez les accès des membres de votre équipe.</p>
+          <h3 className="font-bold text-slate-800">Utilisateurs & Permissions</h3>
+          <p className="text-sm text-slate-500">Gérez les accès individuels aux modules de l'application.</p>
         </div>
         <div className="md:col-span-2 space-y-4">
           <div className="flex justify-end">
@@ -158,11 +179,11 @@ const Settings = () => {
 
       <Separator />
 
-      {/* Gestion des Onglets */}
+      {/* Gestion Globale des Onglets */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
-          <h3 className="font-bold text-slate-800">Gestion des Onglets</h3>
-          <p className="text-sm text-slate-500">Activez ou désactivez les modules de l'application.</p>
+          <h3 className="font-bold text-slate-800">Visibilité Globale</h3>
+          <p className="text-sm text-slate-500">Activez ou désactivez les modules pour l'ensemble de l'application.</p>
         </div>
         <Card className="md:col-span-2 border-none shadow-md">
           <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
