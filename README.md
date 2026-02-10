@@ -2,53 +2,66 @@
 
 Cette application est une solution complète de gestion financière et opérationnelle conçue spécifiquement pour les bureaux d'études. Elle permet de suivre l'intégralité du cycle de vie des projets, de la signature du contrat à l'encaissement final, tout en gérant les ressources humaines et les dépenses.
 
-## 🚀 Fonctionnalités Clés
+## 🚀 Fonctionnalités Implémentées
 
 ### 📊 Tableau de Bord (Dashboard)
 - **Indicateurs de Performance (KPIs)** : Visualisation en temps réel du total des contrats, du montant facturé, du reste à facturer et des dépenses totales (en DT HT).
 - **Flux Mensuel** : Graphique comparatif des ventes et des achats par mois.
 - **Activité Récente** : Flux chronologique des dernières factures émise/payées, nouveaux projets et achats.
-- **Top Clients** : Classement des clients par volume d'affaires.
+- **Top Clients** : Classement des clients par volume d'affaires avec barre de progression relative.
 
 ### 🏗️ Gestion des Projets & Ventes
-- **Réorganisation Intelligente** : Système de **glisser-déposer (Drag & Drop)** pour organiser l'ordre de priorité de vos projets.
-- **Suivi des Contrats** : Gestion des montants de base, des avenants et archivage des contrats signés.
-- **Statuts de Facturation Dynamiques** : Calcul automatique (Non facturé, Partiellement, Totalement) basé sur les situations réelles.
-- **Facturation Multi-situations** : Création de factures structurées (Avance, Missions S0 à S5, Règlement Définitif) avec gestion des retenues à la source.
+- **Organisation par Priorité** : Système de **glisser-déposer (Drag & Drop)** pour réorganiser la liste des projets.
+- **Suivi des Contrats** : Gestion des montants de base, des avenants et du taux de TVA spécifique au projet.
+- **Statuts de Facturation Automatiques** : Calcul en temps réel (Non facturé, Partiellement, Totalement) basé sur le cumul des factures émises.
+- **Analyse de Rentabilité** : Vue détaillée par projet incluant la marge brute (Facturé HT - Achats liés).
+- **Facturation Multi-situations** : 
+  - Types de factures : Avance, Missions S0 à S5, Règlement Définitif.
+  - Gestion des **Retenues à la source**.
+  - Suivi des dates d'émission et de paiement effectif.
 
-### 👥 Gestion des Clients & Entreprises
-- **Annuaires Dédiés** : Gestion séparée des clients directs et des partenaires/sous-traitants.
-- **Vues Étendues** : Accès rapide aux responsables/contacts et à l'historique des projets pour chaque entité.
-- **Géolocalisation** : Intégration de liens Google Maps pour les sièges sociaux.
+### 👥 Annuaires Clients & Entreprises
+- **Gestion des Tiers** : Annuaires séparés pour les clients (maîtres d'ouvrage) et les entreprises (partenaires/sous-traitants).
+- **Responsables & Contacts** : Liste illimitée d'interlocuteurs par entité avec rôles et coordonnées directes.
+- **Historique des Projets** : Visualisation immédiate de tous les projets liés à un client ou une entreprise.
+- **Outils Pratiques** : Liens directs vers Google Maps pour les adresses et boutons d'appel/email.
 
 ### 🛒 Gestion des Achats & Dépenses
-- **Suivi Fournisseurs** : Enregistrement des factures d'achats par catégorie (Matériel, Déplacement, Logiciels, etc.).
-- **Rentabilité par Projet** : Affectation des dépenses à des projets spécifiques pour un calcul précis de la marge brute.
+- **Suivi Fournisseurs** : Enregistrement des factures d'achats avec catégories (Matériel, Déplacement, Logiciels, etc.).
+- **Affectation Analytique** : Possibilité de lier chaque achat à un projet spécifique pour le calcul des marges.
+- **Exportation** : Bouton d'export complet de la liste des achats au format **CSV**.
+- **Organisation** : Support du Drag & Drop pour classer les dépenses.
 
 ### 👨‍💼 Salaires & Ressources Humaines
-- **Profils Employés** : Gestion complète des fiches employés (Poste, CIN, Salaire Brut/Net).
-- **Gestion des Congés** : 
-  - Configuration personnalisée du **Droit aux congés annuel** par employé.
-  - Suivi en temps réel du solde restant, des jours pris et des absences maladie.
-  - Historique détaillé des absences avec justificatifs.
-- **Paiements** : Suivi mensuel des salaires, primes, tickets restaurant et frais de carburant.
+- **Fiches Employés** : Gestion des profils (Poste, CIN, Salaire Brut/Net contractuel).
+- **Gestion des Absences (RH)** : 
+  - Configuration du **Droit aux congés annuel** (ex: 30 jours).
+  - Suivi automatique du solde restant et des jours pris.
+  - Types d'absences : Congé Payé, Maladie, Sans solde, Récupération.
+- **Paiements Mensuels** : Historique des rémunérations incluant Primes, Tickets Restaurant et Frais de Carburant.
 
-### ⚙️ Configuration & Personnalisation
-- **Gestion des Modules** : Possibilité d'activer ou de désactiver chaque onglet du menu (Dashboard, RH, Achats, etc.) via les paramètres pour une interface épurée.
-- **Profil Bureau** : Personnalisation des informations légales et du logo du bureau d'études.
-- **Exercices Comptables** : Filtrage global de l'application par année d'exercice.
+### 🛠️ Outils d'Interface Avancés (UX)
+- **Recherche Globale (Command Palette)** : Accessible via **Ctrl+K** pour naviguer instantanément partout.
+- **Tableaux Intelligents** :
+  - **Colonnes Personnalisables** : Masquer/Afficher les colonnes selon vos besoins.
+  - **En-têtes Redimensionnables** : Ajustez la largeur des colonnes à la souris.
+  - **Tri Dynamique** : Cliquez sur les en-têtes pour trier les données.
+- **Gestion des Modules** : Activez ou désactivez les onglets du menu depuis les paramètres.
 
-### 🛠️ Modules en Développement (Prochainement)
-- **Déclaration CNSS** : Automatisation des calculs de cotisations et génération des rapports trimestriels.
-- **Bilan Comptable** : Génération d'états financiers simplifiés et comptes de résultats annuels.
+## 📂 Gestion des Documents (Uploads)
 
-## 📋 Utilisation Rapide
-1. **Recherche Globale** : Utilisez **Ctrl+K** (ou ⌘K) pour accéder instantanément à n'importe quel projet ou menu.
-2. **Organisation** : Utilisez les poignées de saisie (grip) pour réorganiser vos listes par priorité.
-3. **Exportation** : Exportez vos données de ventes et d'achats en CSV pour vos besoins comptables externes.
+L'application permet de centraliser vos documents importants aux emplacements suivants :
+
+1.  **Projets** : Téléversement du **Contrat signé** (PDF ou Image) dans le formulaire projet.
+2.  **Factures Ventes** : Trois points d'upload par facture :
+    - Le fichier de la **Facture** elle-même.
+    - La **Décharge de dépôt** (preuve de réception par le client).
+    - L'attestation de **Retenue à la source**.
+3.  **RH / Absences** : Téléversement du **Justificatif** (certificat médical ou demande signée) pour chaque absence.
+4.  **Paramètres** : Téléversement du **Logo du Bureau** pour la personnalisation de l'interface.
 
 ## 🛠️ Détails Techniques
-- **Framework** : React 19 avec TypeScript.
-- **Styling** : Tailwind CSS & Shadcn/UI.
-- **Interactions** : dnd-kit pour le glisser-déposer.
-- **Formatage** : Support complet du Dinar Tunisien (DT) avec 3 décimales.
+- **Framework** : React 19 / TypeScript.
+- **Design** : Tailwind CSS / Shadcn UI (Thème moderne "Slate & Indigo").
+- **Données** : Context API pour la gestion de l'année d'exercice et de la navigation.
+- **Formatage** : Monétaire en Dinar Tunisien (DT) avec 3 décimales.
