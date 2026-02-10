@@ -1,5 +1,5 @@
 import React from "react";
-import { Banknote, Plus, Edit, Calendar, CreditCard } from "lucide-react";
+import { Banknote, Plus, Edit, Calendar, CreditCard, Utensils, Sparkles, Fuel } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrencyDT, formatDateFR } from "@/utils/formatters";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -39,6 +39,9 @@ export const EmployeeSalariesList: React.FC<EmployeeSalariesListProps> = ({
               <TableHead className="text-[10px] font-bold uppercase">Période</TableHead>
               <TableHead className="text-[10px] font-bold uppercase">Date Paiement</TableHead>
               <TableHead className="text-[10px] font-bold uppercase">Méthode</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase text-right">Ticket Resto</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase text-right">Prime</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase text-right">Carburant</TableHead>
               <TableHead className="text-[10px] font-bold uppercase text-right">Montant Net</TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
@@ -60,6 +63,30 @@ export const EmployeeSalariesList: React.FC<EmployeeSalariesListProps> = ({
                       {sal.methode}
                     </div>
                   </TableCell>
+                  <TableCell className="text-xs text-right text-slate-600">
+                    {sal.ticket_resto > 0 ? (
+                      <div className="flex items-center justify-end gap-1">
+                        <Utensils size={10} className="text-orange-400" />
+                        {formatCurrencyDT(sal.ticket_resto)}
+                      </div>
+                    ) : "-"}
+                  </TableCell>
+                  <TableCell className="text-xs text-right text-slate-600">
+                    {sal.prime > 0 ? (
+                      <div className="flex items-center justify-end gap-1">
+                        <Sparkles size={10} className="text-amber-400" />
+                        {formatCurrencyDT(sal.prime)}
+                      </div>
+                    ) : "-"}
+                  </TableCell>
+                  <TableCell className="text-xs text-right text-slate-600">
+                    {sal.carburant > 0 ? (
+                      <div className="flex items-center justify-end gap-1">
+                        <Fuel size={10} className="text-blue-400" />
+                        {formatCurrencyDT(sal.carburant)}
+                      </div>
+                    ) : "-"}
+                  </TableCell>
                   <TableCell className="text-xs font-black text-emerald-600 text-right">
                     {formatCurrencyDT(sal.montant_net)}
                   </TableCell>
@@ -72,7 +99,7 @@ export const EmployeeSalariesList: React.FC<EmployeeSalariesListProps> = ({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-slate-400 text-xs italic">
+                <TableCell colSpan={8} className="text-center py-8 text-slate-400 text-xs italic">
                   Aucun paiement enregistré pour cet employé.
                 </TableCell>
               </TableRow>
