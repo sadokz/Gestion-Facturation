@@ -28,6 +28,8 @@ const employeeSchema = z.object({
   email: z.string().email("Email invalide").min(1, "L'email est requis"),
   adresse: z.string().min(1, "L'adresse est requise"),
   poste: z.string().min(1, "Le poste est requis"),
+  salaire_net: z.coerce.number().min(0, "Le salaire net doit être positif"),
+  salaire_brut: z.coerce.number().min(0, "Le salaire brut doit être positif"),
 });
 
 interface EmployeeModalProps {
@@ -48,16 +50,28 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, o
       email: "",
       adresse: "",
       poste: "",
+      salaire_net: 0,
+      salaire_brut: 0,
     },
   });
 
   React.useEffect(() => {
-    if (isOpen) form.reset(initialData || { nom: "", prenom: "", cin: "", tel: "", email: "", adresse: "", poste: "" });
+    if (isOpen) form.reset(initialData || { 
+      nom: "", 
+      prenom: "", 
+      cin: "", 
+      tel: "", 
+      email: "", 
+      adresse: "", 
+      poste: "",
+      salaire_net: 0,
+      salaire_brut: 0,
+    });
   }, [isOpen, initialData, form]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] rounded-2xl">
+      <DialogContent className="sm:max-w-[500px] rounded-2xl overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-slate-800">
             {initialData ? "Modifier l'employé" : "Nouvel employé"}
@@ -115,6 +129,34 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, o
                     <FormLabel>Poste / Fonction</FormLabel>
                     <FormControl>
                       <Input placeholder="Ingénieur, Technicien..." {...field} className="rounded-xl" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="salaire_brut"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Salaire Brut (DT)</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.001" {...field} className="rounded-xl border-amber-200 focus:ring-amber-500/10" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="salaire_net"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Salaire Net (DT)</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.001" {...field} className="rounded-xl border-emerald-200 focus:ring-emerald-500/10" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

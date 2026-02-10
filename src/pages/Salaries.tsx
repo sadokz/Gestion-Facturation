@@ -13,7 +13,8 @@ import {
   User,
   CreditCard,
   GripVertical,
-  Briefcase
+  Briefcase,
+  Banknote
 } from "lucide-react";
 import { fetcher } from "@/api/config";
 import {
@@ -41,13 +42,15 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/utils";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
 import { ColumnToggle } from "@/components/ui/ColumnToggle";
+import { formatCurrencyDT } from "@/utils/formatters";
 
 const EMPLOYEE_COLUMNS = [
   { id: "nom_complet", label: "Employé" },
   { id: "cin", label: "CIN" },
   { id: "poste", label: "Poste" },
+  { id: "salaire_brut", label: "S. Brut" },
+  { id: "salaire_net", label: "S. Net" },
   { id: "tel", label: "Téléphone" },
-  { id: "email", label: "Email" },
 ];
 
 const Salaries = () => {
@@ -80,6 +83,8 @@ const Salaries = () => {
           email: "m.benali@bureau.tn", 
           adresse: "Cité Ennasr, Tunis", 
           poste: "Ingénieur Structure",
+          salaire_net: 2450,
+          salaire_brut: 3100,
           salaries: [
             { id: 101, mois: "Janvier", annee: 2026, montant_net: 2450, date_paiement: "2026-01-30", methode: "Virement" },
             { id: 102, mois: "Février", annee: 2026, montant_net: 2450, date_paiement: "2026-02-28", methode: "Virement" }
@@ -94,6 +99,8 @@ const Salaries = () => {
           email: "s.trabelsi@bureau.tn", 
           adresse: "L'Aouina, Tunis", 
           poste: "Technicienne DAO",
+          salaire_net: 1200,
+          salaire_brut: 1550,
           salaries: [
             { id: 201, mois: "Janvier", annee: 2026, montant_net: 1200, date_paiement: "2026-01-30", methode: "Chèque" }
           ]
@@ -141,11 +148,12 @@ const Salaries = () => {
               <TableHeader className="bg-slate-50/50">
                 <TableRow className="hover:bg-transparent border-slate-100">
                   <ResizableHeader initialWidth={60} minWidth={60}></ResizableHeader>
-                  {isVisible("nom_complet") && <ResizableHeader initialWidth={250} minWidth={150}>Employé</ResizableHeader>}
-                  {isVisible("cin") && <ResizableHeader initialWidth={120} minWidth={100}>CIN</ResizableHeader>}
-                  {isVisible("poste") && <ResizableHeader initialWidth={180} minWidth={120}>Poste</ResizableHeader>}
-                  {isVisible("tel") && <ResizableHeader initialWidth={150} minWidth={100}>Téléphone</ResizableHeader>}
-                  {isVisible("email") && <ResizableHeader initialWidth={250} minWidth={150}>Email</ResizableHeader>}
+                  {isVisible("nom_complet") && <ResizableHeader initialWidth={220} minWidth={150}>Employé</ResizableHeader>}
+                  {isVisible("cin") && <ResizableHeader initialWidth={110} minWidth={90}>CIN</ResizableHeader>}
+                  {isVisible("poste") && <ResizableHeader initialWidth={160} minWidth={120}>Poste</ResizableHeader>}
+                  {isVisible("salaire_brut") && <ResizableHeader initialWidth={130} minWidth={100} className="text-right">S. Brut</ResizableHeader>}
+                  {isVisible("salaire_net") && <ResizableHeader initialWidth={130} minWidth={100} className="text-right">S. Net</ResizableHeader>}
+                  {isVisible("tel") && <ResizableHeader initialWidth={140} minWidth={100}>Téléphone</ResizableHeader>}
                   <ResizableHeader initialWidth={60} minWidth={40}>
                     <ColumnToggle columns={EMPLOYEE_COLUMNS} visibleColumns={visibleColumns} onToggle={(id) => setVisibleColumns(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id])} />
                   </ResizableHeader>
@@ -181,17 +189,20 @@ const Salaries = () => {
                             </div>
                           </TableCell>
                         )}
+                        {isVisible("salaire_brut") && (
+                          <TableCell className="text-right font-medium text-amber-600 text-xs">
+                            {formatCurrencyDT(emp.salaire_brut || 0)}
+                          </TableCell>
+                        )}
+                        {isVisible("salaire_net") && (
+                          <TableCell className="text-right font-bold text-emerald-600 text-xs">
+                            {formatCurrencyDT(emp.salaire_net || 0)}
+                          </TableCell>
+                        )}
                         {isVisible("tel") && (
                           <TableCell className="text-slate-600 text-sm">
                             <div className="flex items-center gap-1 truncate">
                               <Phone size={12} className="shrink-0 text-slate-400" /> {emp.tel}
-                            </div>
-                          </TableCell>
-                        )}
-                        {isVisible("email") && (
-                          <TableCell className="text-emerald-700 text-sm font-medium">
-                            <div className="flex items-center gap-1 truncate">
-                              <Mail size={12} className="shrink-0 text-slate-400" /> {emp.email}
                             </div>
                           </TableCell>
                         )}
