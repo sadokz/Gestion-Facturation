@@ -98,9 +98,16 @@ const SortableKPICard = ({ kpi, summary }: { kpi: KpiCardData; summary: any }) =
   );
 };
 
-const SortableSection = ({ id, width, children }: { id: string, width: "half" | "full", children: React.ReactNode }) => {
+const SortableSection = ({ id, width, children }: { id: string, width: string, children: React.ReactNode }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 10 : 1, opacity: isDragging ? 0.5 : 1 };
+
+  const widthClass = {
+    "25": "w-full lg:w-1/4",
+    "50": "w-full lg:w-1/2",
+    "75": "w-full lg:w-3/4",
+    "100": "w-full"
+  }[width] || "w-full lg:w-1/2";
 
   return (
     <div 
@@ -108,7 +115,7 @@ const SortableSection = ({ id, width, children }: { id: string, width: "half" | 
       style={style} 
       className={cn(
         "relative group p-3",
-        width === "full" ? "w-full" : "w-full lg:w-1/2"
+        widthClass
       )}
     >
       <div {...attributes} {...listeners} className="absolute top-6 right-6 cursor-grab active:cursor-grabbing text-slate-300 hover:text-primary transition-colors z-20 opacity-0 group-hover:opacity-100">
@@ -189,7 +196,7 @@ const Dashboard = () => {
   }, [preferences, kpiOrder]); 
 
   const renderSection = (id: string) => {
-    const width = sectionWidths[id] || "half";
+    const width = sectionWidths[id] || "50";
     
     switch (id) {
       case "monthlyFlux":

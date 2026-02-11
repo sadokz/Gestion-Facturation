@@ -56,6 +56,8 @@ const ALL_MAIN_SECTION_IDS = [
   "topClients",
 ];
 
+type SectionWidth = "25" | "50" | "75" | "100";
+
 interface DashboardContextType {
   preferences: DashboardPreferences;
   togglePreference: (key: keyof DashboardPreferences) => void;
@@ -64,8 +66,8 @@ interface DashboardContextType {
   setKpiOrder: (order: string[]) => void;
   mainSectionOrder: string[];
   setMainSectionOrder: (order: string[]) => void;
-  sectionWidths: Record<string, "half" | "full">;
-  setSectionWidth: (id: string, width: "half" | "full") => void;
+  sectionWidths: Record<string, SectionWidth>;
+  setSectionWidth: (id: string, width: SectionWidth) => void;
 }
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
@@ -92,13 +94,13 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return savedOrder ? JSON.parse(savedOrder) : ALL_MAIN_SECTION_IDS;
   });
 
-  const [sectionWidths, setSectionWidths] = useState<Record<string, "half" | "full">>(() => {
+  const [sectionWidths, setSectionWidths] = useState<Record<string, SectionWidth>>(() => {
     const saved = localStorage.getItem("dashboard_section_widths");
     return saved ? JSON.parse(saved) : {
-      monthlyFlux: "half",
-      projectStatus: "half",
-      recentActivity: "half",
-      topClients: "half",
+      monthlyFlux: "50",
+      projectStatus: "50",
+      recentActivity: "50",
+      topClients: "50",
     };
   });
 
@@ -122,7 +124,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const setSectionWidth = (id: string, width: "half" | "full") => {
+  const setSectionWidth = (id: string, width: SectionWidth) => {
     setSectionWidths(prev => ({ ...prev, [id]: width }));
   };
 
@@ -131,10 +133,10 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setKpiOrder(ALL_KPI_IDS);
     setMainSectionOrder(ALL_MAIN_SECTION_IDS);
     setSectionWidths({
-      monthlyFlux: "half",
-      projectStatus: "half",
-      recentActivity: "half",
-      topClients: "half",
+      monthlyFlux: "50",
+      projectStatus: "50",
+      recentActivity: "50",
+      topClients: "50",
     });
   };
 

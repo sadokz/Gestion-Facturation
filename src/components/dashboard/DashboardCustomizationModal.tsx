@@ -23,9 +23,7 @@ import {
   Clock, 
   ShoppingBag,
   RotateCcw,
-  BarChart3,
-  Maximize2,
-  Minimize2
+  BarChart3
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -100,27 +98,21 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
       </div>
       
       {preferences[section.prefId as keyof typeof preferences] && (
-        <div className="flex items-center gap-2 pl-11">
-          <span className="text-[10px] font-bold text-slate-400 uppercase">Largeur :</span>
-          <div className="flex bg-slate-100 p-1 rounded-lg">
-            <button 
-              onClick={() => setSectionWidth(section.id, "half")}
-              className={cn(
-                "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold transition-all",
-                sectionWidths[section.id] === "half" ? "bg-white shadow-sm text-primary" : "text-slate-500 hover:text-slate-700"
-              )}
-            >
-              <Minimize2 size={12} /> 50%
-            </button>
-            <button 
-              onClick={() => setSectionWidth(section.id, "full")}
-              className={cn(
-                "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold transition-all",
-                sectionWidths[section.id] === "full" ? "bg-white shadow-sm text-primary" : "text-slate-500 hover:text-slate-700"
-              )}
-            >
-              <Maximize2 size={12} /> 100%
-            </button>
+        <div className="flex flex-col gap-2 pl-11">
+          <span className="text-[10px] font-bold text-slate-400 uppercase">Largeur du conteneur :</span>
+          <div className="flex bg-slate-100 p-1 rounded-lg w-fit">
+            {["25", "50", "75", "100"].map((w) => (
+              <button 
+                key={w}
+                onClick={() => setSectionWidth(section.id, w as any)}
+                className={cn(
+                  "px-3 py-1 rounded-md text-[10px] font-bold transition-all",
+                  sectionWidths[section.id] === w ? "bg-white shadow-sm text-primary" : "text-slate-500 hover:text-slate-700"
+                )}
+              >
+                {w}%
+              </button>
+            ))}
           </div>
         </div>
       )}
@@ -145,7 +137,6 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
         </DialogHeader>
         
         <div className="flex-1 overflow-y-auto px-6 py-2 space-y-8">
-          {/* Section KPIs */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Indicateurs (KPIs)</h4>
             <div className="grid grid-cols-1 gap-2">
@@ -155,7 +146,6 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
 
           <Separator />
 
-          {/* Section Graphiques et Listes */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Graphiques & Listes</h4>
             <div className="grid grid-cols-1 gap-2">
@@ -163,7 +153,6 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
             </div>
           </div>
 
-          {/* Sous-options du Flux */}
           {preferences.showMonthlyFlux && (
             <>
               <Separator />
