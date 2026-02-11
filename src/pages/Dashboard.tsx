@@ -147,8 +147,9 @@ const Dashboard = () => {
           ...d,
           name: new Date(2000, d.month - 1).toLocaleString('fr-FR', { month: 'short' }),
           invoicedTTC: computeTTC(d.invoicedHT, 19),
-          pendingInvoicedTTC: computeTTC(d.pendingInvoicedHT || (d.invoicedHT * 0.3), 19), // Simulation si non fourni
-          purchasesTTC: computeTTC(d.purchasesHT, 19)
+          pendingInvoicedTTC: computeTTC(d.pendingInvoicedHT || (d.invoicedHT * 0.3), 19),
+          purchasesTTC: computeTTC(d.purchasesHT, 19),
+          salaries: d.salaries || (d.purchasesHT * 1.5) // Simulation si non fourni
         })));
         setCategoryData(c);
         setStatusData([
@@ -168,12 +169,12 @@ const Dashboard = () => {
           totalProfit: 30000, 
         });
         setMonthlyData([
-          { name: 'Jan', invoicedTTC: computeTTC(4000, 19), pendingInvoicedTTC: computeTTC(1200, 19), purchasesTTC: computeTTC(1200, 19) },
-          { name: 'Fév', invoicedTTC: computeTTC(5500, 19), pendingInvoicedTTC: computeTTC(2000, 19), purchasesTTC: computeTTC(1800, 19) },
-          { name: 'Mar', invoicedTTC: computeTTC(8000, 19), pendingInvoicedTTC: computeTTC(3500, 19), purchasesTTC: computeTTC(2100, 19) },
-          { name: 'Avr', invoicedTTC: computeTTC(6000, 19), pendingInvoicedTTC: computeTTC(1500, 19), purchasesTTC: computeTTC(1500, 19) },
-          { name: 'Mai', invoicedTTC: computeTTC(9500, 19), pendingInvoicedTTC: computeTTC(4000, 19), purchasesTTC: computeTTC(3000, 19) },
-          { name: 'Juin', invoicedTTC: computeTTC(12000, 19), pendingInvoicedTTC: computeTTC(5000, 19), purchasesTTC: computeTTC(4500, 19) },
+          { name: 'Jan', invoicedTTC: computeTTC(4000, 19), pendingInvoicedTTC: computeTTC(1200, 19), purchasesTTC: computeTTC(1200, 19), salaries: 3500 },
+          { name: 'Fév', invoicedTTC: computeTTC(5500, 19), pendingInvoicedTTC: computeTTC(2000, 19), purchasesTTC: computeTTC(1800, 19), salaries: 3500 },
+          { name: 'Mar', invoicedTTC: computeTTC(8000, 19), pendingInvoicedTTC: computeTTC(3500, 19), purchasesTTC: computeTTC(2100, 19), salaries: 3800 },
+          { name: 'Avr', invoicedTTC: computeTTC(6000, 19), pendingInvoicedTTC: computeTTC(1500, 19), purchasesTTC: computeTTC(1500, 19), salaries: 3800 },
+          { name: 'Mai', invoicedTTC: computeTTC(9500, 19), pendingInvoicedTTC: computeTTC(4000, 19), purchasesTTC: computeTTC(3000, 19), salaries: 4000 },
+          { name: 'Juin', invoicedTTC: computeTTC(12000, 19), pendingInvoicedTTC: computeTTC(5000, 19), purchasesTTC: computeTTC(4500, 19), salaries: 4200 },
         ]);
         setCategoryData([
           { category: 'Matériel', amountHT: 12000 },
@@ -264,7 +265,8 @@ const Dashboard = () => {
                     <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
                     <Bar dataKey="invoicedTTC" name="Facturé TTC" stackId="sales" fill={STATUS_COLORS['Payée']} radius={[0, 0, 0, 0]} barSize={30} />
                     <Bar dataKey="pendingInvoicedTTC" name="En attente TTC" stackId="sales" fill={STATUS_COLORS['En attente']} radius={[4, 4, 0, 0]} barSize={30} />
-                    <Bar dataKey="purchasesTTC" name="Achats TTC" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={30} />
+                    <Bar dataKey="purchasesTTC" name="Achats TTC" stackId="expenses" fill="#f43f5e" radius={[0, 0, 0, 0]} barSize={30} />
+                    <Bar dataKey="salaries" name="Salaires" stackId="expenses" fill="#8b5cf6" radius={[4, 4, 0, 0]} barSize={30} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
