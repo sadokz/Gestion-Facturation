@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface DashboardPreferences {
-  totalContractsHT: boolean; // New individual preference
-  totalInvoicedHT: boolean;  // New individual preference
-  totalRemainingHT: boolean; // New individual preference
-  totalPurchasesHT: boolean; // New individual preference
+  totalContractsHT: boolean;
+  totalInvoicedHT: boolean;
+  totalRemainingHT: boolean;
+  totalPurchasesHT: boolean;
   showMonthlyFlux: boolean;
   showProjectStatus: boolean;
   showRecentActivity: boolean;
@@ -13,9 +13,13 @@ interface DashboardPreferences {
   showTotalSalaries: boolean;
   showTotalRevenue: boolean;
   showTotalProfit: boolean;
+  // Préférences pour le graphique de flux
+  fluxShowInvoiced: boolean;
+  fluxShowPending: boolean;
+  fluxShowPurchases: boolean;
+  fluxShowSalaries: boolean;
 }
 
-// Define all possible KPI IDs for ordering
 const ALL_KPI_IDS = [
   "totalContractsHT",
   "totalInvoicedHT",
@@ -30,8 +34,8 @@ const ALL_KPI_IDS = [
 interface DashboardContextType {
   preferences: DashboardPreferences;
   togglePreference: (key: keyof DashboardPreferences) => void;
-  kpiOrder: string[]; // Store the order of KPI IDs
-  setKpiOrder: (order: string[]) => void; // Function to update KPI order
+  kpiOrder: string[];
+  setKpiOrder: (order: string[]) => void;
 }
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
@@ -40,10 +44,10 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [preferences, setPreferences] = useState<DashboardPreferences>(() => {
     const saved = localStorage.getItem("dashboard_preferences");
     return saved ? JSON.parse(saved) : {
-      totalContractsHT: true, // Default to true
-      totalInvoicedHT: true,  // Default to true
-      totalRemainingHT: true, // Default to true
-      totalPurchasesHT: true, // Default to true
+      totalContractsHT: true,
+      totalInvoicedHT: true,
+      totalRemainingHT: true,
+      totalPurchasesHT: true,
       showMonthlyFlux: true,
       showProjectStatus: true,
       showRecentActivity: true,
@@ -52,6 +56,10 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       showTotalSalaries: true,
       showTotalRevenue: true,
       showTotalProfit: true,
+      fluxShowInvoiced: true,
+      fluxShowPending: true,
+      fluxShowPurchases: true,
+      fluxShowSalaries: true,
     };
   });
 

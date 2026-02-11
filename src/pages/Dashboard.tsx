@@ -145,11 +145,11 @@ const Dashboard = () => {
         setSummary(s);
         setMonthlyData(m.map((d: any) => ({
           ...d,
-          name: new Date(2000, d.month - 1).toLocaleString('fr-FR', { month: 'short' }),
+          name: d.month ? new Date(2000, d.month - 1).toLocaleString('fr-FR', { month: 'short' }) : '?',
           invoicedTTC: computeTTC(d.invoicedHT, 19),
           pendingInvoicedTTC: computeTTC(d.pendingInvoicedHT || (d.invoicedHT * 0.3), 19),
           purchasesTTC: computeTTC(d.purchasesHT, 19),
-          salaries: d.salaries || (d.purchasesHT * 1.5) // Simulation si non fourni
+          salaries: d.salaries || (d.purchasesHT * 1.5)
         })));
         setCategoryData(c);
         setStatusData([
@@ -263,10 +263,18 @@ const Dashboard = () => {
                       cursor={{ fill: '#f8fafc' }} 
                     />
                     <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
-                    <Bar dataKey="invoicedTTC" name="Facturé TTC" stackId="sales" fill={STATUS_COLORS['Payée']} radius={[0, 0, 0, 0]} barSize={30} />
-                    <Bar dataKey="pendingInvoicedTTC" name="En attente TTC" stackId="sales" fill={STATUS_COLORS['En attente']} radius={[4, 4, 0, 0]} barSize={30} />
-                    <Bar dataKey="purchasesTTC" name="Achats TTC" stackId="expenses" fill="#f43f5e" radius={[0, 0, 0, 0]} barSize={30} />
-                    <Bar dataKey="salaries" name="Salaires" stackId="expenses" fill="#8b5cf6" radius={[4, 4, 0, 0]} barSize={30} />
+                    {preferences.fluxShowInvoiced && (
+                      <Bar dataKey="invoicedTTC" name="Facturé TTC" stackId="sales" fill={STATUS_COLORS['Payée']} radius={[0, 0, 0, 0]} barSize={30} />
+                    )}
+                    {preferences.fluxShowPending && (
+                      <Bar dataKey="pendingInvoicedTTC" name="En attente TTC" stackId="sales" fill={STATUS_COLORS['En attente']} radius={[4, 4, 0, 0]} barSize={30} />
+                    )}
+                    {preferences.fluxShowPurchases && (
+                      <Bar dataKey="purchasesTTC" name="Achats TTC" stackId="expenses" fill="#f43f5e" radius={[0, 0, 0, 0]} barSize={30} />
+                    )}
+                    {preferences.fluxShowSalaries && (
+                      <Bar dataKey="salaries" name="Salaires" stackId="expenses" fill="#8b5cf6" radius={[4, 4, 0, 0]} barSize={30} />
+                    )}
                   </BarChart>
                 </ResponsiveContainer>
               </div>
