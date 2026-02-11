@@ -22,7 +22,8 @@ import {
   CheckCircle2, 
   Clock, 
   ShoppingBag,
-  RotateCcw
+  RotateCcw,
+  BarChart3
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -46,14 +47,14 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
     { id: "showTotalProfit", label: "KPI : Bénéfice Total", icon: Wallet },
   ];
 
-  const chartSections = [
-    { id: "showMonthlyFlux", label: "Flux Mensuel (Graphique)", icon: TrendingUp },
-    { id: "showProjectStatus", label: "Statut des Factures (Graphique)", icon: PieChartIcon },
-    { id: "showRecentActivity", label: "Activité Récente", icon: Activity },
-    { id: "showTopClients", label: "Top Clients", icon: Users },
+  const mainSections = [
+    { id: "showMonthlyFlux", label: "Afficher le Flux Mensuel (TTC)", icon: BarChart3 },
+    { id: "showProjectStatus", label: "Afficher le Statut des Factures", icon: PieChartIcon },
+    { id: "showRecentActivity", label: "Afficher l'Activité Récente", icon: Activity },
+    { id: "showTopClients", label: "Afficher les Top Clients", icon: Users },
   ];
 
-  const fluxElements = [
+  const fluxSubElements = [
     { id: "fluxShowInvoiced", label: "Flux : Facturé TTC", icon: CheckCircle2 },
     { id: "fluxShowPending", label: "Flux : En attente TTC", icon: Clock },
     { id: "fluxShowPurchases", label: "Flux : Achats TTC", icon: ShoppingBag },
@@ -97,6 +98,7 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
         
         <ScrollArea className="flex-1 pr-4">
           <div className="space-y-6 py-4">
+            {/* Section KPIs */}
             <div className="space-y-3">
               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Indicateurs (KPIs)</h4>
               <div className="grid grid-cols-1 gap-2">
@@ -106,21 +108,26 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
 
             <Separator />
 
+            {/* Section Graphiques et Listes */}
             <div className="space-y-3">
               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Graphiques & Listes</h4>
               <div className="grid grid-cols-1 gap-2">
-                {chartSections.map((section) => <SectionItem key={section.id} section={section} />)}
+                {mainSections.map((section) => <SectionItem key={section.id} section={section} />)}
               </div>
             </div>
 
-            <Separator />
-            
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Éléments du Flux Mensuel</h4>
-              <div className="grid grid-cols-1 gap-2">
-                {fluxElements.map((section) => <SectionItem key={section.id} section={section} />)}
-              </div>
-            </div>
+            {/* Sous-options du Flux (uniquement si le flux est activé) */}
+            {preferences.showMonthlyFlux && (
+              <>
+                <Separator />
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Détails du Flux Mensuel</h4>
+                  <div className="grid grid-cols-1 gap-2">
+                    {fluxSubElements.map((section) => <SectionItem key={section.id} section={section} />)}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </ScrollArea>
 
