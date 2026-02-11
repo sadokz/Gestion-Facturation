@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { 
-  Building2, 
   Save, 
   LayoutDashboard, 
   Briefcase, 
@@ -17,23 +16,15 @@ import {
   UserCheck, 
   ShieldCheck,
   Calculator,
-  Settings as SettingsIcon,
-  Plus,
-  UserPlus,
-  TrendingUp,
-  PieChart,
-  Activity
+  Settings as SettingsIcon
 } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 import { useNavigation } from "@/context/NavigationContext";
-import { useDashboard } from "@/context/DashboardContext";
-import { UserList } from "@/components/settings/UserList";
 import { UserModal } from "@/components/settings/UserModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 const Settings = () => {
   const { tabs, toggleTab } = useNavigation();
-  const { preferences, togglePreference } = useDashboard();
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -95,21 +86,6 @@ const Settings = () => {
     </div>
   );
 
-  const DashboardToggle = ({ id, label, icon: Icon }: { id: any, label: string, icon: any }) => (
-    <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-slate-100 rounded-lg text-slate-600">
-          <Icon size={18} />
-        </div>
-        <span className="text-sm font-medium text-slate-700">{label}</span>
-      </div>
-      <Switch 
-        checked={!!preferences[id as keyof typeof preferences]} 
-        onCheckedChange={() => togglePreference(id)} 
-      />
-    </div>
-  );
-
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
       <div className="flex flex-col gap-1">
@@ -139,24 +115,6 @@ const Settings = () => {
               <Label htmlFor="address">Adresse Siège</Label>
               <Input id="address" defaultValue="Avenue Habib Bourguiba, Tunis" className="rounded-xl" />
             </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Separator />
-
-      {/* Personnalisation du Dashboard */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="space-y-1">
-          <h3 className="font-bold text-slate-800">Éléments du Tableau de Bord</h3>
-          <p className="text-sm text-slate-500">Choisissez les sections à afficher sur votre page d'accueil.</p>
-        </div>
-        <Card className="md:col-span-2 border-none shadow-md">
-          <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <DashboardToggle id="showMonthlyFlux" label="Flux Mensuel (TTC)" icon={TrendingUp} />
-            <DashboardToggle id="showProjectStatus" label="Statut des Factures" icon={PieChart} />
-            <DashboardToggle id="showRecentActivity" label="Activité Récente" icon={Activity} />
-            <DashboardToggle id="showTopClients" label="Top Clients" icon={Users} />
           </CardContent>
         </Card>
       </div>
