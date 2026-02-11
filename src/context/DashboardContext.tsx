@@ -64,6 +64,8 @@ interface DashboardContextType {
   setKpiOrder: (order: string[]) => void;
   mainSectionOrder: string[];
   setMainSectionOrder: (order: string[]) => void;
+  sectionWidths: Record<string, "half" | "full">;
+  setSectionWidth: (id: string, width: "half" | "full") => void;
 }
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
@@ -90,6 +92,16 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return savedOrder ? JSON.parse(savedOrder) : ALL_MAIN_SECTION_IDS;
   });
 
+  const [sectionWidths, setSectionWidths] = useState<Record<string, "half" | "full">>(() => {
+    const saved = localStorage.getItem("dashboard_section_widths");
+    return saved ? JSON.parse(saved) : {
+      monthlyFlux: "half",
+      projectStatus: "half",
+      recentActivity: "half",
+      topClients: "half",
+    };
+  });
+
   useEffect(() => {
     localStorage.setItem("dashboard_preferences", JSON.stringify(preferences));
   }, [preferences]);
@@ -102,14 +114,28 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     localStorage.setItem("dashboard_main_section_order", JSON.stringify(mainSectionOrder));
   }, [mainSectionOrder]);
 
+  useEffect(() => {
+    localStorage.setItem("dashboard_section_widths", JSON.stringify(sectionWidths));
+  }, [sectionWidths]);
+
   const togglePreference = (key: keyof DashboardPreferences) => {
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const setSectionWidth = (id: string, width: "half" | "full") => {
+    setSectionWidths(prev => ({ ...prev, [id]: width }));
   };
 
   const resetPreferences = () => {
     setPreferences(DEFAULT_PREFERENCES);
     setKpiOrder(ALL_KPI_IDS);
     setMainSectionOrder(ALL_MAIN_SECTION_IDS);
+    setSectionWidths({
+      monthlyFlux: "half",
+      projectStatus: "half",
+      recentActivity: "half",
+      topClients: "half",
+    });
   };
 
   return (
@@ -120,7 +146,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       kpiOrder, 
       setKpiOrder,
       mainSectionOrder,
-      setMainSectionOrder
+      setMainSectionOrder,
+      sectionWidths,
+      setSectionWidth
     }}>
       {children}
     </DashboardContext.Provider>

@@ -98,13 +98,20 @@ const SortableKPICard = ({ kpi, summary }: { kpi: KpiCardData; summary: any }) =
   );
 };
 
-const SortableSection = ({ id, children }: { id: string, children: React.ReactNode }) => {
+const SortableSection = ({ id, width, children }: { id: string, width: "half" | "full", children: React.ReactNode }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 10 : 1, opacity: isDragging ? 0.5 : 1 };
 
   return (
-    <div ref={setNodeRef} style={style} className="relative group">
-      <div {...attributes} {...listeners} className="absolute top-4 right-4 cursor-grab active:cursor-grabbing text-slate-300 hover:text-primary transition-colors z-20 opacity-0 group-hover:opacity-100">
+    <div 
+      ref={setNodeRef} 
+      style={style} 
+      className={cn(
+        "relative group p-3",
+        width === "full" ? "w-full" : "w-full lg:w-1/2"
+      )}
+    >
+      <div {...attributes} {...listeners} className="absolute top-6 right-6 cursor-grab active:cursor-grabbing text-slate-300 hover:text-primary transition-colors z-20 opacity-0 group-hover:opacity-100">
         <GripVertical size={20} />
       </div>
       {children}
@@ -114,7 +121,7 @@ const SortableSection = ({ id, children }: { id: string, children: React.ReactNo
 
 const Dashboard = () => {
   const { selectedYear } = useYear();
-  const { preferences, kpiOrder, setKpiOrder, mainSectionOrder, setMainSectionOrder } = useDashboard(); 
+  const { preferences, kpiOrder, setKpiOrder, mainSectionOrder, setMainSectionOrder, sectionWidths } = useDashboard(); 
   const [summary, setSummary] = useState<any>(null);
   const [monthlyData, setMonthlyData] = useState<any[]>([]);
   const [statusData, setStatusData] = useState<any[]>([]); 
@@ -182,10 +189,12 @@ const Dashboard = () => {
   }, [preferences, kpiOrder]); 
 
   const renderSection = (id: string) => {
+    const width = sectionWidths[id] || "half";
+    
     switch (id) {
       case "monthlyFlux":
         return preferences.showMonthlyFlux && (
-          <SortableSection id="monthlyFlux" key="monthlyFlux">
+          <SortableSection id="monthlyFlux" key="monthlyFlux" width={width}>
             <Card className="border-none shadow-md overflow-hidden h-full">
               <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50">
                 <div className="flex items-center gap-2">
@@ -215,7 +224,7 @@ const Dashboard = () => {
         );
       case "projectStatus":
         return preferences.showProjectStatus && (
-          <SortableSection id="projectStatus" key="projectStatus">
+          <SortableSection id="projectStatus" key="projectStatus" width={width}>
             <Card className="border-none shadow-md overflow-hidden h-full">
               <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50">
                 <div className="flex items-center gap-2">
@@ -243,7 +252,7 @@ const Dashboard = () => {
         );
       case "recentActivity":
         return preferences.showRecentActivity && (
-          <SortableSection id="recentActivity" key="recentActivity">
+          <SortableSection id="recentActivity" key="recentActivity" width={width}>
             <Card className="border-none shadow-md overflow-hidden h-full">
               <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50">
                 <div className="flex items-center gap-2">
@@ -280,7 +289,7 @@ const Dashboard = () => {
         );
       case "topClients":
         return preferences.showTopClients && (
-          <SortableSection id="topClients" key="topClients">
+          <SortableSection id="topClients" key="topClients" width={width}>
             <Card className="border-none shadow-md overflow-hidden h-full">
               <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50">
                 <div className="flex items-center gap-2">
@@ -351,7 +360,7 @@ const Dashboard = () => {
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionDragEnd}>
         <SortableContext items={mainSectionOrder} strategy={verticalListSortingStrategy}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="flex flex-wrap -m-3">
             {mainSectionOrder.map(id => renderSection(id))}
           </div>
         </SortableContext>

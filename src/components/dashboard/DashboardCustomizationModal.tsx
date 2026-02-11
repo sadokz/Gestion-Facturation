@@ -23,9 +23,12 @@ import {
   Clock, 
   ShoppingBag,
   RotateCcw,
-  BarChart3
+  BarChart3,
+  Maximize2,
+  Minimize2
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 interface DashboardCustomizationModalProps {
   isOpen: boolean;
@@ -33,7 +36,7 @@ interface DashboardCustomizationModalProps {
 }
 
 export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalProps> = ({ isOpen, onClose }) => {
-  const { preferences, togglePreference, resetPreferences } = useDashboard();
+  const { preferences, togglePreference, resetPreferences, sectionWidths, setSectionWidth } = useDashboard();
 
   const kpiSections = [
     { id: "totalContractsHT", label: "KPI : Total Contrats (HT)", icon: FileText },
@@ -47,10 +50,10 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
   ];
 
   const mainSections = [
-    { id: "showMonthlyFlux", label: "Afficher le Flux Mensuel (TTC)", icon: BarChart3 },
-    { id: "showProjectStatus", label: "Afficher le Statut des Factures", icon: PieChartIcon },
-    { id: "showRecentActivity", label: "Afficher l'Activité Récente", icon: Activity },
-    { id: "showTopClients", label: "Afficher les Top Clients", icon: Users },
+    { id: "monthlyFlux", prefId: "showMonthlyFlux", label: "Flux Mensuel (TTC)", icon: BarChart3 },
+    { id: "projectStatus", prefId: "showProjectStatus", label: "Statut des Factures", icon: PieChartIcon },
+    { id: "recentActivity", prefId: "showRecentActivity", label: "Activité Récente", icon: Activity },
+    { id: "topClients", prefId: "showTopClients", label: "Top Clients", icon: Users },
   ];
 
   const fluxSubElements = [
@@ -75,6 +78,52 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
         checked={!!preferences[section.id as keyof typeof preferences]}
         onCheckedChange={() => togglePreference(section.id as keyof typeof preferences)}
       />
+    </div>
+  );
+
+  const MainSectionItem = ({ section }: { section: any }) => (
+    <div className="space-y-3 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-slate-100 rounded-lg text-slate-600">
+            <section.icon size={18} />
+          </div>
+          <Label htmlFor={section.prefId} className="text-sm font-medium cursor-pointer">
+            {section.label}
+          </Label>
+        </div>
+        <Switch
+          id={section.prefId}
+          checked={!!preferences[section.prefId as keyof typeof preferences]}
+          onCheckedChange={() => togglePreference(section.prefId as keyof typeof preferences)}
+        />
+      </div>
+      
+      {preferences[section.prefId as keyof typeof preferences] && (
+        <div className="flex items-center gap-2 pl-11">
+          <span className="text-[10px] font-bold text-slate-400 uppercase">Largeur :</span>
+          <div className="flex bg-slate-100 p-1 rounded-lg">
+            <button 
+              onClick={() => setSectionWidth(section.id, "half")}
+              className={cn(
+                "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold transition-all",
+                sectionWidths[section.id] === "half" ? "bg-white shadow-sm text-primary" : "text-slate-500 hover:text-slate-700"
+              )}
+            >
+              <Minimize2 size={12} /> 50%
+            </button>
+            <button 
+              onClick={() => setSectionWidth(section.id, "full")}
+              className={cn(
+                "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold transition-all",
+                sectionWidths[section.id] === "full" ? "bg-white shadow-sm text-primary" : "text-slate-500 hover:text-slate-700"
+              )}
+            >
+              <Maximize2 size={12} /> 100%
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -110,7 +159,7 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
           <div className="space-y-3">
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Graphiques & Listes</h4>
             <div className="grid grid-cols-1 gap-2">
-              {mainSections.map((section) => <SectionItem key={section.id} section={section} />)}
+              {mainSections.map((section) => <MainSectionItem key={section.id} section={section} />)}
             </div>
           </div>
 
