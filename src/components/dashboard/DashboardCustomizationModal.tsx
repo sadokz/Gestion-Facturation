@@ -25,7 +25,6 @@ import {
   RotateCcw,
   BarChart3
 } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
 interface DashboardCustomizationModalProps {
@@ -81,58 +80,56 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] rounded-2xl flex flex-col max-h-[90vh]">
-        <DialogHeader className="flex flex-row items-center justify-between pr-8">
+      <DialogContent className="sm:max-w-[500px] rounded-2xl flex flex-col h-[85vh] p-0 overflow-hidden">
+        <DialogHeader className="p-6 pb-2 flex flex-row items-center justify-between">
           <DialogTitle className="text-xl font-bold text-slate-800">
-            Personnaliser le Tableau de Bord
+            Personnaliser le Dashboard
           </DialogTitle>
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={resetPreferences}
-            className="text-slate-400 hover:text-primary gap-1 h-8 px-2"
+            className="text-slate-400 hover:text-primary gap-1 h-8 px-2 mr-6"
           >
             <RotateCcw size={14} /> Réinitialiser
           </Button>
         </DialogHeader>
         
-        <ScrollArea className="flex-1 pr-4">
-          <div className="space-y-6 py-4">
-            {/* Section KPIs */}
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Indicateurs (KPIs)</h4>
-              <div className="grid grid-cols-1 gap-2">
-                {kpiSections.map((section) => <SectionItem key={section.id} section={section} />)}
-              </div>
+        <div className="flex-1 overflow-y-auto px-6 py-2 space-y-8">
+          {/* Section KPIs */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Indicateurs (KPIs)</h4>
+            <div className="grid grid-cols-1 gap-2">
+              {kpiSections.map((section) => <SectionItem key={section.id} section={section} />)}
             </div>
-
-            <Separator />
-
-            {/* Section Graphiques et Listes */}
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Graphiques & Listes</h4>
-              <div className="grid grid-cols-1 gap-2">
-                {mainSections.map((section) => <SectionItem key={section.id} section={section} />)}
-              </div>
-            </div>
-
-            {/* Sous-options du Flux (uniquement si le flux est activé) */}
-            {preferences.showMonthlyFlux && (
-              <>
-                <Separator />
-                <div className="space-y-3">
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Détails du Flux Mensuel</h4>
-                  <div className="grid grid-cols-1 gap-2">
-                    {fluxSubElements.map((section) => <SectionItem key={section.id} section={section} />)}
-                  </div>
-                </div>
-              </>
-            )}
           </div>
-        </ScrollArea>
 
-        <DialogFooter className="pt-4 border-t">
-          <Button type="button" variant="outline" onClick={onClose} className="rounded-xl">Fermer</Button>
+          <Separator />
+
+          {/* Section Graphiques et Listes */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Graphiques & Listes</h4>
+            <div className="grid grid-cols-1 gap-2">
+              {mainSections.map((section) => <SectionItem key={section.id} section={section} />)}
+            </div>
+          </div>
+
+          {/* Sous-options du Flux */}
+          {preferences.showMonthlyFlux && (
+            <>
+              <Separator />
+              <div className="space-y-3 pb-4">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Détails du Flux Mensuel</h4>
+                <div className="grid grid-cols-1 gap-2">
+                  {fluxSubElements.map((section) => <SectionItem key={section.id} section={section} />)}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        <DialogFooter className="p-6 border-t bg-slate-50/50">
+          <Button type="button" variant="outline" onClick={onClose} className="rounded-xl w-full sm:w-auto">Fermer</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
