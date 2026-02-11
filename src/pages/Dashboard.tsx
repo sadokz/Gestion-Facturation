@@ -257,7 +257,7 @@ const Dashboard = () => {
                       cursor={{ fill: '#f8fafc' }} 
                     />
                     <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
-                    <Bar dataKey="invoicedTTC" name="Facturé TTC" stackId="sales" fill="#6366f1" radius={[0, 0, 0, 0]} barSize={30} />
+                    <Bar dataKey="invoicedTTC" name="Facturé TTC" stackId="sales" fill="#10b981" radius={[0, 0, 0, 0]} barSize={30} />
                     <Bar dataKey="pendingInvoicedTTC" name="En attente TTC" stackId="sales" fill="#a5b4fc" radius={[4, 4, 0, 0]} barSize={30} />
                     <Bar dataKey="purchasesTTC" name="Achats TTC" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={30} />
                   </BarChart>
