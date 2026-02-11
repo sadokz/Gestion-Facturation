@@ -22,7 +22,7 @@ import {
   CheckCircle2, 
   Clock, 
   ShoppingBag,
-  BarChart3
+  RotateCcw
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -33,7 +33,7 @@ interface DashboardCustomizationModalProps {
 }
 
 export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalProps> = ({ isOpen, onClose }) => {
-  const { preferences, togglePreference } = useDashboard();
+  const { preferences, togglePreference, resetPreferences } = useDashboard();
 
   const kpiSections = [
     { id: "totalContractsHT", label: "KPI : Total Contrats (HT)", icon: FileText },
@@ -72,7 +72,7 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
       </div>
       <Switch
         id={section.id}
-        checked={preferences[section.id as keyof typeof preferences]}
+        checked={!!preferences[section.id as keyof typeof preferences]}
         onCheckedChange={() => togglePreference(section.id as keyof typeof preferences)}
       />
     </div>
@@ -81,10 +81,18 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px] rounded-2xl flex flex-col max-h-[90vh]">
-        <DialogHeader>
+        <DialogHeader className="flex flex-row items-center justify-between pr-8">
           <DialogTitle className="text-xl font-bold text-slate-800">
             Personnaliser le Tableau de Bord
           </DialogTitle>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={resetPreferences}
+            className="text-slate-400 hover:text-primary gap-1 h-8 px-2"
+          >
+            <RotateCcw size={14} /> Réinitialiser
+          </Button>
         </DialogHeader>
         
         <ScrollArea className="flex-1 pr-4">

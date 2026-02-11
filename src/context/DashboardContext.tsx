@@ -13,7 +13,6 @@ interface DashboardPreferences {
   showTotalSalaries: boolean;
   showTotalRevenue: boolean;
   showTotalProfit: boolean;
-  // Préférences pour le graphique de flux
   fluxShowInvoiced: boolean;
   fluxShowPending: boolean;
   fluxShowPurchases: boolean;
@@ -53,6 +52,7 @@ const ALL_KPI_IDS = [
 interface DashboardContextType {
   preferences: DashboardPreferences;
   togglePreference: (key: keyof DashboardPreferences) => void;
+  resetPreferences: () => void;
   kpiOrder: string[];
   setKpiOrder: (order: string[]) => void;
 }
@@ -63,10 +63,13 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [preferences, setPreferences] = useState<DashboardPreferences>(() => {
     const saved = localStorage.getItem("dashboard_preferences");
     if (!saved) return DEFAULT_PREFERENCES;
-    
-    // Fusionner avec les valeurs par défaut pour s'assurer que les nouvelles clés existent
-    const parsed = JSON.parse(saved);
-    return { ...DEFAULT_PREFERENCES, ...parsed };
+    try {
+      const parsed = JSON.parse(saved);
+      // Fusion forcée pour garantir que les nouvelles clés existent
+      return { ...DEFAULT_PREFERENCES, ...parsed };
+    } catch {
+      return DEFAULT_PREFERENCES;
+    }
   });
 
   const [kpiOrder, setKpiOrder] = useState<string[]>(() => {
@@ -86,8 +89,13 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const resetPreferences = () => {
+    setPreferences(DEFAULT_PREFERENCES);
+    setKpiOrder(ALL_KPI_IDS);
+  };
+
   return (
-    <DashboardContext.Provider value={{ preferences, togglePreference, kpiOrder, setKpiOrder }}>
+    <DashboardContext.Provider value={{ preferences, togglePreference, resetPreferences, kpiOrder, setKpiOrder }}>
       {children}
     </DashboardContext.Provider>
   );
