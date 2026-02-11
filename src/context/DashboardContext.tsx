@@ -49,12 +49,21 @@ const ALL_KPI_IDS = [
   "totalProfit",
 ];
 
+const ALL_MAIN_SECTION_IDS = [
+  "monthlyFlux",
+  "projectStatus",
+  "recentActivity",
+  "topClients",
+];
+
 interface DashboardContextType {
   preferences: DashboardPreferences;
   togglePreference: (key: keyof DashboardPreferences) => void;
   resetPreferences: () => void;
   kpiOrder: string[];
   setKpiOrder: (order: string[]) => void;
+  mainSectionOrder: string[];
+  setMainSectionOrder: (order: string[]) => void;
 }
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
@@ -65,7 +74,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (!saved) return DEFAULT_PREFERENCES;
     try {
       const parsed = JSON.parse(saved);
-      // Fusion forcée pour garantir que les nouvelles clés existent
       return { ...DEFAULT_PREFERENCES, ...parsed };
     } catch {
       return DEFAULT_PREFERENCES;
@@ -77,6 +85,11 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return savedOrder ? JSON.parse(savedOrder) : ALL_KPI_IDS;
   });
 
+  const [mainSectionOrder, setMainSectionOrder] = useState<string[]>(() => {
+    const savedOrder = localStorage.getItem("dashboard_main_section_order");
+    return savedOrder ? JSON.parse(savedOrder) : ALL_MAIN_SECTION_IDS;
+  });
+
   useEffect(() => {
     localStorage.setItem("dashboard_preferences", JSON.stringify(preferences));
   }, [preferences]);
@@ -85,6 +98,10 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     localStorage.setItem("dashboard_kpi_order", JSON.stringify(kpiOrder));
   }, [kpiOrder]);
 
+  useEffect(() => {
+    localStorage.setItem("dashboard_main_section_order", JSON.stringify(mainSectionOrder));
+  }, [mainSectionOrder]);
+
   const togglePreference = (key: keyof DashboardPreferences) => {
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -92,10 +109,19 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const resetPreferences = () => {
     setPreferences(DEFAULT_PREFERENCES);
     setKpiOrder(ALL_KPI_IDS);
+    setMainSectionOrder(ALL_MAIN_SECTION_IDS);
   };
 
   return (
-    <DashboardContext.Provider value={{ preferences, togglePreference, resetPreferences, kpiOrder, setKpiOrder }}>
+    <DashboardContext.Provider value={{ 
+      preferences, 
+      togglePreference, 
+      resetPreferences, 
+      kpiOrder, 
+      setKpiOrder,
+      mainSectionOrder,
+      setMainSectionOrder
+    }}>
       {children}
     </DashboardContext.Provider>
   );

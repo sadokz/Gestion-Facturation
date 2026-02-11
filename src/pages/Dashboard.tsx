@@ -52,11 +52,11 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   rectSortingStrategy, 
+  verticalListSortingStrategy,
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-// Couleurs harmonisées : Vert pour Payé, Bleu clair pour En attente, Gris pour Non facturé
 const STATUS_COLORS = {
   'Payée': '#10b981',
   'En attente': '#a5b4fc',
@@ -70,7 +70,7 @@ interface KpiCardData {
   color: string;
   description: string;
   valueKey: string; 
-  preferenceKey: any; 
+  preferenceKey: string; 
 }
 
 const ALL_KPI_DEFINITIONS: KpiCardData[] = [
@@ -85,62 +85,50 @@ const ALL_KPI_DEFINITIONS: KpiCardData[] = [
 ];
 
 const SortableKPICard = ({ kpi, summary }: { kpi: KpiCardData; summary: any }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: kpi.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    zIndex: isDragging ? 10 : 1,
-    opacity: isDragging ? 0.5 : 1,
-  };
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: kpi.id });
+  const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 10 : 1, opacity: isDragging ? 0.5 : 1 };
 
   return (
     <div ref={setNodeRef} style={style} className="relative">
       <div {...attributes} {...listeners} className="absolute top-2 left-2 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors z-20">
         <GripVertical size={18} />
       </div>
-      <KPICard
-        title={kpi.title}
-        value={summary?.[kpi.valueKey] || 0}
-        icon={kpi.icon}
-        color={kpi.color}
-        description={kpi.description}
-      />
+      <KPICard title={kpi.title} value={summary?.[kpi.valueKey] || 0} icon={kpi.icon} color={kpi.color} description={kpi.description} />
+    </div>
+  );
+};
+
+const SortableSection = ({ id, children }: { id: string, children: React.ReactNode }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 10 : 1, opacity: isDragging ? 0.5 : 1 };
+
+  return (
+    <div ref={setNodeRef} style={style} className="relative group">
+      <div {...attributes} {...listeners} className="absolute top-4 right-4 cursor-grab active:cursor-grabbing text-slate-300 hover:text-primary transition-colors z-20 opacity-0 group-hover:opacity-100">
+        <GripVertical size={20} />
+      </div>
+      {children}
     </div>
   );
 };
 
 const Dashboard = () => {
   const { selectedYear } = useYear();
-  const { preferences, kpiOrder, setKpiOrder } = useDashboard(); 
+  const { preferences, kpiOrder, setKpiOrder, mainSectionOrder, setMainSectionOrder } = useDashboard(); 
   const [summary, setSummary] = useState<any>(null);
   const [monthlyData, setMonthlyData] = useState<any[]>([]);
-  const [categoryData, setCategoryData] = useState<any[]>([]);
   const [statusData, setStatusData] = useState<any[]>([]); 
   const [loading, setLoading] = useState(true);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const [s, m, c] = await Promise.all([
+        const [s, m] = await Promise.all([
           fetcher(`/dashboard/summary?year=${selectedYear}`),
-          fetcher(`/dashboard/monthly?year=${selectedYear}`),
-          fetcher(`/dashboard/purchases-by-category?year=${selectedYear}`)
+          fetcher(`/dashboard/monthly?year=${selectedYear}`)
         ]);
         setSummary(s);
         setMonthlyData(m.map((d: any) => ({
@@ -151,23 +139,9 @@ const Dashboard = () => {
           purchasesTTC: computeTTC(d.purchasesHT, 19),
           salaries: d.salaries || (d.purchasesHT * 1.5)
         })));
-        setCategoryData(c);
-        setStatusData([
-          { name: 'Payée', value: 15 },
-          { name: 'En attente', value: 7 },
-          { name: 'Non facturée', value: 3 },
-        ]);
+        setStatusData([{ name: 'Payée', value: 15 }, { name: 'En attente', value: 7 }, { name: 'Non facturée', value: 3 }]);
       } catch (err) {
-        setSummary({
-          totalContractsHT: 125000,
-          totalInvoicedHT: 78000,
-          totalRemainingHT: 47000,
-          totalPurchasesHT: 22000,
-          totalCnssPaid: 15000, 
-          totalSalaries: 45000, 
-          totalRevenue: 95000, 
-          totalProfit: 30000, 
-        });
+        setSummary({ totalContractsHT: 125000, totalInvoicedHT: 78000, totalRemainingHT: 47000, totalPurchasesHT: 22000, totalCnssPaid: 15000, totalSalaries: 45000, totalRevenue: 95000, totalProfit: 30000 });
         setMonthlyData([
           { name: 'Jan', invoicedTTC: computeTTC(4000, 19), pendingInvoicedTTC: computeTTC(1200, 19), purchasesTTC: computeTTC(1200, 19), salaries: 3500 },
           { name: 'Fév', invoicedTTC: computeTTC(5500, 19), pendingInvoicedTTC: computeTTC(2000, 19), purchasesTTC: computeTTC(1800, 19), salaries: 3500 },
@@ -176,17 +150,7 @@ const Dashboard = () => {
           { name: 'Mai', invoicedTTC: computeTTC(9500, 19), pendingInvoicedTTC: computeTTC(4000, 19), purchasesTTC: computeTTC(3000, 19), salaries: 4000 },
           { name: 'Juin', invoicedTTC: computeTTC(12000, 19), pendingInvoicedTTC: computeTTC(5000, 19), purchasesTTC: computeTTC(4500, 19), salaries: 4200 },
         ]);
-        setCategoryData([
-          { category: 'Matériel', amountHT: 12000 },
-          { category: 'Déplacement', amountHT: 4500 },
-          { category: 'Logiciels', amountHT: 3500 },
-          { category: 'Divers', amountHT: 2000 },
-        ]);
-        setStatusData([
-          { name: 'Payée', value: 15 },
-          { name: 'En attente', value: 7 },
-          { name: 'Non facturée', value: 3 },
-        ]);
+        setStatusData([{ name: 'Payée', value: 15 }, { name: 'En attente', value: 7 }, { name: 'Non facturée', value: 3 }]);
       } finally {
         setLoading(false);
       }
@@ -194,7 +158,7 @@ const Dashboard = () => {
     loadData();
   }, [selectedYear]);
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleKpiDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       const oldIndex = kpiOrder.indexOf(active.id as string);
@@ -203,116 +167,84 @@ const Dashboard = () => {
     }
   };
 
+  const handleSectionDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = mainSectionOrder.indexOf(active.id as string);
+      const newIndex = mainSectionOrder.indexOf(over.id as string);
+      setMainSectionOrder(arrayMove(mainSectionOrder, oldIndex, newIndex));
+    }
+  };
+
   const visibleKpis = useMemo(() => {
     const filteredKpis = ALL_KPI_DEFINITIONS.filter(kpi => preferences[kpi.preferenceKey as keyof typeof preferences]);
-    return kpiOrder
-      .map(id => filteredKpis.find(kpi => kpi.id === id))
-      .filter(Boolean) as KpiCardData[];
-  }, [preferences, kpiOrder, summary]); 
+    return kpiOrder.map(id => filteredKpis.find(kpi => kpi.id === id)).filter(Boolean) as KpiCardData[];
+  }, [preferences, kpiOrder]); 
 
-  if (loading) {
-    return (
-      <div className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 rounded-2xl" />)}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Skeleton className="h-[400px] lg:col-span-2 rounded-2xl" />
-          <Skeleton className="h-[400px] rounded-2xl" />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold text-slate-900">Tableau de bord</h1>
-        <p className="text-slate-500">Aperçu de la performance pour l'exercice {selectedYear}</p>
-      </div>
-
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={visibleKpis.map(kpi => kpi.id)} strategy={rectSortingStrategy}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {visibleKpis.map((kpi) => (
-              <SortableKPICard key={kpi.id} kpi={kpi} summary={summary} />
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {preferences.showMonthlyFlux && (
-          <Card className="lg:col-span-2 border-none shadow-md overflow-hidden">
-            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50">
-              <div className="flex items-center gap-2">
-                <TrendingUp size={18} className="text-primary" />
-                <CardTitle className="text-lg font-bold">Flux Mensuel (TTC)</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="h-[350px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                    <Tooltip 
-                      formatter={(value: number) => formatCurrencyDT(value)}
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
-                      cursor={{ fill: '#f8fafc' }} 
-                    />
-                    <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
-                    {preferences.fluxShowInvoiced && (
-                      <Bar dataKey="invoicedTTC" name="Facturé TTC" stackId="sales" fill={STATUS_COLORS['Payée']} radius={[0, 0, 0, 0]} barSize={30} />
-                    )}
-                    {preferences.fluxShowPending && (
-                      <Bar dataKey="pendingInvoicedTTC" name="En attente TTC" stackId="sales" fill={STATUS_COLORS['En attente']} radius={[4, 4, 0, 0]} barSize={30} />
-                    )}
-                    {preferences.fluxShowPurchases && (
-                      <Bar dataKey="purchasesTTC" name="Achats TTC" stackId="expenses" fill="#f43f5e" radius={[0, 0, 0, 0]} barSize={30} />
-                    )}
-                    {preferences.fluxShowSalaries && (
-                      <Bar dataKey="salaries" name="Salaires" stackId="expenses" fill="#8b5cf6" radius={[4, 4, 0, 0]} barSize={30} />
-                    )}
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {preferences.showProjectStatus && (
-          <Card className="border-none shadow-md overflow-hidden">
-            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50">
-              <div className="flex items-center gap-2">
-                <PieChartIcon size={18} className="text-primary" />
-                <CardTitle className="text-lg font-bold">Statut des Factures</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="h-[350px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={statusData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                      {statusData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.name as keyof typeof STATUS_COLORS] || '#cbd5e1'} />
-                      ))}
-                    </Pie>
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
-                    <Legend verticalAlign="bottom" iconType="circle" />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-
-      {(preferences.showRecentActivity || preferences.showTopClients) && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {preferences.showRecentActivity && (
-            <Card className="lg:col-span-2 border-none shadow-md overflow-hidden">
+  const renderSection = (id: string) => {
+    switch (id) {
+      case "monthlyFlux":
+        return preferences.showMonthlyFlux && (
+          <SortableSection id="monthlyFlux" key="monthlyFlux">
+            <Card className="border-none shadow-md overflow-hidden h-full">
+              <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50">
+                <div className="flex items-center gap-2">
+                  <TrendingUp size={18} className="text-primary" />
+                  <CardTitle className="text-lg font-bold">Flux Mensuel (TTC)</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="h-[350px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={monthlyData}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                      <Tooltip formatter={(value: number) => formatCurrencyDT(value)} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} cursor={{ fill: '#f8fafc' }} />
+                      <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
+                      {preferences.fluxShowInvoiced && <Bar dataKey="invoicedTTC" name="Facturé TTC" stackId="sales" fill={STATUS_COLORS['Payée']} barSize={30} />}
+                      {preferences.fluxShowPending && <Bar dataKey="pendingInvoicedTTC" name="En attente TTC" stackId="sales" fill={STATUS_COLORS['En attente']} radius={[4, 4, 0, 0]} barSize={30} />}
+                      {preferences.fluxShowPurchases && <Bar dataKey="purchasesTTC" name="Achats TTC" stackId="expenses" fill="#f43f5e" barSize={30} />}
+                      {preferences.fluxShowSalaries && <Bar dataKey="salaries" name="Salaires" stackId="expenses" fill="#8b5cf6" radius={[4, 4, 0, 0]} barSize={30} />}
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </SortableSection>
+        );
+      case "projectStatus":
+        return preferences.showProjectStatus && (
+          <SortableSection id="projectStatus" key="projectStatus">
+            <Card className="border-none shadow-md overflow-hidden h-full">
+              <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50">
+                <div className="flex items-center gap-2">
+                  <PieChartIcon size={18} className="text-primary" />
+                  <CardTitle className="text-lg font-bold">Statut des Factures</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="h-[350px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={statusData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                        {statusData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.name as keyof typeof STATUS_COLORS] || '#cbd5e1'} />
+                        ))}
+                      </Pie>
+                      <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                      <Legend verticalAlign="bottom" iconType="circle" />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </SortableSection>
+        );
+      case "recentActivity":
+        return preferences.showRecentActivity && (
+          <SortableSection id="recentActivity" key="recentActivity">
+            <Card className="border-none shadow-md overflow-hidden h-full">
               <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50">
                 <div className="flex items-center gap-2">
                   <Activity size={18} className="text-primary" />
@@ -328,15 +260,8 @@ const Dashboard = () => {
                     { type: 'invoice', title: 'Facture FV-2026-011', project: 'Rénovation Pont', amount: 12000, date_emission: '2026-03-10', date_payement: null },
                   ].map((item, i) => (
                     <div key={i} className="p-4 flex items-center gap-4 hover:bg-slate-50 transition-colors">
-                      <div className={cn(
-                        "w-10 h-10 rounded-full flex items-center justify-center",
-                        item.type === 'invoice' ? "bg-emerald-100 text-emerald-600" :
-                        item.type === 'purchase' ? "bg-rose-100 text-rose-600" :
-                        item.type === 'project' ? "bg-indigo-100 text-indigo-600" : "bg-amber-100 text-amber-600"
-                      )}>
-                        {item.type === 'invoice' ? <FileText size={18} /> :
-                         item.type === 'purchase' ? <ShoppingBag size={18} /> :
-                         item.type === 'project' ? <Briefcase size={18} /> : <CheckCircle2 size={18} />}
+                      <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", item.type === 'invoice' ? "bg-emerald-100 text-emerald-600" : item.type === 'purchase' ? "bg-rose-100 text-rose-600" : item.type === 'project' ? "bg-indigo-100 text-indigo-600" : "bg-amber-100 text-amber-600")}>
+                        {item.type === 'invoice' ? <FileText size={18} /> : item.type === 'purchase' ? <ShoppingBag size={18} /> : item.type === 'project' ? <Briefcase size={18} /> : <CheckCircle2 size={18} />}
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-bold text-slate-800">{item.title}</p>
@@ -344,29 +269,19 @@ const Dashboard = () => {
                       </div>
                       <div className="text-right flex flex-col items-end gap-1">
                         <p className="text-sm font-bold text-slate-700">{formatCurrencyDT(item.amount)}</p>
-                        <div className="flex flex-col items-end">
-                          <p className="text-[10px] text-slate-400 flex items-center gap-1">
-                            <CalendarDays size={10} /> Émise : {formatDateFR(item.date_emission)}
-                          </p>
-                          {item.type === 'invoice' && item.date_payement && (
-                            <p className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
-                              <CheckCircle2 size={10} /> Payée : {formatDateFR(item.date_payement)}
-                            </p>
-                          )}
-                          {item.type === 'invoice' && !item.date_payement && (
-                            <p className="text-[10px] text-amber-500 font-bold">En attente</p>
-                          )}
-                        </div>
+                        <p className="text-[10px] text-slate-400 flex items-center gap-1"><CalendarDays size={10} /> {formatDateFR(item.date_emission)}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
-          )}
-
-          {preferences.showTopClients && (
-            <Card className="border-none shadow-md overflow-hidden">
+          </SortableSection>
+        );
+      case "topClients":
+        return preferences.showTopClients && (
+          <SortableSection id="topClients" key="topClients">
+            <Card className="border-none shadow-md overflow-hidden h-full">
               <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50">
                 <div className="flex items-center gap-2">
                   <Users size={18} className="text-primary" />
@@ -381,19 +296,14 @@ const Dashboard = () => {
                     { name: "Société STEG", total: 45000, count: 3 },
                   ].map((client, i) => (
                     <div key={i} className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 font-bold">
-                        {client.name.charAt(0)}
-                      </div>
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 font-bold">{client.name.charAt(0)}</div>
                       <div className="flex-1">
                         <div className="flex justify-between mb-1">
                           <span className="text-sm font-bold text-slate-800">{client.name}</span>
                           <span className="text-sm font-bold text-primary">{formatCurrencyDT(client.total)}</span>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-slate-500">{client.count} projets</span>
-                          <div className="w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-primary rounded-full" style={{ width: `${(client.total / 100000) * 100}%` }} />
-                          </div>
+                        <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-primary rounded-full" style={{ width: `${(client.total / 100000) * 100}%` }} />
                         </div>
                       </div>
                     </div>
@@ -401,9 +311,51 @@ const Dashboard = () => {
                 </div>
               </CardContent>
             </Card>
-          )}
+          </SortableSection>
+        );
+      default:
+        return null;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 rounded-2xl" />)}
         </div>
-      )}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Skeleton className="h-[400px] rounded-2xl" />
+          <Skeleton className="h-[400px] rounded-2xl" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-3xl font-bold text-slate-900">Tableau de bord</h1>
+        <p className="text-slate-500">Aperçu de la performance pour l'exercice {selectedYear}</p>
+      </div>
+
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleKpiDragEnd}>
+        <SortableContext items={visibleKpis.map(kpi => kpi.id)} strategy={rectSortingStrategy}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {visibleKpis.map((kpi) => (
+              <SortableKPICard key={kpi.id} kpi={kpi} summary={summary} />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
+
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionDragEnd}>
+        <SortableContext items={mainSectionOrder} strategy={verticalListSortingStrategy}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {mainSectionOrder.map(id => renderSection(id))}
+          </div>
+        </SortableContext>
+      </DndContext>
     </div>
   );
 };
