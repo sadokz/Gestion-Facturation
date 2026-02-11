@@ -56,7 +56,12 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+// Couleurs harmonisées : Vert pour Payé, Bleu clair pour En attente, Gris pour Non facturé
+const STATUS_COLORS = {
+  'Payée': '#10b981',
+  'En attente': '#a5b4fc',
+  'Non facturée': '#94a3b8'
+};
 
 interface KpiCardData {
   id: string;
@@ -257,8 +262,8 @@ const Dashboard = () => {
                       cursor={{ fill: '#f8fafc' }} 
                     />
                     <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
-                    <Bar dataKey="invoicedTTC" name="Facturé TTC" stackId="sales" fill="#10b981" radius={[0, 0, 0, 0]} barSize={30} />
-                    <Bar dataKey="pendingInvoicedTTC" name="En attente TTC" stackId="sales" fill="#a5b4fc" radius={[4, 4, 0, 0]} barSize={30} />
+                    <Bar dataKey="invoicedTTC" name="Facturé TTC" stackId="sales" fill={STATUS_COLORS['Payée']} radius={[0, 0, 0, 0]} barSize={30} />
+                    <Bar dataKey="pendingInvoicedTTC" name="En attente TTC" stackId="sales" fill={STATUS_COLORS['En attente']} radius={[4, 4, 0, 0]} barSize={30} />
                     <Bar dataKey="purchasesTTC" name="Achats TTC" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={30} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -281,7 +286,7 @@ const Dashboard = () => {
                   <PieChart>
                     <Pie data={statusData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                       {statusData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.name as keyof typeof STATUS_COLORS] || '#cbd5e1'} />
                       ))}
                     </Pie>
                     <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
