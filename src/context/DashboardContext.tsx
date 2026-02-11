@@ -20,6 +20,25 @@ interface DashboardPreferences {
   fluxShowSalaries: boolean;
 }
 
+const DEFAULT_PREFERENCES: DashboardPreferences = {
+  totalContractsHT: true,
+  totalInvoicedHT: true,
+  totalRemainingHT: true,
+  totalPurchasesHT: true,
+  showMonthlyFlux: true,
+  showProjectStatus: true,
+  showRecentActivity: true,
+  showTopClients: true,
+  showTotalCnssPaid: true,
+  showTotalSalaries: true,
+  showTotalRevenue: true,
+  showTotalProfit: true,
+  fluxShowInvoiced: true,
+  fluxShowPending: true,
+  fluxShowPurchases: true,
+  fluxShowSalaries: true,
+};
+
 const ALL_KPI_IDS = [
   "totalContractsHT",
   "totalInvoicedHT",
@@ -43,24 +62,11 @@ const DashboardContext = createContext<DashboardContextType | undefined>(undefin
 export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [preferences, setPreferences] = useState<DashboardPreferences>(() => {
     const saved = localStorage.getItem("dashboard_preferences");
-    return saved ? JSON.parse(saved) : {
-      totalContractsHT: true,
-      totalInvoicedHT: true,
-      totalRemainingHT: true,
-      totalPurchasesHT: true,
-      showMonthlyFlux: true,
-      showProjectStatus: true,
-      showRecentActivity: true,
-      showTopClients: true,
-      showTotalCnssPaid: true,
-      showTotalSalaries: true,
-      showTotalRevenue: true,
-      showTotalProfit: true,
-      fluxShowInvoiced: true,
-      fluxShowPending: true,
-      fluxShowPurchases: true,
-      fluxShowSalaries: true,
-    };
+    if (!saved) return DEFAULT_PREFERENCES;
+    
+    // Fusionner avec les valeurs par défaut pour s'assurer que les nouvelles clés existent
+    const parsed = JSON.parse(saved);
+    return { ...DEFAULT_PREFERENCES, ...parsed };
   });
 
   const [kpiOrder, setKpiOrder] = useState<string[]>(() => {

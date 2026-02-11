@@ -105,17 +105,14 @@ export const DashboardCustomizationModal: React.FC<DashboardCustomizationModalPr
               </div>
             </div>
 
-            {preferences.showMonthlyFlux && (
-              <>
-                <Separator />
-                <div className="space-y-3">
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Éléments du Flux Mensuel</h4>
-                  <div className="grid grid-cols-1 gap-2">
-                    {fluxElements.map((section) => <SectionItem key={section.id} section={section} />)}
-                  </div>
-                </div>
-              </>
-            )}
+            <Separator />
+            
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Éléments du Flux Mensuel</h4>
+              <div className="grid grid-cols-1 gap-2">
+                {fluxElements.map((section) => <SectionItem key={section.id} section={section} />)}
+              </div>
+            </div>
           </div>
         </ScrollArea>
 
