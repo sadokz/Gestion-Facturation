@@ -13,7 +13,7 @@ import {
   ShieldCheck, 
   Banknote,    
   Wallet,
-  GripVertical // For drag handle
+  GripVertical 
 } from "lucide-react";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { useYear } from "@/context/YearContext";
@@ -34,7 +34,7 @@ import {
 } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatCurrencyDT, formatDateFR } from "@/utils/formatters";
+import { formatCurrencyDT, formatDateFR, computeTTC } from "@/utils/formatters";
 import { cn } from "@/lib/utils";
 
 // DND Kit Imports
@@ -51,25 +51,23 @@ import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  rectSortingStrategy, // Use rectSortingStrategy for grid layout
+  rectSortingStrategy, 
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
-// Define a type for KPI card data
 interface KpiCardData {
   id: string;
   title: string;
   icon: any;
   color: string;
   description: string;
-  valueKey: string; // Key to get value from summary
-  preferenceKey: keyof DashboardPreferences; // Key to check visibility preference
+  valueKey: string; 
+  preferenceKey: any; 
 }
 
-// All possible KPI definitions
 const ALL_KPI_DEFINITIONS: KpiCardData[] = [
   { id: "totalContractsHT", title: "Total Contrats (HT)", icon: FileText, color: "bg-indigo-500", description: "Signés", valueKey: "totalContractsHT", preferenceKey: "totalContractsHT" },
   { id: "totalInvoicedHT", title: "Total Facturé (HT)", icon: CheckCircle2, color: "bg-emerald-500", description: "Ventes", valueKey: "totalInvoicedHT", preferenceKey: "totalInvoicedHT" },
@@ -81,7 +79,6 @@ const ALL_KPI_DEFINITIONS: KpiCardData[] = [
   { id: "totalProfit", title: "Bénéfice Total", icon: Wallet, color: "bg-teal-600", description: "Estimé", valueKey: "totalProfit", preferenceKey: "showTotalProfit" },
 ];
 
-// Sortable KPICard component
 const SortableKPICard = ({ kpi, summary }: { kpi: KpiCardData; summary: any }) => {
   const {
     attributes,
@@ -143,7 +140,9 @@ const Dashboard = () => {
         setSummary(s);
         setMonthlyData(m.map((d: any) => ({
           ...d,
-          name: new Date(2000, d.month - 1).toLocaleString('fr-FR', { month: 'short' })
+          name: new Date(2000, d.month - 1).toLocaleString('fr-FR', { month: 'short' }),
+          invoicedTTC: computeTTC(d.invoicedHT, 19),
+          purchasesTTC: computeTTC(d.purchasesHT, 19)
         })));
         setCategoryData(c);
         setStatusData([
@@ -152,7 +151,6 @@ const Dashboard = () => {
           { name: 'Non facturée', value: 3 },
         ]);
       } catch (err) {
-        // Fallback mock data
         setSummary({
           totalContractsHT: 125000,
           totalInvoicedHT: 78000,
@@ -164,12 +162,12 @@ const Dashboard = () => {
           totalProfit: 30000, 
         });
         setMonthlyData([
-          { name: 'Jan', invoicedHT: 4000, purchasesHT: 1200 },
-          { name: 'Fév', invoicedHT: 5500, purchasesHT: 1800 },
-          { name: 'Mar', invoicedHT: 8000, purchasesHT: 2100 },
-          { name: 'Avr', invoicedHT: 6000, purchasesHT: 1500 },
-          { name: 'Mai', invoicedHT: 9500, purchasesHT: 3000 },
-          { name: 'Juin', invoicedHT: 12000, purchasesHT: 4500 },
+          { name: 'Jan', invoicedTTC: computeTTC(4000, 19), purchasesTTC: computeTTC(1200, 19) },
+          { name: 'Fév', invoicedTTC: computeTTC(5500, 19), purchasesTTC: computeTTC(1800, 19) },
+          { name: 'Mar', invoicedTTC: computeTTC(8000, 19), purchasesTTC: computeTTC(2100, 19) },
+          { name: 'Avr', invoicedTTC: computeTTC(6000, 19), purchasesTTC: computeTTC(1500, 19) },
+          { name: 'Mai', invoicedTTC: computeTTC(9500, 19), purchasesTTC: computeTTC(3000, 19) },
+          { name: 'Juin', invoicedTTC: computeTTC(12000, 19), purchasesTTC: computeTTC(4500, 19) },
         ]);
         setCategoryData([
           { category: 'Matériel', amountHT: 12000 },
@@ -198,11 +196,8 @@ const Dashboard = () => {
     }
   };
 
-  // Filter and sort KPIs based on preferences and kpiOrder
   const visibleKpis = useMemo(() => {
-    const filteredKpis = ALL_KPI_DEFINITIONS.filter(kpi => preferences[kpi.preferenceKey]);
-
-    // Sort filtered KPIs according to kpiOrder
+    const filteredKpis = ALL_KPI_DEFINITIONS.filter(kpi => preferences[kpi.preferenceKey as keyof typeof preferences]);
     return kpiOrder
       .map(id => filteredKpis.find(kpi => kpi.id === id))
       .filter(Boolean) as KpiCardData[];
@@ -245,7 +240,7 @@ const Dashboard = () => {
             <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/50">
               <div className="flex items-center gap-2">
                 <TrendingUp size={18} className="text-primary" />
-                <CardTitle className="text-lg font-bold">Flux Mensuel (HT)</CardTitle>
+                <CardTitle className="text-lg font-bold">Flux Mensuel (TTC)</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="p-6">
@@ -255,10 +250,14 @@ const Dashboard = () => {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} cursor={{ fill: '#f8fafc' }} />
+                    <Tooltip 
+                      formatter={(value: number) => formatCurrencyDT(value)}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
+                      cursor={{ fill: '#f8fafc' }} 
+                    />
                     <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
-                    <Bar dataKey="invoicedHT" name="Facturé HT" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={30} />
-                    <Bar dataKey="purchasesHT" name="Achats HT" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={30} />
+                    <Bar dataKey="invoicedTTC" name="Facturé TTC" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={30} />
+                    <Bar dataKey="purchasesTTC" name="Achats TTC" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={30} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
