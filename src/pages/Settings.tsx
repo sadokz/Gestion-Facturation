@@ -19,21 +19,25 @@ import {
   Calculator,
   Settings as SettingsIcon,
   Plus,
-  UserPlus
+  UserPlus,
+  TrendingUp,
+  PieChart,
+  Activity
 } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 import { useNavigation } from "@/context/NavigationContext";
+import { useDashboard } from "@/context/DashboardContext";
 import { UserList } from "@/components/settings/UserList";
 import { UserModal } from "@/components/settings/UserModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 const Settings = () => {
   const { tabs, toggleTab } = useNavigation();
+  const { preferences, togglePreference } = useDashboard();
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   
-  // Mock users data with permissions and passwords
   const [users, setUsers] = useState([
     { 
       id: 1, 
@@ -52,15 +56,6 @@ const Settings = () => {
       poste: "CEO", 
       statut: "Actif",
       permissions: { dashboard: true, projects: true, clients: true, companies: true, purchases: true, salaries: true, hr: true, cnss: true, accounting: true, settings: false }
-    },
-    { 
-      id: 3, 
-      nom: "Sarra Mansour", 
-      email: "s.mansour@bureau.tn", 
-      password: "password123",
-      poste: "Comptable", 
-      statut: "Actif",
-      permissions: { dashboard: true, projects: false, clients: false, companies: false, purchases: true, salaries: true, hr: false, cnss: true, accounting: true, settings: false }
     },
   ]);
 
@@ -100,6 +95,21 @@ const Settings = () => {
     </div>
   );
 
+  const DashboardToggle = ({ id, label, icon: Icon }: { id: any, label: string, icon: any }) => (
+    <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-slate-100 rounded-lg text-slate-600">
+          <Icon size={18} />
+        </div>
+        <span className="text-sm font-medium text-slate-700">{label}</span>
+      </div>
+      <Switch 
+        checked={!!preferences[id as keyof typeof preferences]} 
+        onCheckedChange={() => togglePreference(id)} 
+      />
+    </div>
+  );
+
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
       <div className="flex flex-col gap-1">
@@ -115,18 +125,6 @@ const Settings = () => {
         </div>
         <Card className="md:col-span-2 border-none shadow-md">
           <CardContent className="p-6 space-y-4">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-20 h-20 rounded-2xl bg-slate-100 border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:bg-slate-50 cursor-pointer transition-colors">
-                <Building2 size={24} />
-                <span className="text-[10px] mt-1 font-medium">LOGO</span>
-              </div>
-              <div className="flex-1">
-                <h4 className="text-sm font-bold text-slate-800">Logo de l'entreprise</h4>
-                <p className="text-xs text-slate-500">PNG ou JPG, max 2MB. Recommandé : 400x400px.</p>
-                <Button variant="outline" size="sm" className="mt-2 rounded-lg h-8">Changer le logo</Button>
-              </div>
-            </div>
-            <Separator />
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="company-name">Nom du Bureau</Label>
@@ -141,43 +139,26 @@ const Settings = () => {
               <Label htmlFor="address">Adresse Siège</Label>
               <Input id="address" defaultValue="Avenue Habib Bourguiba, Tunis" className="rounded-xl" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email de contact</Label>
-                <Input id="email" type="email" defaultValue="contact@bei.tn" className="rounded-xl" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Téléphone</Label>
-                <Input id="phone" defaultValue="+216 71 000 000" className="rounded-xl" />
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>
 
       <Separator />
 
-      {/* Gestion des Utilisateurs */}
+      {/* Personnalisation du Dashboard */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
-          <h3 className="font-bold text-slate-800">Utilisateurs & Permissions</h3>
-          <p className="text-sm text-slate-500">Gérez les accès individuels aux modules de l'application.</p>
+          <h3 className="font-bold text-slate-800">Éléments du Tableau de Bord</h3>
+          <p className="text-sm text-slate-500">Choisissez les sections à afficher sur votre page d'accueil.</p>
         </div>
-        <div className="md:col-span-2 space-y-4">
-          <div className="flex justify-end">
-            <Button 
-              onClick={() => { setSelectedUser(null); setIsUserModalOpen(true); }} 
-              className="rounded-xl gap-2 h-9 px-4 bg-indigo-600 hover:bg-indigo-700"
-            >
-              <UserPlus size={16} /> Ajouter un utilisateur
-            </Button>
-          </div>
-          <UserList 
-            users={users} 
-            onEdit={(user) => { setSelectedUser(user); setIsUserModalOpen(true); }} 
-            onDelete={(user) => { setSelectedUser(user); setIsConfirmOpen(true); }} 
-          />
-        </div>
+        <Card className="md:col-span-2 border-none shadow-md">
+          <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <DashboardToggle id="showMonthlyFlux" label="Flux Mensuel (TTC)" icon={TrendingUp} />
+            <DashboardToggle id="showProjectStatus" label="Statut des Factures" icon={PieChart} />
+            <DashboardToggle id="showRecentActivity" label="Activité Récente" icon={Activity} />
+            <DashboardToggle id="showTopClients" label="Top Clients" icon={Users} />
+          </CardContent>
+        </Card>
       </div>
 
       <Separator />
@@ -185,8 +166,8 @@ const Settings = () => {
       {/* Gestion Globale des Onglets */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
-          <h3 className="font-bold text-slate-800">Visibilité Globale</h3>
-          <p className="text-sm text-slate-500">Activez ou désactivez les modules pour l'ensemble de l'application.</p>
+          <h3 className="font-bold text-slate-800">Visibilité des Modules</h3>
+          <p className="text-sm text-slate-500">Activez ou désactivez les onglets du menu latéral.</p>
         </div>
         <Card className="md:col-span-2 border-none shadow-md">
           <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -200,30 +181,6 @@ const Settings = () => {
             <TabToggle id="cnss" label="Déclaration CNSS" icon={ShieldCheck} />
             <TabToggle id="accounting" label="Bilan Comptable" icon={Calculator} />
             <TabToggle id="settings" label="Paramètres" icon={SettingsIcon} />
-          </CardContent>
-        </Card>
-      </div>
-
-      <Separator />
-
-      {/* Préférences Financières */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="space-y-1">
-          <h3 className="font-bold text-slate-800">Préférences Financières</h3>
-          <p className="text-sm text-slate-500">Configurez vos taux par défaut et devises.</p>
-        </div>
-        <Card className="md:col-span-2 border-none shadow-md">
-          <CardContent className="p-6 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="default-tva">Taux TVA par défaut (%)</Label>
-                <Input id="default-tva" type="number" defaultValue="19" className="rounded-xl" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="currency">Devise</Label>
-                <Input id="currency" defaultValue="DT (Dinar Tunisien)" disabled className="rounded-xl bg-slate-50" />
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>
