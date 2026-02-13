@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { 
   Search, 
-  Filter, 
   HardHat, 
   User, 
   Building2, 
   Activity,
-  ChevronRight,
-  GripVertical
+  GripVertical,
+  Plus,
+  MoreHorizontal,
+  Edit,
+  Trash2
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { fetcher } from "@/api/config";
@@ -18,11 +20,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
+import { ProjectModal } from "@/components/projects/ProjectModal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
 
 const ProjectTracking = () => {
@@ -30,6 +42,10 @@ const ProjectTracking = () => {
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
 
   const loadProjects = async () => {
     setLoading(true);
@@ -70,11 +86,26 @@ const ProjectTracking = () => {
 
   useEffect(() => { loadProjects(); }, [selectedYear, search]);
 
+  const handleDelete = async () => {
+    try {
+      showSuccess("Projet supprimé");
+      setIsConfirmOpen(false);
+      loadProjects();
+    } catch (err) {
+      showError("Erreur lors de la suppression");
+    }
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold text-slate-900">Suivi Technique</h1>
-        <p className="text-slate-500">Coordination des intervenants et avancement physique des projets</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold text-slate-900">Suivi Technique</h1>
+          <p className="text-slate-500">Coordination des intervenants et avancement physique des projets</p>
+        </div>
+        <Button onClick={() => { setSelectedProject(null); setIsModalOpen(true); }} className="rounded-xl shadow-lg shadow-primary/20 gap-2 h-11 px-6">
+          <Plus size={18} /> Nouveau Projet
+        </Button>
       </div>
 
       <Card className="border-none shadow-md overflow-hidden">
@@ -103,11 +134,12 @@ const ProjectTracking = () => {
                   <ResizableHeader initialWidth={180} className="text-center">Ing. Structure</ResizableHeader>
                   <ResizableHeader initialWidth={180} className="text-center">Bureau de Contrôle</ResizableHeader>
                   <ResizableHeader initialWidth={200} className="text-center">État d'avancement</ResizableHeader>
+                  <ResizableHeader initialWidth={60} resizable={false}></ResizableHeader>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow><TableCell colSpan={8} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={9} className="h-16 text-center">Chargement...</TableCell></TableRow>
                 ) : (
                   projects.map((project) => (
                     <TableRow key={project.id} className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
@@ -163,6 +195,23 @@ const ProjectTracking = () => {
                           <Progress value={project.avancement} className="h-1.5" />
                         </div>
                       </TableCell>
+                      <TableCell className="text-center">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
+                              <MoreHorizontal size={16} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
+                            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}>
+                              <Edit size={14} /> Modifier
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}>
+                              <Trash2 size={14} /> Supprimer
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -171,6 +220,23 @@ const ProjectTracking = () => {
           </div>
         </CardContent>
       </Card>
+
+      <ProjectModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSubmit={() => { showSuccess("Projet enregistré"); setIsModalOpen(false); loadProjects(); }} 
+        initialData={selectedProject} 
+      />
+      
+      <ConfirmDialog 
+        isOpen={isConfirmOpen} 
+        onClose={() => setIsConfirmOpen(false)} 
+        onConfirm={handleDelete} 
+        title="Supprimer le projet ?" 
+        description="Cette action est irréversible et supprimera toutes les données liées." 
+        variant="destructive" 
+        confirmText="Supprimer" 
+      />
     </div>
   );
 };
