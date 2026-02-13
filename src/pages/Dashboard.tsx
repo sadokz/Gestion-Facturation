@@ -81,8 +81,8 @@ const ALL_KPI_DEFINITIONS: KpiCardData[] = [
   { id: "totalPurchasesHT", title: "Total Achats (HT)", icon: ShoppingBag, color: "bg-rose-500", description: "Dépenses", valueKey: "totalPurchasesHT", preferenceKey: "totalPurchasesHT" },
   { id: "totalCnssPaid", title: "Total Payé CNSS", icon: ShieldCheck, color: "bg-blue-600", description: "Cotisations", valueKey: "totalCnssPaid", preferenceKey: "showTotalCnssPaid" },
   { id: "totalSalaries", title: "Total Salaires", icon: Banknote, color: "bg-purple-600", description: "Charges", valueKey: "totalSalaries", preferenceKey: "showTotalSalaries" },
-  { id: "totalRevenue", title: "Chiffre d'affaires", icon: TrendingUp, color: "bg-green-600", description: "Ventes + Autres", valueKey: "totalRevenue", preferenceKey: "showTotalRevenue" },
-  { id: "totalProfit", title: "Bénéfice Total", icon: Wallet, color: "bg-teal-600", description: "Estimé", valueKey: "totalProfit", preferenceKey: "showTotalProfit" },
+  { id: "totalRevenue", title: "Total Encaissé (HT)", icon: TrendingUp, color: "bg-green-600", description: "Ventes payées", valueKey: "totalRevenue", preferenceKey: "showTotalRevenue" },
+  { id: "totalProfit", title: "Bénéfice Réel (HT)", icon: Wallet, color: "bg-teal-600", description: "Sur encaissé", valueKey: "totalProfit", preferenceKey: "showTotalProfit" },
 ];
 
 const SortableKPICard = ({ kpi, summary }: { kpi: KpiCardData; summary: any }) => {
@@ -146,7 +146,15 @@ const Dashboard = () => {
           fetcher(`/dashboard/summary?year=${selectedYear}`),
           fetcher(`/dashboard/monthly?year=${selectedYear}`)
         ]);
-        setSummary(s);
+        
+        // Calcul du bénéfice basé sur l'encaissé réel
+        const calculatedProfit = (s.totalRevenue || 0) - ((s.totalPurchasesHT || 0) + (s.totalSalaries || 0) + (s.totalCnssPaid || 0));
+        
+        setSummary({
+          ...s,
+          totalProfit: calculatedProfit
+        });
+
         setMonthlyData(m.map((d: any) => ({
           ...d,
           name: d.month ? new Date(2000, d.month - 1).toLocaleString('fr-FR', { month: 'short' }) : '?',
@@ -157,7 +165,22 @@ const Dashboard = () => {
         })));
         setStatusData([{ name: 'Payée', value: 15 }, { name: 'En attente', value: 7 }, { name: 'Non facturée', value: 3 }]);
       } catch (err) {
-        setSummary({ totalContractsHT: 125000, totalInvoicedHT: 78000, totalRemainingHT: 47000, totalPurchasesHT: 22000, totalCnssPaid: 15000, totalSalaries: 45000, totalRevenue: 95000, totalProfit: 30000 });
+        // Mock data réaliste pour la démo
+        const mockRevenue = 95000; // Total encaissé
+        const mockExpenses = 22000 + 15000 + 45000; // Achats + CNSS + Salaires = 82000
+        const mockProfit = mockRevenue - mockExpenses; // 13000
+
+        setSummary({ 
+          totalContractsHT: 125000, 
+          totalInvoicedHT: 78000, 
+          totalRemainingHT: 47000, 
+          totalPurchasesHT: 22000, 
+          totalCnssPaid: 15000, 
+          totalSalaries: 45000, 
+          totalRevenue: mockRevenue, 
+          totalProfit: mockProfit 
+        });
+
         setMonthlyData([
           { name: 'Jan', invoicedTTC: computeTTC(4000, 19), pendingInvoicedTTC: computeTTC(1200, 19), purchasesTTC: computeTTC(1200, 19), salaries: 3500 },
           { name: 'Fév', invoicedTTC: computeTTC(5500, 19), pendingInvoicedTTC: computeTTC(2000, 19), purchasesTTC: computeTTC(1800, 19), salaries: 3500 },
