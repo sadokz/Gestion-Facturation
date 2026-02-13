@@ -11,6 +11,7 @@ import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { ThemeProvider } from "./components/theme-provider";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
+import ProjectTracking from "./pages/ProjectTracking";
 import Clients from "./pages/Clients";
 import Companies from "./pages/Companies";
 import Purchases from "./pages/Purchases";
@@ -38,6 +39,7 @@ const App = () => (
                     <Routes>
                       <Route path="/" element={<Dashboard />} />
                       <Route path="/projects" element={<Projects />} />
+                      <Route path="/project-tracking" element={<ProjectTracking />} />
                       <Route path="/clients" element={<Clients />} />
                       <Route path="/companies" element={<Companies />} />
                       <Route path="/purchases" element={<Purchases />} />

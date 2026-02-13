@@ -27,8 +27,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetcher } from "@/api/config";
-import { UploadCloud, FileCheck } from "lucide-react";
+import { UploadCloud, FileCheck, HardHat, User, Building2, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const projectSchema = z.object({
   reference_projet: z.string().min(1, "La référence est requise"),
@@ -40,6 +41,12 @@ const projectSchema = z.object({
   tva_pct: z.coerce.number().default(19),
   statut: z.string().default("Partiellement Facturé"),
   file_contrat: z.any().optional(),
+  // Nouveaux champs techniques
+  architecte: z.string().optional(),
+  ing_fluides: z.string().optional(),
+  ing_structure: z.string().optional(),
+  bureau_controle: z.string().optional(),
+  avancement: z.coerce.number().min(0).max(100).default(0),
 });
 
 interface ProjectModalProps {
@@ -63,6 +70,11 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
       montant_avenant_ht: 0,
       tva_pct: 19,
       statut: "Partiellement Facturé",
+      architecte: "",
+      ing_fluides: "",
+      ing_structure: "",
+      bureau_controle: "",
+      avancement: 0,
     },
   });
 
@@ -87,157 +99,241 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] rounded-2xl overflow-y-auto max-h-[90vh]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[700px] rounded-2xl overflow-hidden p-0">
+        <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-2xl font-bold text-slate-800">
             {initialData ? "Modifier le projet" : "Nouveau projet"}
           </DialogTitle>
         </DialogHeader>
+        
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="reference_projet"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Référence</FormLabel>
-                    <FormControl>
-                      <Input placeholder="PRJ-2026-XXX" {...field} className="rounded-xl" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="date_contrat"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Date contrat</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} className="rounded-xl" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="nom_projet"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nom du projet</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ex: Rénovation..." {...field} className="rounded-xl" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="client"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Client</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="rounded-xl">
-                        <SelectValue placeholder="Sélectionner un client" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {clients.map((client) => (
-                        <SelectItem key={client.id} value={client.nom}>
-                          {client.nom}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="montant_total_ht"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Montant HT (DT)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.001" {...field} className="rounded-xl" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="montant_avenant_ht"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Avenant HT (DT)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.001" {...field} className="rounded-xl" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="tva_pct"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>TVA (%)</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} className="rounded-xl" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col max-h-[85vh]">
+            <Tabs defaultValue="general" className="w-full">
+              <div className="px-6 border-b">
+                <TabsList className="bg-transparent h-12 p-0 gap-6">
+                  <TabsTrigger value="general" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent shadow-none px-0">Infos Générales</TabsTrigger>
+                  <TabsTrigger value="technical" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent shadow-none px-0">Suivi Technique</TabsTrigger>
+                </TabsList>
+              </div>
 
-            <div className="space-y-2 border-t pt-4">
-              <FormLabel className="text-sm font-bold text-slate-700">Document du Contrat</FormLabel>
-              <FormField
-                control={form.control}
-                name="file_contrat"
-                render={({ field: { value, onChange, ...field } }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="relative">
-                        <Input 
-                          type="file" 
-                          className="hidden" 
-                          id="file_contrat" 
-                          onChange={(e) => onChange(e.target.files?.[0])} 
-                        />
-                        <label 
-                          htmlFor="file_contrat" 
-                          className={cn(
-                            "flex flex-col items-center justify-center h-24 border-2 border-dashed rounded-2xl cursor-pointer transition-all",
-                            value ? "bg-primary/5 border-primary/30 text-primary" : "bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100"
-                          )}
-                        >
-                          {value ? <FileCheck size={24} /> : <UploadCloud size={24} />}
-                          <span className="text-xs mt-2 font-bold">
-                            {value ? (value.name || "Contrat sélectionné") : "Téléverser le contrat signé (PDF, Image)"}
-                          </span>
-                        </label>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+              <div className="p-6 overflow-y-auto flex-1">
+                <TabsContent value="general" className="space-y-4 mt-0">
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="reference_projet"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Référence</FormLabel>
+                          <FormControl>
+                            <Input placeholder="PRJ-2026-XXX" {...field} className="rounded-xl" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="date_contrat"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Date contrat</FormLabel>
+                          <FormControl>
+                            <Input type="date" {...field} className="rounded-xl" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="nom_projet"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nom du projet</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ex: Rénovation..." {...field} className="rounded-xl" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="client"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Client (Maître d'Ouvrage)</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="rounded-xl">
+                              <SelectValue placeholder="Sélectionner un client" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {clients.map((client) => (
+                              <SelectItem key={client.id} value={client.nom}>
+                                {client.nom}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="grid grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="montant_total_ht"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Montant HT (DT)</FormLabel>
+                          <FormControl>
+                            <Input type="number" step="0.001" {...field} className="rounded-xl" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="montant_avenant_ht"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Avenant HT (DT)</FormLabel>
+                          <FormControl>
+                            <Input type="number" step="0.001" {...field} className="rounded-xl" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="tva_pct"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>TVA (%)</FormLabel>
+                          <FormControl>
+                            <Input type="number" {...field} className="rounded-xl" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-            <DialogFooter className="pt-4">
+                  <div className="space-y-2 border-t pt-4">
+                    <FormLabel className="text-sm font-bold text-slate-700">Document du Contrat</FormLabel>
+                    <FormField
+                      control={form.control}
+                      name="file_contrat"
+                      render={({ field: { value, onChange, ...field } }) => (
+                        <FormItem>
+                          <FormControl>
+                            <div className="relative">
+                              <Input 
+                                type="file" 
+                                className="hidden" 
+                                id="file_contrat" 
+                                onChange={(e) => onChange(e.target.files?.[0])} 
+                              />
+                              <label 
+                                htmlFor="file_contrat" 
+                                className={cn(
+                                  "flex flex-col items-center justify-center h-24 border-2 border-dashed rounded-2xl cursor-pointer transition-all",
+                                  value ? "bg-primary/5 border-primary/30 text-primary" : "bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100"
+                                )}
+                              >
+                                {value ? <FileCheck size={24} /> : <UploadCloud size={24} />}
+                                <span className="text-xs mt-2 font-bold">
+                                  {value ? (value.name || "Contrat sélectionné") : "Téléverser le contrat signé (PDF, Image)"}
+                                </span>
+                              </label>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="technical" className="space-y-4 mt-0">
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="architecte"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2"><User size={14} /> Architecte</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Nom du cabinet..." {...field} className="rounded-xl" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="bureau_controle"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2"><Building2 size={14} /> Bureau de Contrôle</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Ex: Veritas, Socotec..." {...field} className="rounded-xl" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="ing_fluides"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2"><Activity size={14} /> Ingénieur Fluides</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Nom du BET..." {...field} className="rounded-xl" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="ing_structure"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2"><HardHat size={14} /> Ingénieur Structure</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Nom du BET..." {...field} className="rounded-xl" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="avancement"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex justify-between items-center mb-2">
+                          <FormLabel>État d'avancement physique (%)</FormLabel>
+                          <span className="text-sm font-bold text-primary">{field.value}%</span>
+                        </div>
+                        <FormControl>
+                          <Input type="range" min="0" max="100" step="5" {...field} className="h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-primary" />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </TabsContent>
+              </div>
+            </Tabs>
+
+            <DialogFooter className="p-6 border-t bg-slate-50/50">
               <Button type="button" variant="outline" onClick={onClose} className="rounded-xl">Annuler</Button>
               <Button type="submit" className="rounded-xl px-8">Enregistrer</Button>
             </DialogFooter>

@@ -16,7 +16,8 @@ import {
   UserCheck, 
   ShieldCheck,
   Calculator,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  ClipboardCheck
 } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 import { useNavigation } from "@/context/NavigationContext";
@@ -37,7 +38,7 @@ const Settings = () => {
       password: "password123",
       poste: "Proprietaire", 
       statut: "Actif",
-      permissions: { dashboard: true, projects: true, clients: true, companies: true, purchases: true, salaries: true, hr: true, cnss: true, accounting: true, settings: true }
+      permissions: { dashboard: true, projects: true, projectTracking: true, clients: true, companies: true, purchases: true, salaries: true, hr: true, cnss: true, accounting: true, settings: true }
     },
     { 
       id: 2, 
@@ -46,7 +47,7 @@ const Settings = () => {
       password: "password123",
       poste: "CEO", 
       statut: "Actif",
-      permissions: { dashboard: true, projects: true, clients: true, companies: true, purchases: true, salaries: true, hr: true, cnss: true, accounting: true, settings: false }
+      permissions: { dashboard: true, projects: true, projectTracking: true, clients: true, companies: true, purchases: true, salaries: true, hr: true, cnss: true, accounting: true, settings: false }
     },
   ]);
 
@@ -131,6 +132,7 @@ const Settings = () => {
           <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <TabToggle id="dashboard" label="Tableau de bord" icon={LayoutDashboard} />
             <TabToggle id="projects" label="Projets & Ventes" icon={Briefcase} />
+            <TabToggle id="projectTracking" label="Suivi Technique" icon={ClipboardCheck} />
             <TabToggle id="clients" label="Clients" icon={Users} />
             <TabToggle id="companies" label="Entreprises" icon={Building} />
             <TabToggle id="purchases" label="Achats" icon={ShoppingCart} />

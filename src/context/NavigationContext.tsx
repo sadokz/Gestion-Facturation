@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 interface NavigationState {
   dashboard: boolean;
   projects: boolean;
+  projectTracking: boolean;
   clients: boolean;
   companies: boolean;
   purchases: boolean;
@@ -26,6 +27,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     return saved ? JSON.parse(saved) : {
       dashboard: true,
       projects: true,
+      projectTracking: true,
       clients: true,
       companies: true,
       purchases: true,

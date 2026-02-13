@@ -14,7 +14,8 @@ import {
   ShieldCheck,
   Calculator,
   Settings2,
-  Plus
+  Plus,
+  ClipboardCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useYear } from "@/context/YearContext";
@@ -94,6 +95,14 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               icon={Briefcase} 
               label="Projets & Ventes" 
               active={location.pathname.startsWith("/projects")} 
+            />
+          )}
+          {tabs.projectTracking && (
+            <SidebarItem 
+              to="/project-tracking" 
+              icon={ClipboardCheck} 
+              label="Suivi Technique" 
+              active={location.pathname === "/project-tracking"} 
             />
           )}
           {tabs.clients && (
