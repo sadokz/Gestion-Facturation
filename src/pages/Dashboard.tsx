@@ -18,6 +18,7 @@ import {
 import { KPICard } from "@/components/dashboard/KPICard";
 import { useYear } from "@/context/YearContext";
 import { useDashboard } from "@/context/DashboardContext"; 
+import { usePrivacy } from "@/context/PrivacyContext";
 import { fetcher } from "@/api/config";
 import { 
   BarChart, 
@@ -129,6 +130,7 @@ const SortableSection = ({ id, width, children }: { id: string, width: string, c
 const Dashboard = () => {
   const { selectedYear } = useYear();
   const { preferences, kpiOrder, setKpiOrder, mainSectionOrder, setMainSectionOrder, sectionWidths } = useDashboard(); 
+  const { isPrivate } = usePrivacy();
   const [summary, setSummary] = useState<any>(null);
   const [monthlyData, setMonthlyData] = useState<any[]>([]);
   const [statusData, setStatusData] = useState<any[]>([]); 
@@ -216,7 +218,11 @@ const Dashboard = () => {
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
                       <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                      <Tooltip formatter={(value: number) => formatCurrencyDT(value)} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} cursor={{ fill: '#f8fafc' }} />
+                      <Tooltip 
+                        formatter={(value: number) => isPrivate ? "*****" : formatCurrencyDT(value)} 
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
+                        cursor={{ fill: '#f8fafc' }} 
+                      />
                       <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
                       {preferences.fluxShowInvoiced && <Bar dataKey="invoicedTTC" name="Facturé TTC" stackId="sales" fill={STATUS_COLORS['Payée']} barSize={30} />}
                       {preferences.fluxShowPending && <Bar dataKey="pendingInvoicedTTC" name="En attente TTC" stackId="sales" fill={STATUS_COLORS['En attente']} radius={[4, 4, 0, 0]} barSize={30} />}
@@ -248,7 +254,10 @@ const Dashboard = () => {
                           <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.name as keyof typeof STATUS_COLORS] || '#cbd5e1'} />
                         ))}
                       </Pie>
-                      <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                      <Tooltip 
+                        formatter={(value: number) => isPrivate ? "*****" : value}
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
+                      />
                       <Legend verticalAlign="bottom" iconType="circle" />
                     </PieChart>
                   </ResponsiveContainer>
@@ -284,7 +293,7 @@ const Dashboard = () => {
                         <p className="text-xs text-slate-500">{item.project}</p>
                       </div>
                       <div className="text-right flex flex-col items-end gap-1">
-                        <p className="text-sm font-bold text-slate-700">{formatCurrencyDT(item.amount)}</p>
+                        <p className="text-sm font-bold text-slate-700">{isPrivate ? "*****" : formatCurrencyDT(item.amount)}</p>
                         <p className="text-[10px] text-slate-400 flex items-center gap-1"><CalendarDays size={10} /> {formatDateFR(item.date_emission)}</p>
                       </div>
                     </div>
@@ -316,7 +325,7 @@ const Dashboard = () => {
                       <div className="flex-1">
                         <div className="flex justify-between mb-1">
                           <span className="text-sm font-bold text-slate-800">{client.name}</span>
-                          <span className="text-sm font-bold text-primary">{formatCurrencyDT(client.total)}</span>
+                          <span className="text-sm font-bold text-primary">{isPrivate ? "*****" : formatCurrencyDT(client.total)}</span>
                         </div>
                         <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                           <div className="h-full bg-primary rounded-full" style={{ width: `${(client.total / 100000) * 100}%` }} />
