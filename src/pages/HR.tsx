@@ -25,8 +25,18 @@ import { showSuccess } from "@/utils/toast";
 import { LeaveModal } from "@/components/hr/LeaveModal";
 import { EmployeeLeaveList } from "@/components/hr/EmployeeLeaveList";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
+import { ColumnToggle } from "@/components/ui/ColumnToggle";
 import { useYear } from "@/context/YearContext";
 import { cn } from "@/lib/utils";
+
+const HR_COLUMNS = [
+  { id: "employe", label: "Employé" },
+  { id: "total_conges", label: "Total Congés" },
+  { id: "conges_pris", label: "Congés Pris" },
+  { id: "solde_restant", label: "Solde Restant" },
+  { id: "maladies", label: "Maladies" },
+  { id: "en_attente", label: "En attente" },
+];
 
 const HR = () => {
   const { selectedYear } = useYear();
@@ -34,6 +44,7 @@ const HR = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [expandedEmployees, setExpandedEmployees] = useState<Set<number>>(new Set());
+  const [visibleColumns, setVisibleColumns] = useState(HR_COLUMNS.map(c => c.id));
   
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
@@ -45,7 +56,6 @@ const HR = () => {
       const data = await fetcher(`/employees?q=${search}`);
       setEmployees(data);
     } catch (err) {
-      // Données de secours pour la démonstration
       setEmployees([
         { 
           id: 1, 
@@ -90,6 +100,8 @@ const HR = () => {
       .reduce((sum, l) => sum + (l.nb_jours || 0), 0);
   };
 
+  const isVisible = (id: string) => visibleColumns.includes(id);
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col gap-1">
@@ -115,19 +127,23 @@ const HR = () => {
             <Table className="table-fixed w-full">
               <TableHeader className="bg-slate-50/50">
                 <TableRow className="hover:bg-transparent border-slate-100">
-                  <ResizableHeader initialWidth={60} minWidth={60}></ResizableHeader>
-                  <ResizableHeader initialWidth={220} minWidth={150}>Employé</ResizableHeader>
-                  <ResizableHeader initialWidth={130} minWidth={100} className="text-center">Total Congés</ResizableHeader>
-                  <ResizableHeader initialWidth={130} minWidth={100} className="text-center">Congés Pris</ResizableHeader>
-                  <ResizableHeader initialWidth={130} minWidth={100} className="text-center">Solde Restant</ResizableHeader>
-                  <ResizableHeader initialWidth={120} minWidth={100} className="text-center">Maladies</ResizableHeader>
-                  <ResizableHeader initialWidth={120} minWidth={100} className="text-center">En attente</ResizableHeader>
-                  <ResizableHeader initialWidth={100} minWidth={80}></ResizableHeader>
+                  <ResizableHeader initialWidth={60} minWidth={60} resizable={false}></ResizableHeader>
+                  {isVisible("employe") && <ResizableHeader initialWidth={220} minWidth={150} className="text-center">Employé</ResizableHeader>}
+                  {isVisible("total_conges") && <ResizableHeader initialWidth={130} minWidth={100} className="text-center">Total Congés</ResizableHeader>}
+                  {isVisible("conges_pris") && <ResizableHeader initialWidth={130} minWidth={100} className="text-center">Congés Pris</ResizableHeader>}
+                  {isVisible("solde_restant") && <ResizableHeader initialWidth={130} minWidth={100} className="text-center">Solde Restant</ResizableHeader>}
+                  {isVisible("maladies") && <ResizableHeader initialWidth={120} minWidth={100} className="text-center">Maladies</ResizableHeader>}
+                  {isVisible("en_attente") && <ResizableHeader initialWidth={120} minWidth={100} className="text-center">En attente</ResizableHeader>}
+                  <ResizableHeader initialWidth={100} minWidth={80} resizable={false}>
+                    <div className="flex justify-center">
+                      <ColumnToggle columns={HR_COLUMNS} visibleColumns={visibleColumns} onToggle={(id) => setVisibleColumns(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id])} />
+                    </div>
+                  </ResizableHeader>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow><TableCell colSpan={8} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={visibleColumns.length + 2} className="h-16 text-center">Chargement...</TableCell></TableRow>
                 ) : (
                   employees.map((emp) => {
                     const totalEntitlement = emp.total_leave_entitlement || 30;
@@ -139,53 +155,65 @@ const HR = () => {
                     return (
                       <React.Fragment key={emp.id}>
                         <TableRow className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
-                          <TableCell>
+                          <TableCell className="text-center">
                             <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-indigo-100 hover:text-indigo-600 transition-colors" onClick={() => toggleExpand(emp.id)}>
                               {expandedEmployees.has(emp.id) ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
                             </Button>
                           </TableCell>
-                          <TableCell className="font-bold text-slate-800">
-                            <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
-                                <User size={18} />
+                          {isVisible("employe") && (
+                            <TableCell className="font-bold text-slate-800">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
+                                  <User size={18} />
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="truncate">{emp.prenom} {emp.nom}</span>
+                                  <span className="text-[10px] text-slate-400 font-medium uppercase">{emp.poste}</span>
+                                </div>
                               </div>
-                              <div className="flex flex-col">
-                                <span className="truncate">{emp.prenom} {emp.nom}</span>
-                                <span className="text-[10px] text-slate-400 font-medium uppercase">{emp.poste}</span>
+                            </TableCell>
+                          )}
+                          {isVisible("total_conges") && (
+                            <TableCell className="text-center font-medium text-slate-500">
+                              {totalEntitlement} j
+                            </TableCell>
+                          )}
+                          {isVisible("conges_pris") && (
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-2 text-indigo-600 font-bold">
+                                <Palmtree size={14} />
+                                {takenLeave} j
                               </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center font-medium text-slate-500">
-                            {totalEntitlement} j
-                          </TableCell>
+                            </TableCell>
+                          )}
+                          {isVisible("solde_restant") && (
+                            <TableCell className="text-center">
+                              <div className={cn(
+                                "flex items-center justify-center gap-2 font-black",
+                                remainingLeave > 5 ? "text-emerald-600" : "text-amber-600"
+                              )}>
+                                <PieChart size={14} />
+                                {remainingLeave} j
+                              </div>
+                            </TableCell>
+                          )}
+                          {isVisible("maladies") && (
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-2 text-rose-600 font-bold">
+                                <Stethoscope size={14} />
+                                {sicknessDays} j
+                              </div>
+                            </TableCell>
+                          )}
+                          {isVisible("en_attente") && (
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-2 text-amber-600 font-bold">
+                                <Clock size={14} />
+                                {pendingRequests}
+                              </div>
+                            </TableCell>
+                          )}
                           <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2 text-indigo-600 font-bold">
-                              <Palmtree size={14} />
-                              {takenLeave} j
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <div className={cn(
-                              "flex items-center justify-center gap-2 font-black",
-                              remainingLeave > 5 ? "text-emerald-600" : "text-amber-600"
-                            )}>
-                              <PieChart size={14} />
-                              {remainingLeave} j
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2 text-rose-600 font-bold">
-                              <Stethoscope size={14} />
-                              {sicknessDays} j
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2 text-amber-600 font-bold">
-                              <Clock size={14} />
-                              {pendingRequests}
-                            </div>
-                          </TableCell>
-                          <TableCell>
                             <Button 
                               variant="ghost" 
                               size="sm" 
@@ -198,7 +226,7 @@ const HR = () => {
                         </TableRow>
                         {expandedEmployees.has(emp.id) && (
                           <TableRow className="hover:bg-transparent border-none">
-                            <TableCell colSpan={8} className="p-0">
+                            <TableCell colSpan={visibleColumns.length + 2} className="p-0">
                               <EmployeeLeaveList 
                                 leaves={emp.leaves || []} 
                                 onAdd={() => { setSelectedEmployee(emp); setSelectedLeave(null); setIsLeaveModalOpen(true); }} 
