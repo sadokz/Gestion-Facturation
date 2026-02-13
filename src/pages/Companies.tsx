@@ -352,13 +352,13 @@ const Companies = () => {
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="hover:bg-transparent border-slate-100">
                     <ResizableHeader initialWidth={80} minWidth={60}></ResizableHeader>
-                    {isVisible("nom") && <ResizableHeader initialWidth={250} minWidth={100} sortKey="nom" currentSort={sortConfig} onSort={handleSort}>Entreprise</ResizableHeader>}
-                    {isVisible("matricule_fiscale") && <ResizableHeader initialWidth={180} minWidth={120} sortKey="matricule_fiscale" currentSort={sortConfig} onSort={handleSort}>Matricule Fiscal</ResizableHeader>}
-                    {isVisible("adresse") && <ResizableHeader initialWidth={300} minWidth={150} sortKey="adresse" currentSort={sortConfig} onSort={handleSort}>Adresse</ResizableHeader>}
-                    {isVisible("google_maps") && <ResizableHeader initialWidth={120} minWidth={100}>Google Maps</ResizableHeader>}
-                    {isVisible("tel") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="tel" currentSort={sortConfig} onSort={handleSort}>Téléphone</ResizableHeader>}
-                    {isVisible("fax") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="fax" currentSort={sortConfig} onSort={handleSort}>Fax</ResizableHeader>}
-                    {isVisible("email") && <ResizableHeader initialWidth={250} minWidth={150} sortKey="email" currentSort={sortConfig} onSort={handleSort}>Email</ResizableHeader>}
+                    {isVisible("nom") && <ResizableHeader initialWidth={250} minWidth={100} className="text-center" sortKey="nom" currentSort={sortConfig} onSort={handleSort}>Entreprise</ResizableHeader>}
+                    {isVisible("matricule_fiscale") && <ResizableHeader initialWidth={180} minWidth={120} className="text-center" sortKey="matricule_fiscale" currentSort={sortConfig} onSort={handleSort}>Matricule Fiscal</ResizableHeader>}
+                    {isVisible("adresse") && <ResizableHeader initialWidth={300} minWidth={150} className="text-center" sortKey="adresse" currentSort={sortConfig} onSort={handleSort}>Adresse</ResizableHeader>}
+                    {isVisible("google_maps") && <ResizableHeader initialWidth={120} minWidth={100} className="text-center">Google Maps</ResizableHeader>}
+                    {isVisible("tel") && <ResizableHeader initialWidth={150} minWidth={100} className="text-center" sortKey="tel" currentSort={sortConfig} onSort={handleSort}>Téléphone</ResizableHeader>}
+                    {isVisible("fax") && <ResizableHeader initialWidth={150} minWidth={100} className="text-center" sortKey="fax" currentSort={sortConfig} onSort={handleSort}>Fax</ResizableHeader>}
+                    {isVisible("email") && <ResizableHeader initialWidth={250} minWidth={150} className="text-center" sortKey="email" currentSort={sortConfig} onSort={handleSort}>Email</ResizableHeader>}
                     <ResizableHeader initialWidth={60} minWidth={40}>
                       <ColumnToggle columns={COMPANY_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
                     </ResizableHeader>

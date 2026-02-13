@@ -148,12 +148,12 @@ const Salaries = () => {
               <TableHeader className="bg-slate-50/50">
                 <TableRow className="hover:bg-transparent border-slate-100">
                   <ResizableHeader initialWidth={60} minWidth={60}></ResizableHeader>
-                  {isVisible("nom_complet") && <ResizableHeader initialWidth={220} minWidth={150}>Employé</ResizableHeader>}
-                  {isVisible("cin") && <ResizableHeader initialWidth={110} minWidth={90}>CIN</ResizableHeader>}
-                  {isVisible("poste") && <ResizableHeader initialWidth={160} minWidth={120}>Poste</ResizableHeader>}
-                  {isVisible("salaire_brut") && <ResizableHeader initialWidth={130} minWidth={100} className="text-right">S. Brut</ResizableHeader>}
-                  {isVisible("salaire_net") && <ResizableHeader initialWidth={130} minWidth={100} className="text-right">S. Net</ResizableHeader>}
-                  {isVisible("tel") && <ResizableHeader initialWidth={140} minWidth={100}>Téléphone</ResizableHeader>}
+                  {isVisible("nom_complet") && <ResizableHeader initialWidth={220} minWidth={150} className="text-center">Employé</ResizableHeader>}
+                  {isVisible("cin") && <ResizableHeader initialWidth={110} minWidth={90} className="text-center">CIN</ResizableHeader>}
+                  {isVisible("poste") && <ResizableHeader initialWidth={160} minWidth={120} className="text-center">Poste</ResizableHeader>}
+                  {isVisible("salaire_brut") && <ResizableHeader initialWidth={130} minWidth={100} className="text-center">S. Brut</ResizableHeader>}
+                  {isVisible("salaire_net") && <ResizableHeader initialWidth={130} minWidth={100} className="text-center">S. Net</ResizableHeader>}
+                  {isVisible("tel") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Téléphone</ResizableHeader>}
                   <ResizableHeader initialWidth={60} minWidth={40}>
                     <ColumnToggle columns={EMPLOYEE_COLUMNS} visibleColumns={visibleColumns} onToggle={(id) => setVisibleColumns(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id])} />
                   </ResizableHeader>

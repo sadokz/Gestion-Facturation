@@ -254,14 +254,14 @@ const Purchases = () => {
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="hover:bg-transparent border-slate-100">
                     <ResizableHeader initialWidth={40} resizable={false}></ResizableHeader>
-                    {isVisible("fournisseur") && <ResizableHeader initialWidth={200} minWidth={100} sortKey="fournisseur" currentSort={sortConfig} onSort={handleSort}>Fournisseur</ResizableHeader>}
-                    {isVisible("numero_facture") && <ResizableHeader initialWidth={150} minWidth={80} sortKey="numero_facture" currentSort={sortConfig} onSort={handleSort}>N° Facture</ResizableHeader>}
-                    {isVisible("date_facture") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="date_facture" currentSort={sortConfig} onSort={handleSort}>Date Facture</ResizableHeader>}
-                    {isVisible("date_payement") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="date_payement" currentSort={sortConfig} onSort={handleSort}>Date Paiement</ResizableHeader>}
-                    {isVisible("categorie") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="categorie" currentSort={sortConfig} onSort={handleSort}>Catégorie</ResizableHeader>}
-                    {isVisible("montant_ht") && <ResizableHeader initialWidth={150} minWidth={100} className="text-right" sortKey="montant_ht" currentSort={sortConfig} onSort={handleSort}>Montant HT</ResizableHeader>}
-                    {isVisible("ttc") && <ResizableHeader initialWidth={150} minWidth={100} className="text-right" sortKey="ttc" currentSort={sortConfig} onSort={handleSort}>TTC</ResizableHeader>}
-                    {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} sortKey="statut" currentSort={sortConfig} onSort={handleSort}>Statut</ResizableHeader>}
+                    {isVisible("fournisseur") && <ResizableHeader initialWidth={200} minWidth={100} className="text-center" sortKey="fournisseur" currentSort={sortConfig} onSort={handleSort}>Fournisseur</ResizableHeader>}
+                    {isVisible("numero_facture") && <ResizableHeader initialWidth={150} minWidth={80} className="text-center" sortKey="numero_facture" currentSort={sortConfig} onSort={handleSort}>N° Facture</ResizableHeader>}
+                    {isVisible("date_facture") && <ResizableHeader initialWidth={150} minWidth={100} className="text-center" sortKey="date_facture" currentSort={sortConfig} onSort={handleSort}>Date Facture</ResizableHeader>}
+                    {isVisible("date_payement") && <ResizableHeader initialWidth={150} minWidth={100} className="text-center" sortKey="date_payement" currentSort={sortConfig} onSort={handleSort}>Date Paiement</ResizableHeader>}
+                    {isVisible("categorie") && <ResizableHeader initialWidth={150} minWidth={100} className="text-center" sortKey="categorie" currentSort={sortConfig} onSort={handleSort}>Catégorie</ResizableHeader>}
+                    {isVisible("montant_ht") && <ResizableHeader initialWidth={150} minWidth={100} className="text-center" sortKey="montant_ht" currentSort={sortConfig} onSort={handleSort}>Montant HT</ResizableHeader>}
+                    {isVisible("ttc") && <ResizableHeader initialWidth={150} minWidth={100} className="text-center" sortKey="ttc" currentSort={sortConfig} onSort={handleSort}>TTC</ResizableHeader>}
+                    {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} className="text-center" sortKey="statut" currentSort={sortConfig} onSort={handleSort}>Statut</ResizableHeader>}
                     <ResizableHeader initialWidth={50} resizable={false}>
                       <ColumnToggle columns={PURCHASE_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
                     </ResizableHeader>
