@@ -27,6 +27,11 @@ export const TechnicalSubEntriesList: React.FC<TechnicalSubEntriesListProps> = (
   onAdd,
   onEdit 
 }) => {
+  // Tri automatique par date (décroissant : plus récent en premier)
+  const sortedEntries = [...entries].sort((a, b) => {
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
+  });
+
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "Réunion": return <Users size={14} className="text-blue-500" />;
@@ -56,8 +61,8 @@ export const TechnicalSubEntriesList: React.FC<TechnicalSubEntriesListProps> = (
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {entries.length > 0 ? (
-          entries.map((entry, idx) => (
+        {sortedEntries.length > 0 ? (
+          sortedEntries.map((entry, idx) => (
             <div 
               key={entry.id || idx} 
               className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm group hover:border-primary/30 transition-all flex flex-col"
