@@ -41,6 +41,7 @@ import { ProjectModal } from "@/components/projects/ProjectModal";
 import { TechnicalEntryModal } from "@/components/projects/TechnicalEntryModal";
 import { TechnicalSubEntriesList } from "@/components/projects/TechnicalSubEntriesList";
 import { TechnicalClientResponsibles } from "@/components/projects/TechnicalClientResponsibles";
+import { TechnicalEnterpriseResponsibles } from "@/components/projects/TechnicalEnterpriseResponsibles";
 import { ResponsibleModal } from "@/components/clients/ResponsibleModal";
 import { ContactSelectionModal } from "@/components/projects/ContactSelectionModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -71,6 +72,7 @@ const ProjectTracking = () => {
   const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
   const [isRespModalOpen, setIsRespModalOpen] = useState(false);
   const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
+  const [isEnterpriseSelectionModalOpen, setIsEnterpriseSelectionModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isRespConfirmOpen, setIsRespConfirmOpen] = useState(false);
   
@@ -102,6 +104,9 @@ const ProjectTracking = () => {
             { id: 101, nom: "M. Ahmed Ben Salah", role: "Directeur Technique", tel: "98 000 111", email: "ahmed.salah@commune.tn" }, 
             { id: 102, nom: "Mme. Sarra Mansour", role: "Chef de Projet", tel: "22 333 444", email: "sarra.m@commune.tn" }
           ],
+          enterprise_responsibles: [
+            { id: 301, nom: "M. Foulen Ben Foulen", role: "Conducteur de Travaux", tel: "55 111 222", email: "foulen@sotetra.tn" }
+          ],
           technical_entries: [
             { id: 1, type: "Réunion", date: "2026-03-10", libelle: "Réunion de chantier n°4", effectue_par: "Ing. Ahmed", intervenants: "Architecte, Client", compte_rendu: "Validation des plans d'exécution." },
             { id: 2, type: "Relevée", date: "2026-03-12", libelle: "Relevé topographique", effectue_par: "Techn. Sami", intervenants: "Géomètre", compte_rendu: "Prise de cotes sur la zone A." }
@@ -121,6 +126,7 @@ const ProjectTracking = () => {
           avancement: 30,
           statut_technique: "Démarrage",
           client_responsibles: [],
+          enterprise_responsibles: [],
           technical_entries: []
         },
       ]);
@@ -152,6 +158,7 @@ const ProjectTracking = () => {
   const handleSelection = (selectedIds: number[]) => {
     showSuccess("Liste des intervenants mise à jour");
     setIsSelectionModalOpen(false);
+    setIsEnterpriseSelectionModalOpen(false);
     loadProjects();
   };
 
@@ -344,6 +351,14 @@ const ProjectTracking = () => {
                                 onDelete={(resp) => { setSelectedResp(resp); setIsRespConfirmOpen(true); }}
                                 onHide={handleHideResp}
                               />
+                              <TechnicalEnterpriseResponsibles 
+                                enterpriseName={project.entreprise_travaux} 
+                                responsibles={project.enterprise_responsibles || []} 
+                                onManage={() => { setSelectedProject(project); setIsEnterpriseSelectionModalOpen(true); }}
+                                onEdit={(resp) => { setSelectedProject(project); setSelectedResp(resp); setIsRespModalOpen(true); }}
+                                onDelete={(resp) => { setSelectedResp(resp); setIsRespConfirmOpen(true); }}
+                                onHide={handleHideResp}
+                              />
                               <TechnicalSubEntriesList 
                                 entries={project.technical_entries || []} 
                                 onAdd={() => { setSelectedProject(project); setSelectedEntry(null); setIsEntryModalOpen(true); }} 
@@ -385,6 +400,15 @@ const ProjectTracking = () => {
         onAddNew={() => { setIsSelectionModalOpen(false); setSelectedResp(null); setIsRespModalOpen(true); }}
         clientName={selectedProject?.client || ""}
         currentlyLinkedIds={selectedProject?.client_responsibles?.map((r: any) => r.id) || []}
+      />
+
+      <ContactSelectionModal 
+        isOpen={isEnterpriseSelectionModalOpen}
+        onClose={() => setIsEnterpriseSelectionModalOpen(false)}
+        onSelect={handleSelection}
+        onAddNew={() => { setIsEnterpriseSelectionModalOpen(false); setSelectedResp(null); setIsRespModalOpen(true); }}
+        clientName={selectedProject?.entreprise_travaux || ""}
+        currentlyLinkedIds={selectedProject?.enterprise_responsibles?.map((r: any) => r.id) || []}
       />
 
       <ResponsibleModal 
