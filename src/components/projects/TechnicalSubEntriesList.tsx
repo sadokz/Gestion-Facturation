@@ -10,12 +10,15 @@ import {
   MessageSquare,
   Send,
   Inbox,
-  UserCheck
+  UserCheck,
+  FileText,
+  UploadCloud
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDateFR } from "@/utils/formatters";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TechnicalSubEntriesListProps {
   entries: any[];
@@ -87,9 +90,29 @@ export const TechnicalSubEntriesList: React.FC<TechnicalSubEntriesListProps> = (
                     </Badge>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => onEdit(entry)}>
-                  <Edit size={12} />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); onEdit(entry); }}
+                        className={cn(
+                          "flex items-center justify-center w-7 h-7 rounded-lg border transition-all",
+                          entry.file_intervention 
+                            ? "bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100" 
+                            : "bg-slate-50 border-slate-200 text-slate-400 hover:border-primary/30 hover:text-primary"
+                        )}
+                      >
+                        {entry.file_intervention ? <FileText size={14} /> : <UploadCloud size={14} />}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs">{entry.file_intervention ? "Voir le document" : "Ajouter un document"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => onEdit(entry)}>
+                    <Edit size={12} />
+                  </Button>
+                </div>
               </div>
               
               <div className="space-y-2 mb-3">

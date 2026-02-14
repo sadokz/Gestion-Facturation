@@ -27,6 +27,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { UploadCloud, FileCheck } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const entrySchema = z.object({
   type: z.string().min(1, "Le type est requis"),
@@ -36,6 +38,7 @@ const entrySchema = z.object({
   intervenants: z.string().optional(),
   compte_rendu: z.string().optional(),
   statut: z.string().default("Terminé"),
+  file_intervention: z.any().optional(),
 });
 
 interface TechnicalEntryModalProps {
@@ -80,7 +83,7 @@ export const TechnicalEntryModal: React.FC<TechnicalEntryModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] rounded-2xl">
+      <DialogContent className="sm:max-w-[500px] rounded-2xl overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-slate-800">
             Nouvelle entrée : {projectName}
@@ -153,6 +156,42 @@ export const TechnicalEntryModal: React.FC<TechnicalEntryModalProps> = ({
                 </FormItem>
               )}
             />
+            
+            <div className="space-y-2 border-t pt-4">
+              <FormLabel className="text-sm font-bold text-slate-700">Document joint (PV, Décharge, Lettre...)</FormLabel>
+              <FormField
+                control={form.control}
+                name="file_intervention"
+                render={({ field: { value, onChange, ...field } }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="relative">
+                        <Input 
+                          type="file" 
+                          className="hidden" 
+                          id="file_intervention" 
+                          onChange={(e) => onChange(e.target.files?.[0])} 
+                        />
+                        <label 
+                          htmlFor="file_intervention" 
+                          className={cn(
+                            "flex flex-col items-center justify-center h-24 border-2 border-dashed rounded-2xl cursor-pointer transition-all",
+                            value ? "bg-emerald-50 border-emerald-200 text-emerald-600" : "bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100"
+                          )}
+                        >
+                          {value ? <FileCheck size={24} /> : <UploadCloud size={24} />}
+                          <span className="text-xs mt-2 font-bold">
+                            {value ? (value.name || "Document sélectionné") : "Téléverser le document"}
+                          </span>
+                        </label>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <FormField
               control={form.control}
               name="intervenants"
