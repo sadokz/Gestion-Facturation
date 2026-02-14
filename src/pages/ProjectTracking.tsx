@@ -230,7 +230,7 @@ const ProjectTracking = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
                               <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}>
-                                <Edit size={14} /> Modifier Projet
+                                <Edit size={14} /> Modifier Suivi
                               </DropdownMenuItem>
                               <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}>
                                 <Trash2 size={14} /> Supprimer
@@ -262,8 +262,9 @@ const ProjectTracking = () => {
       <ProjectModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        onSubmit={() => { showSuccess("Projet enregistré"); setIsModalOpen(false); loadProjects(); }} 
+        onSubmit={() => { showSuccess("Suivi technique mis à jour"); setIsModalOpen(false); loadProjects(); }} 
         initialData={selectedProject} 
+        technicalOnly={true}
       />
 
       <TechnicalEntryModal 

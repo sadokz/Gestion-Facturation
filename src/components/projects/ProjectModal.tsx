@@ -41,7 +41,6 @@ const projectSchema = z.object({
   tva_pct: z.coerce.number().default(19),
   statut: z.string().default("Partiellement Facturé"),
   file_contrat: z.any().optional(),
-  // Nouveaux champs techniques
   architecte: z.string().optional(),
   ing_fluides: z.string().optional(),
   ing_structure: z.string().optional(),
@@ -54,9 +53,16 @@ interface ProjectModalProps {
   onClose: () => void;
   onSubmit: (data: any) => void;
   initialData?: any;
+  technicalOnly?: boolean;
 }
 
-export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onSubmit, initialData }) => {
+export const ProjectModal: React.FC<ProjectModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  onSubmit, 
+  initialData,
+  technicalOnly = false 
+}) => {
   const [clients, setClients] = useState<any[]>([]);
 
   const form = useForm({
@@ -102,31 +108,66 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
       <DialogContent className="sm:max-w-[700px] rounded-2xl overflow-hidden p-0">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-2xl font-bold text-slate-800">
-            {initialData ? "Modifier le projet" : "Nouveau projet"}
+            {technicalOnly ? "Suivi Technique" : (initialData ? "Modifier le projet" : "Nouveau projet")}
           </DialogTitle>
+          {technicalOnly && initialData && (
+            <p className="text-sm text-slate-500 font-medium px-0 mt-1">
+              {initialData.reference_projet} - {initialData.nom_projet}
+            </p>
+          )}
         </DialogHeader>
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col max-h-[85vh]">
-            <Tabs defaultValue="general" className="w-full">
-              <div className="px-6 border-b">
-                <TabsList className="bg-transparent h-12 p-0 gap-6">
-                  <TabsTrigger value="general" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent shadow-none px-0">Infos Générales</TabsTrigger>
-                  <TabsTrigger value="technical" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent shadow-none px-0">Suivi Technique</TabsTrigger>
-                </TabsList>
-              </div>
+            <Tabs defaultValue={technicalOnly ? "technical" : "general"} className="w-full">
+              {!technicalOnly && (
+                <div className="px-6 border-b">
+                  <TabsList className="bg-transparent h-12 p-0 gap-6">
+                    <TabsTrigger value="general" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent shadow-none px-0">Infos Générales</TabsTrigger>
+                    <TabsTrigger value="technical" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent shadow-none px-0">Suivi Technique</TabsTrigger>
+                  </TabsList>
+                </div>
+              )}
 
               <div className="p-6 overflow-y-auto flex-1">
-                <TabsContent value="general" className="space-y-4 mt-0">
-                  <div className="grid grid-cols-2 gap-4">
+                {!technicalOnly && (
+                  <TabsContent value="general" className="space-y-4 mt-0">
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="reference_projet"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Référence</FormLabel>
+                            <FormControl>
+                              <Input placeholder="PRJ-2026-XXX" {...field} className="rounded-xl" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="date_contrat"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Date contrat</FormLabel>
+                            <FormControl>
+                              <Input type="date" {...field} className="rounded-xl" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                     <FormField
                       control={form.control}
-                      name="reference_projet"
+                      name="nom_projet"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Référence</FormLabel>
+                          <FormLabel>Nom du projet</FormLabel>
                           <FormControl>
-                            <Input placeholder="PRJ-2026-XXX" {...field} className="rounded-xl" />
+                            <Input placeholder="Ex: Rénovation..." {...field} className="rounded-xl" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -134,132 +175,106 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
                     />
                     <FormField
                       control={form.control}
-                      name="date_contrat"
+                      name="client"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Date contrat</FormLabel>
-                          <FormControl>
-                            <Input type="date" {...field} className="rounded-xl" />
-                          </FormControl>
+                          <FormLabel>Client (Maître d'Ouvrage)</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="rounded-xl">
+                                <SelectValue placeholder="Sélectionner un client" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {clients.map((client) => (
+                                <SelectItem key={client.id} value={client.nom}>
+                                  {client.nom}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="nom_projet"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nom du projet</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Ex: Rénovation..." {...field} className="rounded-xl" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="client"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Client (Maître d'Ouvrage)</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="rounded-xl">
-                              <SelectValue placeholder="Sélectionner un client" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {clients.map((client) => (
-                              <SelectItem key={client.id} value={client.nom}>
-                                {client.nom}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="grid grid-cols-3 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="montant_total_ht"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Montant HT (DT)</FormLabel>
-                          <FormControl>
-                            <Input type="number" step="0.001" {...field} className="rounded-xl" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="montant_avenant_ht"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Avenant HT (DT)</FormLabel>
-                          <FormControl>
-                            <Input type="number" step="0.001" {...field} className="rounded-xl" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="tva_pct"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>TVA (%)</FormLabel>
-                          <FormControl>
-                            <Input type="number" {...field} className="rounded-xl" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="montant_total_ht"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Montant HT (DT)</FormLabel>
+                            <FormControl>
+                              <Input type="number" step="0.001" {...field} className="rounded-xl" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="montant_avenant_ht"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Avenant HT (DT)</FormLabel>
+                            <FormControl>
+                              <Input type="number" step="0.001" {...field} className="rounded-xl" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="tva_pct"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>TVA (%)</FormLabel>
+                            <FormControl>
+                              <Input type="number" {...field} className="rounded-xl" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
 
-                  <div className="space-y-2 border-t pt-4">
-                    <FormLabel className="text-sm font-bold text-slate-700">Document du Contrat</FormLabel>
-                    <FormField
-                      control={form.control}
-                      name="file_contrat"
-                      render={({ field: { value, onChange, ...field } }) => (
-                        <FormItem>
-                          <FormControl>
-                            <div className="relative">
-                              <Input 
-                                type="file" 
-                                className="hidden" 
-                                id="file_contrat" 
-                                onChange={(e) => onChange(e.target.files?.[0])} 
-                              />
-                              <label 
-                                htmlFor="file_contrat" 
-                                className={cn(
-                                  "flex flex-col items-center justify-center h-24 border-2 border-dashed rounded-2xl cursor-pointer transition-all",
-                                  value ? "bg-primary/5 border-primary/30 text-primary" : "bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100"
-                                )}
-                              >
-                                {value ? <FileCheck size={24} /> : <UploadCloud size={24} />}
-                                <span className="text-xs mt-2 font-bold">
-                                  {value ? (value.name || "Contrat sélectionné") : "Téléverser le contrat signé (PDF, Image)"}
-                                </span>
-                              </label>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </TabsContent>
+                    <div className="space-y-2 border-t pt-4">
+                      <FormLabel className="text-sm font-bold text-slate-700">Document du Contrat</FormLabel>
+                      <FormField
+                        control={form.control}
+                        name="file_contrat"
+                        render={({ field: { value, onChange, ...field } }) => (
+                          <FormItem>
+                            <FormControl>
+                              <div className="relative">
+                                <Input 
+                                  type="file" 
+                                  className="hidden" 
+                                  id="file_contrat" 
+                                  onChange={(e) => onChange(e.target.files?.[0])} 
+                                />
+                                <label 
+                                  htmlFor="file_contrat" 
+                                  className={cn(
+                                    "flex flex-col items-center justify-center h-24 border-2 border-dashed rounded-2xl cursor-pointer transition-all",
+                                    value ? "bg-primary/5 border-primary/30 text-primary" : "bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100"
+                                  )}
+                                >
+                                  {value ? <FileCheck size={24} /> : <UploadCloud size={24} />}
+                                  <span className="text-xs mt-2 font-bold">
+                                    {value ? (value.name || "Contrat sélectionné") : "Téléverser le contrat signé (PDF, Image)"}
+                                  </span>
+                                </label>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </TabsContent>
+                )}
 
                 <TabsContent value="technical" className="space-y-4 mt-0">
                   <div className="grid grid-cols-2 gap-4">
