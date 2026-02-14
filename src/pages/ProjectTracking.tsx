@@ -36,6 +36,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
+import { ColumnToggle } from "@/components/ui/ColumnToggle";
 import { ProjectModal } from "@/components/projects/ProjectModal";
 import { TechnicalEntryModal } from "@/components/projects/TechnicalEntryModal";
 import { TechnicalSubEntriesList } from "@/components/projects/TechnicalSubEntriesList";
@@ -46,12 +47,25 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
 
+const TRACKING_COLUMNS = [
+  { id: "reference_projet", label: "Référence" },
+  { id: "nom_projet", label: "Projet / Client" },
+  { id: "responsable_interne", label: "Resp. Interne" },
+  { id: "architecte", label: "Architecte" },
+  { id: "ing_fluides", label: "Ing. Fluides" },
+  { id: "ing_structure", label: "Ing. Structure" },
+  { id: "bureau_controle", label: "Bureau de Contrôle" },
+  { id: "entreprise_travaux", label: "Entreprise" },
+  { id: "avancement", label: "Avancement Études" },
+];
+
 const ProjectTracking = () => {
   const { selectedYear } = useYear();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [expandedProjects, setExpandedProjects] = useState<Set<number>>(new Set());
+  const [visibleColumns, setVisibleColumns] = useState(TRACKING_COLUMNS.map(c => c.id));
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
@@ -124,6 +138,12 @@ const ProjectTracking = () => {
     setExpandedProjects(newExpanded);
   };
 
+  const toggleColumn = (id: string) => {
+    setVisibleColumns(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
+  };
+
+  const isVisible = (id: string) => visibleColumns.includes(id);
+
   const handleHideResp = (resp: any) => {
     showSuccess(`${resp.nom} masqué pour ce projet`);
     loadProjects();
@@ -186,21 +206,23 @@ const ProjectTracking = () => {
               <TableHeader className="bg-slate-50/50">
                 <TableRow className="hover:bg-transparent border-slate-100">
                   <ResizableHeader initialWidth={60} resizable={false}></ResizableHeader>
-                  <ResizableHeader initialWidth={120} className="text-center">Référence</ResizableHeader>
-                  <ResizableHeader initialWidth={220} className="text-center">Projet / Maître d'Ouvrage</ResizableHeader>
-                  <ResizableHeader initialWidth={160} className="text-center">Resp. Interne</ResizableHeader>
-                  <ResizableHeader initialWidth={160} className="text-center">Architecte</ResizableHeader>
-                  <ResizableHeader initialWidth={160} className="text-center">Ing. Fluides</ResizableHeader>
-                  <ResizableHeader initialWidth={160} className="text-center">Ing. Structure</ResizableHeader>
-                  <ResizableHeader initialWidth={160} className="text-center">Bureau de Contrôle</ResizableHeader>
-                  <ResizableHeader initialWidth={160} className="text-center">Entreprise</ResizableHeader>
-                  <ResizableHeader initialWidth={180} className="text-center">Avancement Études</ResizableHeader>
-                  <ResizableHeader initialWidth={60} resizable={false}></ResizableHeader>
+                  {isVisible("reference_projet") && <ResizableHeader initialWidth={120} className="text-center">Référence</ResizableHeader>}
+                  {isVisible("nom_projet") && <ResizableHeader initialWidth={220} className="text-center">Projet / Maître d'Ouvrage</ResizableHeader>}
+                  {isVisible("responsable_interne") && <ResizableHeader initialWidth={160} className="text-center">Resp. Interne</ResizableHeader>}
+                  {isVisible("architecte") && <ResizableHeader initialWidth={160} className="text-center">Architecte</ResizableHeader>}
+                  {isVisible("ing_fluides") && <ResizableHeader initialWidth={160} className="text-center">Ing. Fluides</ResizableHeader>}
+                  {isVisible("ing_structure") && <ResizableHeader initialWidth={160} className="text-center">Ing. Structure</ResizableHeader>}
+                  {isVisible("bureau_controle") && <ResizableHeader initialWidth={160} className="text-center">Bureau de Contrôle</ResizableHeader>}
+                  {isVisible("entreprise_travaux") && <ResizableHeader initialWidth={160} className="text-center">Entreprise</ResizableHeader>}
+                  {isVisible("avancement") && <ResizableHeader initialWidth={180} className="text-center">Avancement Études</ResizableHeader>}
+                  <ResizableHeader initialWidth={60} resizable={false}>
+                    <ColumnToggle columns={TRACKING_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
+                  </ResizableHeader>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow><TableCell colSpan={11} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={visibleColumns.length + 2} className="h-16 text-center">Chargement...</TableCell></TableRow>
                 ) : (
                   projects.map((project) => (
                     <React.Fragment key={project.id}>
@@ -215,65 +237,83 @@ const ProjectTracking = () => {
                             </Button>
                           </div>
                         </TableCell>
-                        <TableCell className="font-mono text-[11px] font-bold text-primary text-center">
-                          {project.reference_projet}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="font-bold text-slate-800 text-sm truncate">{project.nom_projet}</span>
-                            <span className="text-[10px] text-slate-500 uppercase font-medium truncate">{project.client}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex items-center justify-center gap-2 text-xs font-bold text-indigo-600">
-                            <UserCheck size={12} className="shrink-0" />
-                            {project.responsable_interne || "-"}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
-                            <User size={12} className="text-slate-400" />
-                            {project.architecte || "-"}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
-                            <Activity size={12} className="text-slate-400" />
-                            {project.ing_fluides || "-"}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
-                            <HardHat size={12} className="text-slate-400" />
-                            {project.ing_structure || "-"}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
-                            <Building2 size={12} className="text-slate-400" />
-                            {project.bureau_controle || "-"}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex items-center justify-center gap-2 text-xs font-bold text-amber-600">
-                            <Construction size={12} className="shrink-0" />
-                            {project.entreprise_travaux || "-"}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-2 px-2">
-                            <div className="flex justify-between items-center">
-                              <Badge variant="outline" className={cn(
-                                "text-[9px] h-4 px-1.5",
-                                project.avancement === 100 ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-blue-50 text-blue-600 border-blue-100"
-                              )}>
-                                {project.avancement === 100 ? "Terminé" : "En cours"}
-                              </Badge>
-                              <span className="text-[10px] font-black text-slate-600">{project.avancement}%</span>
+                        {isVisible("reference_projet") && (
+                          <TableCell className="font-mono text-[11px] font-bold text-primary text-center">
+                            {project.reference_projet}
+                          </TableCell>
+                        )}
+                        {isVisible("nom_projet") && (
+                          <TableCell>
+                            <div className="flex flex-col">
+                              <span className="font-bold text-slate-800 text-sm truncate">{project.nom_projet}</span>
+                              <span className="text-[10px] text-slate-500 uppercase font-medium truncate">{project.client}</span>
                             </div>
-                            <Progress value={project.avancement} className="h-1.5" />
-                          </div>
-                        </TableCell>
+                          </TableCell>
+                        )}
+                        {isVisible("responsable_interne") && (
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center gap-2 text-xs font-bold text-indigo-600">
+                              <UserCheck size={12} className="shrink-0" />
+                              {project.responsable_interne || "-"}
+                            </div>
+                          </TableCell>
+                        )}
+                        {isVisible("architecte") && (
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
+                              <User size={12} className="text-slate-400" />
+                              {project.architecte || "-"}
+                            </div>
+                          </TableCell>
+                        )}
+                        {isVisible("ing_fluides") && (
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
+                              <Activity size={12} className="text-slate-400" />
+                              {project.ing_fluides || "-"}
+                            </div>
+                          </TableCell>
+                        )}
+                        {isVisible("ing_structure") && (
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
+                              <HardHat size={12} className="text-slate-400" />
+                              {project.ing_structure || "-"}
+                            </div>
+                          </TableCell>
+                        )}
+                        {isVisible("bureau_controle") && (
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
+                              <Building2 size={12} className="text-slate-400" />
+                              {project.bureau_controle || "-"}
+                            </div>
+                          </TableCell>
+                        )}
+                        {isVisible("entreprise_travaux") && (
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center gap-2 text-xs font-bold text-amber-600">
+                              <Construction size={12} className="shrink-0" />
+                              {project.entreprise_travaux || "-"}
+                            </div>
+                          </TableCell>
+                        )}
+                        {isVisible("avancement") && (
+                          <TableCell>
+                            <div className="space-y-2 px-2">
+                              <div className="flex justify-between items-center">
+                                <Badge variant="outline" className={cn(
+                                  "text-[9px] h-4 px-1.5",
+                                  project.avancement === 100 ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-blue-50 text-blue-600 border-blue-100"
+                                )}>
+                                  {project.avancement === 100 ? "Terminé" : "En cours"}
+                                </Badge>
+                                <span className="text-[10px] font-black text-slate-600">{project.avancement}%</span>
+                              </div>
+                              <Progress value={project.avancement} className="h-1.5" />
+                            </div>
+                          </TableCell>
+                        )}
                         <TableCell className="text-center">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -294,7 +334,7 @@ const ProjectTracking = () => {
                       </TableRow>
                       {expandedProjects.has(project.id) && (
                         <TableRow className="hover:bg-transparent border-none">
-                          <TableCell colSpan={11} className="p-0">
+                          <TableCell colSpan={visibleColumns.length + 2} className="p-0">
                             <div className="flex flex-col">
                               <TechnicalClientResponsibles 
                                 clientName={project.client} 
