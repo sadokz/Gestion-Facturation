@@ -81,9 +81,8 @@ const ProjectTracking = () => {
           avancement: 65,
           statut_technique: "En cours",
           client_responsibles: [
-            { id: 101, nom: "M. Ahmed Ben Salah", role: "Directeur Technique", tel: "98 000 111", email: "ahmed.salah@commune.tn", projets_suivis: "Eclairage Avenue, Rénovation Pont" }, 
-            { id: 102, nom: "Mme. Sarra Mansour", role: "Chef de Projet", tel: "22 333 444", email: "sarra.m@commune.tn", projets_suivis: "Eclairage Avenue" },
-            { id: 103, nom: "M. Foulen", role: "Autre", tel: "00 000 000", email: "f@c.tn", projets_suivis: "Autre Projet" }
+            { id: 101, nom: "M. Ahmed Ben Salah", role: "Directeur Technique", tel: "98 000 111", email: "ahmed.salah@commune.tn" }, 
+            { id: 102, nom: "Mme. Sarra Mansour", role: "Chef de Projet", tel: "22 333 444", email: "sarra.m@commune.tn" }
           ],
           technical_entries: [
             { id: 1, type: "Réunion", date: "2026-03-10", libelle: "Réunion de chantier n°4", effectue_par: "Ing. Ahmed", intervenants: "Architecte, Client", compte_rendu: "Validation des plans d'exécution." },
@@ -276,8 +275,6 @@ const ProjectTracking = () => {
                             <div className="flex flex-col">
                               <TechnicalClientResponsibles 
                                 clientName={project.client} 
-                                projectName={project.nom_projet}
-                                projectRef={project.reference_projet}
                                 responsibles={project.client_responsibles || []} 
                                 onAdd={() => { setSelectedProject(project); setSelectedResp(null); setIsRespModalOpen(true); }}
                                 onEdit={(resp) => { setSelectedProject(project); setSelectedResp(resp); setIsRespModalOpen(true); }}
