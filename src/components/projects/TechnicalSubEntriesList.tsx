@@ -7,7 +7,9 @@ import {
   ClipboardList, 
   MapPin, 
   CheckCircle2,
-  MessageSquare
+  MessageSquare,
+  Send,
+  Inbox
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDateFR } from "@/utils/formatters";
@@ -30,6 +32,8 @@ export const TechnicalSubEntriesList: React.FC<TechnicalSubEntriesListProps> = (
       case "Réunion": return <Users size={14} className="text-blue-500" />;
       case "Relevée": return <MapPin size={14} className="text-emerald-500" />;
       case "Tache": return <ClipboardList size={14} className="text-amber-500" />;
+      case "Envoyé": return <Send size={14} className="text-indigo-500" />;
+      case "Reçu": return <Inbox size={14} className="text-rose-500" />;
       default: return <CheckCircle2 size={14} />;
     }
   };
@@ -63,7 +67,10 @@ export const TechnicalSubEntriesList: React.FC<TechnicalSubEntriesListProps> = (
                   <div className={cn(
                     "w-10 h-10 rounded-xl flex items-center justify-center",
                     entry.type === "Réunion" ? "bg-blue-50 text-blue-600" : 
-                    entry.type === "Relevée" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
+                    entry.type === "Relevée" ? "bg-emerald-50 text-emerald-600" : 
+                    entry.type === "Tache" ? "bg-amber-50 text-amber-600" :
+                    entry.type === "Envoyé" ? "bg-indigo-50 text-indigo-600" :
+                    "bg-rose-50 text-rose-600"
                   )}>
                     {getTypeIcon(entry.type)}
                   </div>

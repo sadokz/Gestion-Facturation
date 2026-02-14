@@ -102,6 +102,8 @@ export const TechnicalEntryModal: React.FC<TechnicalEntryModalProps> = ({
                         <SelectItem value="Réunion">Réunion</SelectItem>
                         <SelectItem value="Relevée">Relevée</SelectItem>
                         <SelectItem value="Tache">Tâche</SelectItem>
+                        <SelectItem value="Envoyé">Envoyé</SelectItem>
+                        <SelectItem value="Reçu">Reçu</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -129,7 +131,7 @@ export const TechnicalEntryModal: React.FC<TechnicalEntryModalProps> = ({
                 <FormItem>
                   <FormLabel>Libellé / Objet</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: Réunion de chantier n°5" {...field} className="rounded-xl" />
+                    <Input placeholder="Ex: Envoi plans d'exécution" {...field} className="rounded-xl" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -140,7 +142,7 @@ export const TechnicalEntryModal: React.FC<TechnicalEntryModalProps> = ({
               name="intervenants"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Intervenants présents</FormLabel>
+                  <FormLabel>Intervenants / Destinataires</FormLabel>
                   <FormControl>
                     <Input placeholder="Architecte, Client, etc." {...field} className="rounded-xl" />
                   </FormControl>
@@ -153,9 +155,9 @@ export const TechnicalEntryModal: React.FC<TechnicalEntryModalProps> = ({
               name="compte_rendu"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notes / Compte-rendu rapide</FormLabel>
+                  <FormLabel>Notes / Détails</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Points clés abordés..." {...field} className="rounded-xl resize-none h-24" />
+                    <Textarea placeholder="Précisions sur l'envoi ou la réception..." {...field} className="rounded-xl resize-none h-24" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
