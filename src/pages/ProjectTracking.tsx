@@ -39,6 +39,7 @@ import { ProjectModal } from "@/components/projects/ProjectModal";
 import { TechnicalEntryModal } from "@/components/projects/TechnicalEntryModal";
 import { TechnicalSubEntriesList } from "@/components/projects/TechnicalSubEntriesList";
 import { TechnicalClientResponsibles } from "@/components/projects/TechnicalClientResponsibles";
+import { ResponsibleModal } from "@/components/clients/ResponsibleModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
@@ -52,10 +53,13 @@ const ProjectTracking = () => {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
+  const [isRespModalOpen, setIsRespModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isRespConfirmOpen, setIsRespConfirmOpen] = useState(false);
   
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [selectedEntry, setSelectedEntry] = useState<any>(null);
+  const [selectedResp, setSelectedResp] = useState<any>(null);
 
   const loadProjects = async () => {
     setLoading(true);
@@ -119,6 +123,16 @@ const ProjectTracking = () => {
     try {
       showSuccess("Projet supprimé");
       setIsConfirmOpen(false);
+      loadProjects();
+    } catch (err) {
+      showError("Erreur lors de la suppression");
+    }
+  };
+
+  const handleDeleteResp = async () => {
+    try {
+      showSuccess("Contact supprimé");
+      setIsRespConfirmOpen(false);
       loadProjects();
     } catch (err) {
       showError("Erreur lors de la suppression");
@@ -262,6 +276,9 @@ const ProjectTracking = () => {
                               <TechnicalClientResponsibles 
                                 clientName={project.client} 
                                 responsibles={project.client_responsibles || []} 
+                                onAdd={() => { setSelectedProject(project); setSelectedResp(null); setIsRespModalOpen(true); }}
+                                onEdit={(resp) => { setSelectedProject(project); setSelectedResp(resp); setIsRespModalOpen(true); }}
+                                onDelete={(resp) => { setSelectedResp(resp); setIsRespConfirmOpen(true); }}
                               />
                               <TechnicalSubEntriesList 
                                 entries={project.technical_entries || []} 
@@ -296,6 +313,13 @@ const ProjectTracking = () => {
         initialData={selectedEntry} 
         projectName={selectedProject?.nom_projet || ""} 
       />
+
+      <ResponsibleModal 
+        isOpen={isRespModalOpen} 
+        onClose={() => setIsRespModalOpen(false)} 
+        onSubmit={() => { showSuccess("Contact enregistré"); setIsRespModalOpen(false); loadProjects(); }} 
+        initialData={selectedResp} 
+      />
       
       <ConfirmDialog 
         isOpen={isConfirmOpen} 
@@ -303,6 +327,16 @@ const ProjectTracking = () => {
         onConfirm={handleDelete} 
         title="Supprimer le projet ?" 
         description="Cette action est irréversible et supprimera toutes les données liées." 
+        variant="destructive" 
+        confirmText="Supprimer" 
+      />
+
+      <ConfirmDialog 
+        isOpen={isRespConfirmOpen} 
+        onClose={() => setIsRespConfirmOpen(false)} 
+        onConfirm={handleDeleteResp} 
+        title="Supprimer ce contact ?" 
+        description="Ce contact sera retiré de la liste des responsables." 
         variant="destructive" 
         confirmText="Supprimer" 
       />
