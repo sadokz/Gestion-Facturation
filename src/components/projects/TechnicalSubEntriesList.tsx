@@ -9,7 +9,8 @@ import {
   CheckCircle2,
   MessageSquare,
   Send,
-  Inbox
+  Inbox,
+  UserCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDateFR } from "@/utils/formatters";
@@ -92,9 +93,15 @@ export const TechnicalSubEntriesList: React.FC<TechnicalSubEntriesListProps> = (
               </div>
               
               <div className="space-y-2 mb-3">
-                <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                  <Calendar size={12} className="text-slate-400" />
-                  <span>{formatDateFR(entry.date)}</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                    <Calendar size={12} className="text-slate-400" />
+                    <span>{formatDateFR(entry.date)}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                    <UserCheck size={10} />
+                    {entry.effectue_par}
+                  </div>
                 </div>
                 {entry.intervenants && (
                   <div className="flex items-center gap-2 text-[11px] text-slate-500">

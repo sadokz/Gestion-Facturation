@@ -76,8 +76,8 @@ const ProjectTracking = () => {
           avancement: 65,
           statut_technique: "En cours",
           technical_entries: [
-            { id: 1, type: "Réunion", date: "2026-03-10", libelle: "Réunion de chantier n°4", intervenants: "Architecte, Client", compte_rendu: "Validation des plans d'exécution." },
-            { id: 2, type: "Relevée", date: "2026-03-12", libelle: "Relevé topographique", intervenants: "Géomètre", compte_rendu: "Prise de cotes sur la zone A." }
+            { id: 1, type: "Réunion", date: "2026-03-10", libelle: "Réunion de chantier n°4", effectue_par: "Ing. Ahmed", intervenants: "Architecte, Client", compte_rendu: "Validation des plans d'exécution." },
+            { id: 2, type: "Relevée", date: "2026-03-12", libelle: "Relevé topographique", effectue_par: "Techn. Sami", intervenants: "Géomètre", compte_rendu: "Prise de cotes sur la zone A." }
           ]
         },
         { 

@@ -32,6 +32,7 @@ const entrySchema = z.object({
   type: z.string().min(1, "Le type est requis"),
   date: z.string().min(1, "La date est requise"),
   libelle: z.string().min(1, "Le libellé est requis"),
+  effectue_par: z.string().min(1, "L'auteur est requis"),
   intervenants: z.string().optional(),
   compte_rendu: z.string().optional(),
   statut: z.string().default("Terminé"),
@@ -58,6 +59,7 @@ export const TechnicalEntryModal: React.FC<TechnicalEntryModalProps> = ({
       type: "Réunion",
       date: new Date().toISOString().split('T')[0],
       libelle: "",
+      effectue_par: "",
       intervenants: "",
       compte_rendu: "",
       statut: "Terminé",
@@ -69,6 +71,7 @@ export const TechnicalEntryModal: React.FC<TechnicalEntryModalProps> = ({
       type: "Réunion",
       date: new Date().toISOString().split('T')[0],
       libelle: "",
+      effectue_par: "",
       intervenants: "",
       compte_rendu: "",
       statut: "Terminé",
@@ -139,10 +142,23 @@ export const TechnicalEntryModal: React.FC<TechnicalEntryModalProps> = ({
             />
             <FormField
               control={form.control}
+              name="effectue_par"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Effectué par</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nom du collaborateur" {...field} className="rounded-xl" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="intervenants"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Intervenants / Destinataires</FormLabel>
+                  <FormLabel>Intervenants / Destinataires (Tiers)</FormLabel>
                   <FormControl>
                     <Input placeholder="Architecte, Client, etc." {...field} className="rounded-xl" />
                   </FormControl>
