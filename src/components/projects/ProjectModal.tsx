@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetcher } from "@/api/config";
-import { UploadCloud, FileCheck, HardHat, User, Building2, Activity } from "lucide-react";
+import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -110,11 +110,6 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
           <DialogTitle className="text-2xl font-bold text-slate-800">
             {technicalOnly ? "Suivi Technique" : (initialData ? "Modifier le projet" : "Nouveau projet")}
           </DialogTitle>
-          {technicalOnly && initialData && (
-            <p className="text-sm text-slate-500 font-medium px-0 mt-1">
-              {initialData.reference_projet} - {initialData.nom_projet}
-            </p>
-          )}
         </DialogHeader>
         
         <Form {...form}>
@@ -277,6 +272,59 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                 )}
 
                 <TabsContent value="technical" className="space-y-4 mt-0">
+                  {/* Champs d'identification toujours visibles en mode technique */}
+                  <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-6">
+                    <FormField
+                      control={form.control}
+                      name="reference_projet"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-primary"><FileText size={14} /> Référence</FormLabel>
+                          <FormControl>
+                            <Input {...field} className="rounded-xl bg-white" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="client"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-primary"><Building2 size={14} /> Client</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="rounded-xl bg-white">
+                                <SelectValue placeholder="Client" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {clients.map((client) => (
+                                <SelectItem key={client.id} value={client.nom}>
+                                  {client.nom}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+                    <div className="col-span-2">
+                      <FormField
+                        control={form.control}
+                        name="nom_projet"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-primary">Nom du projet</FormLabel>
+                            <FormControl>
+                              <Input {...field} className="rounded-xl bg-white" />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
