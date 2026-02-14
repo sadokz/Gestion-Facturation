@@ -38,6 +38,7 @@ import { ResizableHeader } from "@/components/ui/ResizableHeader";
 import { ProjectModal } from "@/components/projects/ProjectModal";
 import { TechnicalEntryModal } from "@/components/projects/TechnicalEntryModal";
 import { TechnicalSubEntriesList } from "@/components/projects/TechnicalSubEntriesList";
+import { TechnicalClientResponsibles } from "@/components/projects/TechnicalClientResponsibles";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
@@ -75,6 +76,10 @@ const ProjectTracking = () => {
           bureau_controle: "Veritas",
           avancement: 65,
           statut_technique: "En cours",
+          client_responsibles: [
+            { id: 101, nom: "M. Ahmed Ben Salah", role: "Directeur Technique", tel: "98 000 111", email: "ahmed.salah@commune.tn" }, 
+            { id: 102, nom: "Mme. Sarra Mansour", role: "Chef de Projet", tel: "22 333 444", email: "sarra.m@commune.tn" }
+          ],
           technical_entries: [
             { id: 1, type: "Réunion", date: "2026-03-10", libelle: "Réunion de chantier n°4", effectue_par: "Ing. Ahmed", intervenants: "Architecte, Client", compte_rendu: "Validation des plans d'exécution." },
             { id: 2, type: "Relevée", date: "2026-03-12", libelle: "Relevé topographique", effectue_par: "Techn. Sami", intervenants: "Géomètre", compte_rendu: "Prise de cotes sur la zone A." }
@@ -92,6 +97,7 @@ const ProjectTracking = () => {
           bureau_controle: "Socotec",
           avancement: 30,
           statut_technique: "Démarrage",
+          client_responsibles: [],
           technical_entries: []
         },
       ]);
@@ -252,11 +258,17 @@ const ProjectTracking = () => {
                       {expandedProjects.has(project.id) && (
                         <TableRow className="hover:bg-transparent border-none">
                           <TableCell colSpan={10} className="p-0">
-                            <TechnicalSubEntriesList 
-                              entries={project.technical_entries || []} 
-                              onAdd={() => { setSelectedProject(project); setSelectedEntry(null); setIsEntryModalOpen(true); }} 
-                              onEdit={(entry) => { setSelectedProject(project); setSelectedEntry(entry); setIsEntryModalOpen(true); }} 
-                            />
+                            <div className="flex flex-col">
+                              <TechnicalClientResponsibles 
+                                clientName={project.client} 
+                                responsibles={project.client_responsibles || []} 
+                              />
+                              <TechnicalSubEntriesList 
+                                entries={project.technical_entries || []} 
+                                onAdd={() => { setSelectedProject(project); setSelectedEntry(null); setIsEntryModalOpen(true); }} 
+                                onEdit={(entry) => { setSelectedProject(project); setSelectedEntry(entry); setIsEntryModalOpen(true); }} 
+                              />
+                            </div>
                           </TableCell>
                         </TableRow>
                       )}
