@@ -12,7 +12,8 @@ import {
   Trash2,
   ChevronDown,
   ChevronRight,
-  UserCheck
+  UserCheck,
+  Construction
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { fetcher } from "@/api/config";
@@ -80,6 +81,7 @@ const ProjectTracking = () => {
           ing_fluides: "BET Fluides Plus",
           ing_structure: "Ingénierie Structure",
           bureau_controle: "Veritas",
+          entreprise_travaux: "SOTETRA",
           avancement: 65,
           statut_technique: "En cours",
           client_responsibles: [
@@ -101,6 +103,7 @@ const ProjectTracking = () => {
           ing_fluides: "-",
           ing_structure: "BET Ponts & Chaussées",
           bureau_controle: "Socotec",
+          entreprise_travaux: "STP Sfax",
           avancement: 30,
           statut_technique: "Démarrage",
           client_responsibles: [],
@@ -190,13 +193,14 @@ const ProjectTracking = () => {
                   <ResizableHeader initialWidth={160} className="text-center">Ing. Fluides</ResizableHeader>
                   <ResizableHeader initialWidth={160} className="text-center">Ing. Structure</ResizableHeader>
                   <ResizableHeader initialWidth={160} className="text-center">Bureau de Contrôle</ResizableHeader>
-                  <ResizableHeader initialWidth={180} className="text-center">État d'avancement</ResizableHeader>
+                  <ResizableHeader initialWidth={160} className="text-center">Entreprise</ResizableHeader>
+                  <ResizableHeader initialWidth={180} className="text-center">Avancement Études</ResizableHeader>
                   <ResizableHeader initialWidth={60} resizable={false}></ResizableHeader>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow><TableCell colSpan={10} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={11} className="h-16 text-center">Chargement...</TableCell></TableRow>
                 ) : (
                   projects.map((project) => (
                     <React.Fragment key={project.id}>
@@ -250,6 +254,12 @@ const ProjectTracking = () => {
                             {project.bureau_controle || "-"}
                           </div>
                         </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-2 text-xs font-bold text-amber-600">
+                            <Construction size={12} className="shrink-0" />
+                            {project.entreprise_travaux || "-"}
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <div className="space-y-2 px-2">
                             <div className="flex justify-between items-center">
@@ -284,7 +294,7 @@ const ProjectTracking = () => {
                       </TableRow>
                       {expandedProjects.has(project.id) && (
                         <TableRow className="hover:bg-transparent border-none">
-                          <TableCell colSpan={10} className="p-0">
+                          <TableCell colSpan={11} className="p-0">
                             <div className="flex flex-col">
                               <TechnicalClientResponsibles 
                                 clientName={project.client} 

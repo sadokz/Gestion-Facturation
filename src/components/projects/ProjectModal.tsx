@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetcher } from "@/api/config";
-import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText, UserCheck } from "lucide-react";
+import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText, UserCheck, Construction } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -45,6 +45,7 @@ const projectSchema = z.object({
   ing_fluides: z.string().optional(),
   ing_structure: z.string().optional(),
   bureau_controle: z.string().optional(),
+  entreprise_travaux: z.string().optional(),
   responsable_interne: z.string().optional(),
   avancement: z.coerce.number().min(0).max(100).default(0),
 });
@@ -81,6 +82,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       ing_fluides: "",
       ing_structure: "",
       bureau_controle: "",
+      entreprise_travaux: "",
       responsable_interne: "",
       avancement: 0,
     },
@@ -274,7 +276,6 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                 )}
 
                 <TabsContent value="technical" className="space-y-4 mt-0">
-                  {/* Champs d'identification toujours visibles en mode technique */}
                   <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-6">
                     <FormField
                       control={form.control}
@@ -368,6 +369,20 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                     />
                     <FormField
                       control={form.control}
+                      name="entreprise_travaux"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-amber-600"><Construction size={14} /> Entreprise (Travaux)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Nom de l'entreprise..." {...field} className="rounded-xl border-amber-100" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
                       name="ing_fluides"
                       render={({ field }) => (
                         <FormItem>
@@ -378,26 +393,26 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      name="ing_structure"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2"><HardHat size={14} /> Ingénieur Structure</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Nom du BET..." {...field} className="rounded-xl" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="ing_structure"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2"><HardHat size={14} /> Ingénieur Structure</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Nom du BET..." {...field} className="rounded-xl" />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
                   <FormField
                     control={form.control}
                     name="avancement"
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex justify-between items-center mb-2">
-                          <FormLabel>État d'avancement physique (%)</FormLabel>
+                          <FormLabel>État d'avancement Études (%)</FormLabel>
                           <span className="text-sm font-bold text-primary">{field.value}%</span>
                         </div>
                         <FormControl>
