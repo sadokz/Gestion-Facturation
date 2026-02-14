@@ -40,6 +40,7 @@ import { TechnicalEntryModal } from "@/components/projects/TechnicalEntryModal";
 import { TechnicalSubEntriesList } from "@/components/projects/TechnicalSubEntriesList";
 import { TechnicalClientResponsibles } from "@/components/projects/TechnicalClientResponsibles";
 import { ResponsibleModal } from "@/components/clients/ResponsibleModal";
+import { ContactSelectionModal } from "@/components/projects/ContactSelectionModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
@@ -54,6 +55,7 @@ const ProjectTracking = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
   const [isRespModalOpen, setIsRespModalOpen] = useState(false);
+  const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isRespConfirmOpen, setIsRespConfirmOpen] = useState(false);
   
@@ -119,6 +121,17 @@ const ProjectTracking = () => {
     setExpandedProjects(newExpanded);
   };
 
+  const handleHideResp = (resp: any) => {
+    showSuccess(`${resp.nom} masqué pour ce projet`);
+    loadProjects();
+  };
+
+  const handleSelection = (selectedIds: number[]) => {
+    showSuccess("Liste des intervenants mise à jour");
+    setIsSelectionModalOpen(false);
+    loadProjects();
+  };
+
   const handleDelete = async () => {
     try {
       showSuccess("Projet supprimé");
@@ -131,7 +144,7 @@ const ProjectTracking = () => {
 
   const handleDeleteResp = async () => {
     try {
-      showSuccess("Contact supprimé");
+      showSuccess("Contact supprimé définitivement");
       setIsRespConfirmOpen(false);
       loadProjects();
     } catch (err) {
@@ -276,9 +289,10 @@ const ProjectTracking = () => {
                               <TechnicalClientResponsibles 
                                 clientName={project.client} 
                                 responsibles={project.client_responsibles || []} 
-                                onAdd={() => { setSelectedProject(project); setSelectedResp(null); setIsRespModalOpen(true); }}
+                                onManage={() => { setSelectedProject(project); setIsSelectionModalOpen(true); }}
                                 onEdit={(resp) => { setSelectedProject(project); setSelectedResp(resp); setIsRespModalOpen(true); }}
                                 onDelete={(resp) => { setSelectedResp(resp); setIsRespConfirmOpen(true); }}
+                                onHide={handleHideResp}
                               />
                               <TechnicalSubEntriesList 
                                 entries={project.technical_entries || []} 
@@ -312,6 +326,15 @@ const ProjectTracking = () => {
         onSubmit={() => { showSuccess("Intervention enregistrée"); setIsEntryModalOpen(false); loadProjects(); }} 
         initialData={selectedEntry} 
         projectName={selectedProject?.nom_projet || ""} 
+      />
+
+      <ContactSelectionModal 
+        isOpen={isSelectionModalOpen}
+        onClose={() => setIsSelectionModalOpen(false)}
+        onSelect={handleSelection}
+        onAddNew={() => { setIsSelectionModalOpen(false); setSelectedResp(null); setIsRespModalOpen(true); }}
+        clientName={selectedProject?.client || ""}
+        currentlyLinkedIds={selectedProject?.client_responsibles?.map((r: any) => r.id) || []}
       />
 
       <ResponsibleModal 

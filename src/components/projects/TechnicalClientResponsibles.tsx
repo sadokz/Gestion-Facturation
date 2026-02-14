@@ -1,22 +1,24 @@
 import React from "react";
-import { Users, Phone, Mail, Briefcase, Plus, Edit, Trash2 } from "lucide-react";
+import { Users, Phone, Mail, Briefcase, Plus, Edit, Trash2, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TechnicalClientResponsiblesProps {
   clientName: string;
   responsibles: any[];
-  onAdd: () => void;
+  onManage: () => void;
   onEdit: (resp: any) => void;
   onDelete: (resp: any) => void;
+  onHide: (resp: any) => void;
 }
 
 export const TechnicalClientResponsibles: React.FC<TechnicalClientResponsiblesProps> = ({ 
   clientName, 
   responsibles,
-  onAdd,
+  onManage,
   onEdit,
-  onDelete
+  onDelete,
+  onHide
 }) => {
   return (
     <div className="bg-indigo-50/30 p-6 border-t border-indigo-100 animate-in slide-in-from-top-2 duration-300">
@@ -31,9 +33,9 @@ export const TechnicalClientResponsibles: React.FC<TechnicalClientResponsiblesPr
           variant="outline" 
           size="sm" 
           className="h-8 gap-2 rounded-lg border-indigo-200 text-indigo-600 hover:bg-indigo-50"
-          onClick={onAdd}
+          onClick={onManage}
         >
-          <Plus size={14} /> Ajouter un contact
+          <Plus size={14} /> Gérer les contacts
         </Button>
       </div>
 
@@ -57,6 +59,14 @@ export const TechnicalClientResponsibles: React.FC<TechnicalClientResponsiblesPr
                   </div>
                 </div>
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg text-slate-400 hover:text-slate-600" onClick={() => onHide(resp)}>
+                        <EyeOff size={12} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p className="text-xs">Masquer pour ce projet</p></TooltipContent>
+                  </Tooltip>
                   <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => onEdit(resp)}>
                     <Edit size={12} />
                   </Button>
