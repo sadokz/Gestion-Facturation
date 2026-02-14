@@ -9,7 +9,9 @@ import {
   Plus,
   MoreHorizontal,
   Edit,
-  Trash2
+  Trash2,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { fetcher } from "@/api/config";
@@ -33,6 +35,8 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
 import { ProjectModal } from "@/components/projects/ProjectModal";
+import { TechnicalEntryModal } from "@/components/projects/TechnicalEntryModal";
+import { TechnicalSubEntriesList } from "@/components/projects/TechnicalSubEntriesList";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
@@ -42,10 +46,14 @@ const ProjectTracking = () => {
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [expandedProjects, setExpandedProjects] = useState<Set<number>>(new Set());
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  
   const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [selectedEntry, setSelectedEntry] = useState<any>(null);
 
   const loadProjects = async () => {
     setLoading(true);
@@ -64,7 +72,11 @@ const ProjectTracking = () => {
           ing_structure: "Ingénierie Structure",
           bureau_controle: "Veritas",
           avancement: 65,
-          statut_technique: "En cours"
+          statut_technique: "En cours",
+          technical_entries: [
+            { id: 1, type: "Réunion", date: "2026-03-10", libelle: "Réunion de chantier n°4", intervenants: "Architecte, Client", compte_rendu: "Validation des plans d'exécution." },
+            { id: 2, type: "Relevée", date: "2026-03-12", libelle: "Relevé topographique", intervenants: "Géomètre", compte_rendu: "Prise de cotes sur la zone A." }
+          ]
         },
         { 
           id: 2, 
@@ -76,7 +88,8 @@ const ProjectTracking = () => {
           ing_structure: "BET Ponts & Chaussées",
           bureau_controle: "Socotec",
           avancement: 30,
-          statut_technique: "Démarrage"
+          statut_technique: "Démarrage",
+          technical_entries: []
         },
       ]);
     } finally {
@@ -85,6 +98,13 @@ const ProjectTracking = () => {
   };
 
   useEffect(() => { loadProjects(); }, [selectedYear, search]);
+
+  const toggleExpand = (id: number) => {
+    const newExpanded = new Set(expandedProjects);
+    if (newExpanded.has(id)) newExpanded.delete(id);
+    else newExpanded.add(id);
+    setExpandedProjects(newExpanded);
+  };
 
   const handleDelete = async () => {
     try {
@@ -126,7 +146,7 @@ const ProjectTracking = () => {
             <Table className="table-fixed w-full">
               <TableHeader className="bg-slate-50/50">
                 <TableRow className="hover:bg-transparent border-slate-100">
-                  <ResizableHeader initialWidth={50} resizable={false}></ResizableHeader>
+                  <ResizableHeader initialWidth={60} resizable={false}></ResizableHeader>
                   <ResizableHeader initialWidth={120} className="text-center">Référence</ResizableHeader>
                   <ResizableHeader initialWidth={220} className="text-center">Projet / Maître d'Ouvrage</ResizableHeader>
                   <ResizableHeader initialWidth={180} className="text-center">Architecte</ResizableHeader>
@@ -142,77 +162,95 @@ const ProjectTracking = () => {
                   <TableRow><TableCell colSpan={9} className="h-16 text-center">Chargement...</TableCell></TableRow>
                 ) : (
                   projects.map((project) => (
-                    <TableRow key={project.id} className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
-                      <TableCell className="text-center">
-                        <div className="text-slate-300 group-hover:text-slate-500 transition-colors">
-                          <GripVertical size={14} className="mx-auto" />
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-mono text-[11px] font-bold text-primary text-center">
-                        {project.reference_projet}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-bold text-slate-800 text-sm truncate">{project.nom_projet}</span>
-                          <span className="text-[10px] text-slate-500 uppercase font-medium truncate">{project.client}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
-                          <User size={12} className="text-slate-400" />
-                          {project.architecte || "-"}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
-                          <Activity size={12} className="text-slate-400" />
-                          {project.ing_fluides || "-"}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
-                          <HardHat size={12} className="text-slate-400" />
-                          {project.ing_structure || "-"}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
-                          <Building2 size={12} className="text-slate-400" />
-                          {project.bureau_controle || "-"}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-2 px-2">
-                          <div className="flex justify-between items-center">
-                            <Badge variant="outline" className={cn(
-                              "text-[9px] h-4 px-1.5",
-                              project.avancement === 100 ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-blue-50 text-blue-600 border-blue-100"
-                            )}>
-                              {project.avancement === 100 ? "Terminé" : "En cours"}
-                            </Badge>
-                            <span className="text-[10px] font-black text-slate-600">{project.avancement}%</span>
-                          </div>
-                          <Progress value={project.avancement} className="h-1.5" />
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
-                              <MoreHorizontal size={16} />
+                    <React.Fragment key={project.id}>
+                      <TableRow className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <div className="text-slate-300 group-hover:text-slate-500 transition-colors">
+                              <GripVertical size={14} />
+                            </div>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg hover:bg-primary/10 hover:text-primary" onClick={() => toggleExpand(project.id)}>
+                              {expandedProjects.has(project.id) ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                             </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
-                            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}>
-                              <Edit size={14} /> Modifier
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}>
-                              <Trash2 size={14} /> Supprimer
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-mono text-[11px] font-bold text-primary text-center">
+                          {project.reference_projet}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-bold text-slate-800 text-sm truncate">{project.nom_projet}</span>
+                            <span className="text-[10px] text-slate-500 uppercase font-medium truncate">{project.client}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
+                            <User size={12} className="text-slate-400" />
+                            {project.architecte || "-"}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
+                            <Activity size={12} className="text-slate-400" />
+                            {project.ing_fluides || "-"}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
+                            <HardHat size={12} className="text-slate-400" />
+                            {project.ing_structure || "-"}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
+                            <Building2 size={12} className="text-slate-400" />
+                            {project.bureau_controle || "-"}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-2 px-2">
+                            <div className="flex justify-between items-center">
+                              <Badge variant="outline" className={cn(
+                                "text-[9px] h-4 px-1.5",
+                                project.avancement === 100 ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-blue-50 text-blue-600 border-blue-100"
+                              )}>
+                                {project.avancement === 100 ? "Terminé" : "En cours"}
+                              </Badge>
+                              <span className="text-[10px] font-black text-slate-600">{project.avancement}%</span>
+                            </div>
+                            <Progress value={project.avancement} className="h-1.5" />
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
+                                <MoreHorizontal size={16} />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
+                              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}>
+                                <Edit size={14} /> Modifier Projet
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}>
+                                <Trash2 size={14} /> Supprimer
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                      {expandedProjects.has(project.id) && (
+                        <TableRow className="hover:bg-transparent border-none">
+                          <TableCell colSpan={9} className="p-0">
+                            <TechnicalSubEntriesList 
+                              entries={project.technical_entries || []} 
+                              onAdd={() => { setSelectedProject(project); setSelectedEntry(null); setIsEntryModalOpen(true); }} 
+                              onEdit={(entry) => { setSelectedProject(project); setSelectedEntry(entry); setIsEntryModalOpen(true); }} 
+                            />
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
                   ))
                 )}
               </TableBody>
@@ -226,6 +264,14 @@ const ProjectTracking = () => {
         onClose={() => setIsModalOpen(false)} 
         onSubmit={() => { showSuccess("Projet enregistré"); setIsModalOpen(false); loadProjects(); }} 
         initialData={selectedProject} 
+      />
+
+      <TechnicalEntryModal 
+        isOpen={isEntryModalOpen} 
+        onClose={() => setIsEntryModalOpen(false)} 
+        onSubmit={() => { showSuccess("Intervention enregistrée"); setIsEntryModalOpen(false); loadProjects(); }} 
+        initialData={selectedEntry} 
+        projectName={selectedProject?.nom_projet || ""} 
       />
       
       <ConfirmDialog 
