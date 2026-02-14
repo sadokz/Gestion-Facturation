@@ -11,7 +11,8 @@ import {
   Edit,
   Trash2,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  UserCheck
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { fetcher } from "@/api/config";
@@ -67,6 +68,7 @@ const ProjectTracking = () => {
           reference_projet: "PRJ-2026-001", 
           nom_projet: "Eclairage Avenue", 
           client: "Commune de Tunis",
+          responsable_interne: "Ing. Ahmed",
           architecte: "Cabinet Zmerli",
           ing_fluides: "BET Fluides Plus",
           ing_structure: "Ingénierie Structure",
@@ -83,6 +85,7 @@ const ProjectTracking = () => {
           reference_projet: "PRJ-2026-002", 
           nom_projet: "Rénovation Pont", 
           client: "Ministère Équipement",
+          responsable_interne: "Ing. Sarra",
           architecte: "Archi Design",
           ing_fluides: "-",
           ing_structure: "BET Ponts & Chaussées",
@@ -149,17 +152,18 @@ const ProjectTracking = () => {
                   <ResizableHeader initialWidth={60} resizable={false}></ResizableHeader>
                   <ResizableHeader initialWidth={120} className="text-center">Référence</ResizableHeader>
                   <ResizableHeader initialWidth={220} className="text-center">Projet / Maître d'Ouvrage</ResizableHeader>
-                  <ResizableHeader initialWidth={180} className="text-center">Architecte</ResizableHeader>
-                  <ResizableHeader initialWidth={180} className="text-center">Ing. Fluides</ResizableHeader>
-                  <ResizableHeader initialWidth={180} className="text-center">Ing. Structure</ResizableHeader>
-                  <ResizableHeader initialWidth={180} className="text-center">Bureau de Contrôle</ResizableHeader>
-                  <ResizableHeader initialWidth={200} className="text-center">État d'avancement</ResizableHeader>
+                  <ResizableHeader initialWidth={160} className="text-center">Resp. Interne</ResizableHeader>
+                  <ResizableHeader initialWidth={160} className="text-center">Architecte</ResizableHeader>
+                  <ResizableHeader initialWidth={160} className="text-center">Ing. Fluides</ResizableHeader>
+                  <ResizableHeader initialWidth={160} className="text-center">Ing. Structure</ResizableHeader>
+                  <ResizableHeader initialWidth={160} className="text-center">Bureau de Contrôle</ResizableHeader>
+                  <ResizableHeader initialWidth={180} className="text-center">État d'avancement</ResizableHeader>
                   <ResizableHeader initialWidth={60} resizable={false}></ResizableHeader>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow><TableCell colSpan={9} className="h-16 text-center">Chargement...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={10} className="h-16 text-center">Chargement...</TableCell></TableRow>
                 ) : (
                   projects.map((project) => (
                     <React.Fragment key={project.id}>
@@ -181,6 +185,12 @@ const ProjectTracking = () => {
                           <div className="flex flex-col">
                             <span className="font-bold text-slate-800 text-sm truncate">{project.nom_projet}</span>
                             <span className="text-[10px] text-slate-500 uppercase font-medium truncate">{project.client}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-2 text-xs font-bold text-indigo-600">
+                            <UserCheck size={12} className="shrink-0" />
+                            {project.responsable_interne || "-"}
                           </div>
                         </TableCell>
                         <TableCell className="text-center">
@@ -241,7 +251,7 @@ const ProjectTracking = () => {
                       </TableRow>
                       {expandedProjects.has(project.id) && (
                         <TableRow className="hover:bg-transparent border-none">
-                          <TableCell colSpan={9} className="p-0">
+                          <TableCell colSpan={10} className="p-0">
                             <TechnicalSubEntriesList 
                               entries={project.technical_entries || []} 
                               onAdd={() => { setSelectedProject(project); setSelectedEntry(null); setIsEntryModalOpen(true); }} 

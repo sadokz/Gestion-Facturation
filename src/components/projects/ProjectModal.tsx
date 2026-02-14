@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetcher } from "@/api/config";
-import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText } from "lucide-react";
+import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText, UserCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -45,6 +45,7 @@ const projectSchema = z.object({
   ing_fluides: z.string().optional(),
   ing_structure: z.string().optional(),
   bureau_controle: z.string().optional(),
+  responsable_interne: z.string().optional(),
   avancement: z.coerce.number().min(0).max(100).default(0),
 });
 
@@ -80,6 +81,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       ing_fluides: "",
       ing_structure: "",
       bureau_controle: "",
+      responsable_interne: "",
       avancement: 0,
     },
   });
@@ -328,6 +330,18 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
+                      name="responsable_interne"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-indigo-600"><UserCheck size={14} /> Responsable Interne</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Ingénieur en charge..." {...field} className="rounded-xl border-indigo-100" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
                       name="architecte"
                       render={({ field }) => (
                         <FormItem>
@@ -338,6 +352,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                         </FormItem>
                       )}
                     />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="bureau_controle"
@@ -350,8 +366,6 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                         </FormItem>
                       )}
                     />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="ing_fluides"
@@ -364,19 +378,19 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="ing_structure"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center gap-2"><HardHat size={14} /> Ingénieur Structure</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Nom du BET..." {...field} className="rounded-xl" />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
                   </div>
+                  <FormField
+                    control={form.control}
+                    name="ing_structure"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2"><HardHat size={14} /> Ingénieur Structure</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Nom du BET..." {...field} className="rounded-xl" />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="avancement"
