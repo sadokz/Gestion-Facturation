@@ -65,7 +65,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
   initialData,
   technicalOnly = false 
 }) => {
-  const [clients, setClients] = useState<any[]>([]);
+  const [tiers, setTiers] = useState<any[]>([]);
 
   const form = useForm({
     resolver: zodResolver(projectSchema),
@@ -90,19 +90,21 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      const loadClients = async () => {
+      const loadTiers = async () => {
         try {
-          const data = await fetcher("/clients");
-          setClients(data);
+          const data = await fetcher("/tiers");
+          setTiers(data);
         } catch (err) {
-          setClients([
-            { id: 1, nom: "Commune de Tunis" },
-            { id: 2, nom: "STEG" },
-            { id: 3, nom: "Ministère de l'Équipement" }
+          // Mock unifié
+          setTiers([
+            { id: 1, nom: "Commune de Tunis", type: "Client" },
+            { id: 2, nom: "STEG", type: "Client" },
+            { id: 3, nom: "SOTETRA", type: "Entreprise" },
+            { id: 4, nom: "STP Sfax", type: "Entreprise" }
           ]);
         }
       };
-      loadClients();
+      loadTiers();
       if (initialData) form.reset(initialData);
     }
   }, [isOpen, initialData, form]);
@@ -185,10 +187,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {clients.map((client) => (
-                                <SelectItem key={client.id} value={client.nom}>
-                                  {client.nom}
-                                </SelectItem>
+                              {tiers.filter(t => t.type === "Client").map((t) => (
+                                <SelectItem key={t.id} value={t.nom}>{t.nom}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -237,41 +237,6 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                         )}
                       />
                     </div>
-
-                    <div className="space-y-2 border-t pt-4">
-                      <FormLabel className="text-sm font-bold text-slate-700">Document du Contrat</FormLabel>
-                      <FormField
-                        control={form.control}
-                        name="file_contrat"
-                        render={({ field: { value, onChange, ...field } }) => (
-                          <FormItem>
-                            <FormControl>
-                              <div className="relative">
-                                <Input 
-                                  type="file" 
-                                  className="hidden" 
-                                  id="file_contrat" 
-                                  onChange={(e) => onChange(e.target.files?.[0])} 
-                                />
-                                <label 
-                                  htmlFor="file_contrat" 
-                                  className={cn(
-                                    "flex flex-col items-center justify-center h-24 border-2 border-dashed rounded-2xl cursor-pointer transition-all",
-                                    value ? "bg-primary/5 border-primary/30 text-primary" : "bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100"
-                                  )}
-                                >
-                                  {value ? <FileCheck size={24} /> : <UploadCloud size={24} />}
-                                  <span className="text-xs mt-2 font-bold">
-                                    {value ? (value.name || "Contrat sélectionné") : "Téléverser le contrat signé (PDF, Image)"}
-                                  </span>
-                                </label>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
                   </TabsContent>
                 )}
 
@@ -302,30 +267,14 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {clients.map((client) => (
-                                <SelectItem key={client.id} value={client.nom}>
-                                  {client.nom}
-                                </SelectItem>
+                              {tiers.filter(t => t.type === "Client").map((t) => (
+                                <SelectItem key={t.id} value={t.nom}>{t.nom}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
                         </FormItem>
                       )}
                     />
-                    <div className="col-span-2">
-                      <FormField
-                        control={form.control}
-                        name="nom_projet"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-primary">Nom du projet</FormLabel>
-                            <FormControl>
-                              <Input {...field} className="rounded-xl bg-white" />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -343,6 +292,29 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                     />
                     <FormField
                       control={form.control}
+                      name="entreprise_travaux"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-amber-600"><Construction size={14} /> Entreprise (Travaux)</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="rounded-xl border-amber-100">
+                                <SelectValue placeholder="Sélectionner l'entreprise" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {tiers.filter(t => t.type === "Entreprise").map((t) => (
+                                <SelectItem key={t.id} value={t.nom}>{t.nom}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
                       name="architecte"
                       render={({ field }) => (
                         <FormItem>
@@ -353,8 +325,6 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                         </FormItem>
                       )}
                     />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="bureau_controle"
@@ -363,44 +333,6 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                           <FormLabel className="flex items-center gap-2"><Building2 size={14} /> Bureau de Contrôle</FormLabel>
                           <FormControl>
                             <Input placeholder="Ex: Veritas, Socotec..." {...field} className="rounded-xl" />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="entreprise_travaux"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center gap-2 text-amber-600"><Construction size={14} /> Entreprise (Travaux)</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Nom de l'entreprise..." {...field} className="rounded-xl border-amber-100" />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="ing_fluides"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center gap-2"><Activity size={14} /> Ingénieur Fluides</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Nom du BET..." {...field} className="rounded-xl" />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="ing_structure"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center gap-2"><HardHat size={14} /> Ingénieur Structure</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Nom du BET..." {...field} className="rounded-xl" />
                           </FormControl>
                         </FormItem>
                       )}

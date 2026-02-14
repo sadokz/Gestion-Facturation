@@ -86,6 +86,7 @@ const ProjectTracking = () => {
       const data = await fetcher(`/projects?year=${selectedYear}&q=${search}`);
       setProjects(data);
     } catch (err) {
+      // Mock data utilisant des tiers partagés
       setProjects([
         { 
           id: 1, 
@@ -99,7 +100,6 @@ const ProjectTracking = () => {
           bureau_controle: "Veritas",
           entreprise_travaux: "SOTETRA",
           avancement: 65,
-          statut_technique: "En cours",
           client_responsibles: [
             { id: 101, nom: "M. Ahmed Ben Salah", role: "Directeur Technique", tel: "98 000 111", email: "ahmed.salah@commune.tn" }, 
             { id: 102, nom: "Mme. Sarra Mansour", role: "Chef de Projet", tel: "22 333 444", email: "sarra.m@commune.tn" }
@@ -107,26 +107,6 @@ const ProjectTracking = () => {
           enterprise_responsibles: [
             { id: 301, nom: "M. Foulen Ben Foulen", role: "Conducteur de Travaux", tel: "55 111 222", email: "foulen@sotetra.tn" }
           ],
-          technical_entries: [
-            { id: 1, type: "Réunion", date: "2026-03-10", libelle: "Réunion de chantier n°4", effectue_par: "Ing. Ahmed", intervenants: "Architecte, Client", compte_rendu: "Validation des plans d'exécution." },
-            { id: 2, type: "Relevée", date: "2026-03-12", libelle: "Relevé topographique", effectue_par: "Techn. Sami", intervenants: "Géomètre", compte_rendu: "Prise de cotes sur la zone A." }
-          ]
-        },
-        { 
-          id: 2, 
-          reference_projet: "PRJ-2026-002", 
-          nom_projet: "Rénovation Pont", 
-          client: "Ministère Équipement",
-          responsable_interne: "Ing. Sarra",
-          architecte: "Archi Design",
-          ing_fluides: "-",
-          ing_structure: "BET Ponts & Chaussées",
-          bureau_controle: "Socotec",
-          entreprise_travaux: "STP Sfax",
-          avancement: 30,
-          statut_technique: "Démarrage",
-          client_responsibles: [],
-          enterprise_responsibles: [],
           technical_entries: []
         },
       ]);
@@ -174,7 +154,7 @@ const ProjectTracking = () => {
 
   const handleDeleteResp = async () => {
     try {
-      showSuccess("Contact supprimé définitivement");
+      showSuccess("Contact supprimé définitivement de l'annuaire");
       setIsRespConfirmOpen(false);
       loadProjects();
     } catch (err) {
@@ -414,7 +394,7 @@ const ProjectTracking = () => {
       <ResponsibleModal 
         isOpen={isRespModalOpen} 
         onClose={() => setIsRespModalOpen(false)} 
-        onSubmit={() => { showSuccess("Contact enregistré"); setIsRespModalOpen(false); loadProjects(); }} 
+        onSubmit={() => { showSuccess("Contact enregistré dans l'annuaire"); setIsRespModalOpen(false); loadProjects(); }} 
         initialData={selectedResp} 
       />
       
@@ -433,7 +413,7 @@ const ProjectTracking = () => {
         onClose={() => setIsRespConfirmOpen(false)} 
         onConfirm={handleDeleteResp} 
         title="Supprimer ce contact ?" 
-        description="Ce contact sera retiré de la liste des responsables." 
+        description="Ce contact sera retiré définitivement de l'annuaire des tiers." 
         variant="destructive" 
         confirmText="Supprimer" 
       />
