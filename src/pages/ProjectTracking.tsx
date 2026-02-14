@@ -55,8 +55,8 @@ const TRACKING_COLUMNS = [
   { id: "ing_fluides", label: "Ing. Fluides" },
   { id: "ing_structure", label: "Ing. Structure" },
   { id: "bureau_controle", label: "Bureau de Contrôle" },
-  { id: "entreprise_travaux", label: "Entreprise" },
   { id: "avancement", label: "Avancement Études" },
+  { id: "entreprise_travaux", label: "Entreprise" },
 ];
 
 const ProjectTracking = () => {
@@ -213,8 +213,8 @@ const ProjectTracking = () => {
                   {isVisible("ing_fluides") && <ResizableHeader initialWidth={160} className="text-center">Ing. Fluides</ResizableHeader>}
                   {isVisible("ing_structure") && <ResizableHeader initialWidth={160} className="text-center">Ing. Structure</ResizableHeader>}
                   {isVisible("bureau_controle") && <ResizableHeader initialWidth={160} className="text-center">Bureau de Contrôle</ResizableHeader>}
-                  {isVisible("entreprise_travaux") && <ResizableHeader initialWidth={160} className="text-center">Entreprise</ResizableHeader>}
                   {isVisible("avancement") && <ResizableHeader initialWidth={180} className="text-center">Avancement Études</ResizableHeader>}
+                  {isVisible("entreprise_travaux") && <ResizableHeader initialWidth={160} className="text-center">Entreprise</ResizableHeader>}
                   <ResizableHeader initialWidth={60} resizable={false}>
                     <ColumnToggle columns={TRACKING_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
                   </ResizableHeader>
@@ -290,14 +290,6 @@ const ProjectTracking = () => {
                             </div>
                           </TableCell>
                         )}
-                        {isVisible("entreprise_travaux") && (
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2 text-xs font-bold text-amber-600">
-                              <Construction size={12} className="shrink-0" />
-                              {project.entreprise_travaux || "-"}
-                            </div>
-                          </TableCell>
-                        )}
                         {isVisible("avancement") && (
                           <TableCell>
                             <div className="space-y-2 px-2">
@@ -311,6 +303,14 @@ const ProjectTracking = () => {
                                 <span className="text-[10px] font-black text-slate-600">{project.avancement}%</span>
                               </div>
                               <Progress value={project.avancement} className="h-1.5" />
+                            </div>
+                          </TableCell>
+                        )}
+                        {isVisible("entreprise_travaux") && (
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center gap-2 text-xs font-bold text-amber-600">
+                              <Construction size={12} className="shrink-0" />
+                              {project.entreprise_travaux || "-"}
                             </div>
                           </TableCell>
                         )}
