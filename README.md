@@ -7,7 +7,7 @@ Cette application est une solution ERP complète conçue spécifiquement pour le
 ## 📊 1. Tableau de Bord (Dashboard)
 Le centre de pilotage de votre activité, entièrement personnalisable.
 
-### Indicateurs de Performance (KPIs)
+### Indicateurs de Performance (KPIs) - [Type : Montant (DT)]
 - **Total Contrats (HT)** : Somme des montants de base et des avenants signés.
 - **Total Facturé (HT)** : Cumul de toutes les factures de ventes émises.
 - **Reste à Facturer (HT)** : Différence entre le montant total des contrats et le déjà facturé.
@@ -23,18 +23,18 @@ Le centre de pilotage de votre activité, entièrement personnalisable.
 Gestion du cycle de vie des contrats et suivi rigoureux des paiements.
 
 ### Description des colonnes
-- **Référence** : Identifiant unique du projet (ex: PRJ-2026-001).
-- **Projet** : Nom du projet et nom du client associé.
-- **Contrat** : État du document contractuel (icône verte si téléversé).
-- **Total Contrat HT** : Montant de base du contrat hors taxes.
-- **Avenant HT** : Montant des modifications contractuelles supplémentaires.
-- **TVA** : Montant de la taxe calculé sur le total HT (Base + Avenant).
-- **Total Contrat TTC** : Valeur totale du projet incluant la TVA.
-- **Total Facturé HT** : Somme des montants hors taxes de toutes les factures émises.
-- **Facturé TTC** : Valeur totale facturée incluant la TVA.
-- **Total Reçu TTC** : Montant réellement encaissé (factures au statut "Payé").
-- **Reste à Facturer TTC** : Montant restant à réclamer au client pour atteindre le total TTC du contrat.
-- **Statut** : État de facturation (Non facturé, Partiellement, Totalement).
+- **Référence** [Texte] : Identifiant unique du projet (ex: PRJ-2026-001).
+- **Projet** [Texte] : Nom du projet et nom du client associé.
+- **Contrat** [Fichier] : État du document contractuel (icône verte si téléversé).
+- **Total Contrat HT** [Montant (DT)] : Montant de base du contrat hors taxes.
+- **Avenant HT** [Montant (DT)] : Montant des modifications contractuelles supplémentaires.
+- **TVA** [Montant (DT)] : Montant de la taxe calculé sur le total HT (Base + Avenant).
+- **Total Contrat TTC** [Montant (DT)] : Valeur totale du projet incluant la TVA.
+- **Total Facturé HT** [Montant (DT)] : Somme des montants hors taxes de toutes les factures émises.
+- **Facturé TTC** [Montant (DT)] : Valeur totale facturée incluant la TVA.
+- **Total Reçu TTC** [Montant (DT)] : Montant réellement encaissé (factures au statut "Payé").
+- **Reste à Facturer TTC** [Montant (DT)] : Montant restant à réclamer au client pour atteindre le total TTC du contrat.
+- **Statut** [Badge] : État de facturation (Non facturé, Partiellement, Totalement).
 
 ---
 
@@ -42,17 +42,17 @@ Gestion du cycle de vie des contrats et suivi rigoureux des paiements.
 Coordination technique et suivi de l'avancement physique des chantiers.
 
 ### Description des colonnes
-- **Référence** : Rappel de l'identifiant unique du projet.
-- **Projet / Maître d'Ouvrage** : Nom du projet et entité commanditaire.
-- **Resp. Interne** : Ingénieur ou collaborateur du bureau responsable du dossier.
-- **Architecte** : Cabinet d'architecture partenaire sur le projet.
-- **Ing. Fluides / Structure** : Bureaux d'études partenaires spécialisés.
-- **Bureau de Contrôle** : Organisme chargé de la conformité technique (ex: Veritas).
-- **Phase** : Étape actuelle de l'étude (APS, APD, DAO...).
-- **Indice** : Version actuelle des plans ou documents (A, B, C...).
-- **Avancement Études** : Pourcentage de progression de la production intellectuelle.
-- **Entreprise** : Entreprise de travaux (BTP) en charge de l'exécution.
-- **Avancement Travaux** : Pourcentage de progression réelle du chantier sur site.
+- **Référence** [Texte] : Rappel de l'identifiant unique du projet.
+- **Projet / Maître d'Ouvrage** [Texte] : Nom du projet et entité commanditaire.
+- **Resp. Interne** [Texte] : Ingénieur ou collaborateur du bureau responsable du dossier.
+- **Architecte** [Texte] : Cabinet d'architecture partenaire sur le projet.
+- **Ing. Fluides / Structure** [Texte] : Bureaux d'études partenaires spécialisés.
+- **Bureau de Contrôle** [Texte] : Organisme chargé de la conformité technique (ex: Veritas).
+- **Phase** [Liste] : Étape actuelle de l'étude (APS, APD, DAO...).
+- **Indice** [Liste] : Version actuelle des plans ou documents (A, B, C...).
+- **Avancement Études** [Pourcentage (%)] : Progression de la production intellectuelle.
+- **Entreprise** [Texte] : Entreprise de travaux (BTP) en charge de l'exécution.
+- **Avancement Travaux** [Pourcentage (%)] : Progression réelle du chantier sur site.
 
 ---
 
@@ -60,11 +60,11 @@ Coordination technique et suivi de l'avancement physique des chantiers.
 Gestion des tiers et de leurs contacts.
 
 ### Description des colonnes (Communes aux deux onglets)
-- **Client / Entreprise** : Nom ou Raison Sociale de l'entité.
-- **Matricule Fiscal** : Identifiant légal de l'entreprise.
-- **Adresse** : Localisation physique du siège ou de l'agence.
-- **Google Maps** : Lien direct vers la localisation GPS.
-- **Téléphone / Fax / Email** : Coordonnées de contact de l'entité.
+- **Client / Entreprise** [Texte] : Nom ou Raison Sociale de l'entité.
+- **Matricule Fiscal** [Texte] : Identifiant légal de l'entreprise.
+- **Adresse** [Texte] : Localisation physique du siège ou de l'agence.
+- **Google Maps** [Lien] : Lien direct vers la localisation GPS.
+- **Téléphone / Fax / Email** [Texte/Email] : Coordonnées de contact de l'entité.
 
 ---
 
@@ -72,14 +72,14 @@ Gestion des tiers et de leurs contacts.
 Contrôle des coûts opérationnels.
 
 ### Description des colonnes
-- **Fournisseur** : Nom du prestataire ou magasin.
-- **N° Facture** : Référence de la facture d'achat.
-- **Date Facture** : Date d'émission du document.
-- **Date Paiement** : Date à laquelle la dépense a été réglée.
-- **Catégorie** : Type de dépense (Matériel, Logiciels, Déplacement...).
-- **Montant HT** : Valeur de l'achat hors taxes.
-- **TTC** : Valeur totale payée incluant la TVA.
-- **Statut** : État du règlement (À payer, Payée).
+- **Fournisseur** [Texte] : Nom du prestataire ou magasin.
+- **N° Facture** [Texte] : Référence de la facture d'achat.
+- **Date Facture** [Date] : Date d'émission du document.
+- **Date Paiement** [Date] : Date à laquelle la dépense a été réglée.
+- **Catégorie** [Liste] : Type de dépense (Matériel, Logiciels, Déplacement...).
+- **Montant HT** [Montant (DT)] : Valeur de l'achat hors taxes.
+- **TTC** [Montant (DT)] : Valeur totale payée incluant la TVA.
+- **Statut** [Badge] : État du règlement (À payer, Payée).
 
 ---
 
@@ -87,20 +87,20 @@ Contrôle des coûts opérationnels.
 Gestion du capital humain et des absences.
 
 ### Onglet Salaires (Colonnes Employés)
-- **Employé** : Nom, prénom et photo/initiales du collaborateur.
-- **CIN** : Numéro de la Carte d'Identité Nationale.
-- **Poste** : Fonction occupée au sein du bureau.
-- **S. Brut** : Salaire brut contractuel.
-- **S. Net** : Salaire net à payer (base).
-- **Téléphone** : Numéro de contact direct.
+- **Employé** [Texte] : Nom, prénom et photo/initiales du collaborateur.
+- **CIN** [Texte] : Numéro de la Carte d'Identité Nationale (8 chiffres).
+- **Poste** [Texte] : Fonction occupée au sein du bureau.
+- **S. Brut** [Montant (DT)] : Salaire brut contractuel.
+- **S. Net** [Montant (DT)] : Salaire net à payer (base).
+- **Téléphone** [Texte] : Numéro de contact direct.
 
 ### Onglet RH (Suivi des Congés)
-- **Employé** : Nom et poste du collaborateur.
-- **Total Congés** : Quota annuel de jours de repos (ex: 30j).
-- **Congés Pris** : Nombre de jours de congés déjà validés et consommés.
-- **Solde Restant** : Jours disponibles restants pour l'année.
-- **Maladies** : Cumul des jours d'absence pour raison médicale.
-- **En attente** : Nombre de demandes de congés non encore traitées.
+- **Employé** [Texte] : Nom et poste du collaborateur.
+- **Total Congés** [Nombre] : Quota annuel de jours de repos (ex: 30j).
+- **Congés Pris** [Nombre] : Nombre de jours de congés déjà validés et consommés.
+- **Solde Restant** [Nombre] : Jours disponibles restants pour l'année.
+- **Maladies** [Nombre] : Cumul des jours d'absence pour raison médicale.
+- **En attente** [Nombre] : Nombre de demandes de congés non encore traitées.
 
 ---
 
