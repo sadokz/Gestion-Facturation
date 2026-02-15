@@ -62,6 +62,7 @@ const TRACKING_COLUMNS = [
   { id: "indice", label: "Indice" },
   { id: "avancement", label: "Avancement Études" },
   { id: "entreprise_travaux", label: "Entreprise" },
+  { id: "avancement_travaux", label: "Avancement Travaux" },
 ];
 
 const ProjectTracking = () => {
@@ -105,6 +106,7 @@ const ProjectTracking = () => {
           phase: "APD",
           indice: "B",
           avancement: 65,
+          avancement_travaux: 30,
           client_responsibles: [
             { id: 101, nom: "M. Ahmed Ben Salah", role: "Directeur Technique", tel: "98 000 111", email: "ahmed.salah@commune.tn" }, 
             { id: 102, nom: "Mme. Sarra Mansour", role: "Chef de Projet", tel: "22 333 444", email: "sarra.m@commune.tn" }
@@ -209,6 +211,7 @@ const ProjectTracking = () => {
                   {isVisible("indice") && <ResizableHeader initialWidth={80} className="text-center">Indice</ResizableHeader>}
                   {isVisible("avancement") && <ResizableHeader initialWidth={180} className="text-center">Avancement Études</ResizableHeader>}
                   {isVisible("entreprise_travaux") && <ResizableHeader initialWidth={160} className="text-center">Entreprise</ResizableHeader>}
+                  {isVisible("avancement_travaux") && <ResizableHeader initialWidth={180} className="text-center">Avancement Travaux</ResizableHeader>}
                   <ResizableHeader initialWidth={60} resizable={false}>
                     <ColumnToggle columns={TRACKING_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
                   </ResizableHeader>
@@ -321,6 +324,22 @@ const ProjectTracking = () => {
                             <div className="flex items-center justify-center gap-2 text-xs font-bold text-amber-600">
                               <Construction size={12} className="shrink-0" />
                               {project.entreprise_travaux || "-"}
+                            </div>
+                          </TableCell>
+                        )}
+                        {isVisible("avancement_travaux") && (
+                          <TableCell>
+                            <div className="space-y-2 px-2">
+                              <div className="flex justify-between items-center">
+                                <Badge variant="outline" className={cn(
+                                  "text-[9px] h-4 px-1.5",
+                                  project.avancement_travaux === 100 ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-amber-50 text-amber-600 border-amber-100"
+                                )}>
+                                  {project.avancement_travaux === 100 ? "Terminé" : "Chantier"}
+                                </Badge>
+                                <span className="text-[10px] font-black text-slate-600">{project.avancement_travaux || 0}%</span>
+                              </div>
+                              <Progress value={project.avancement_travaux || 0} className="h-1.5 bg-slate-100" />
                             </div>
                           </TableCell>
                         )}

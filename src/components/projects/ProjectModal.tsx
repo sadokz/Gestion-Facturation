@@ -50,6 +50,7 @@ const projectSchema = z.object({
   phase: z.string().optional(),
   indice: z.string().optional(),
   avancement: z.coerce.number().min(0).max(100).default(0),
+  avancement_travaux: z.coerce.number().min(0).max(100).default(0),
 });
 
 interface ProjectModalProps {
@@ -89,6 +90,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       phase: "APS",
       indice: "A",
       avancement: 0,
+      avancement_travaux: 0,
     },
   });
 
@@ -345,7 +347,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                       )}
                     />
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="phase"
@@ -388,17 +390,34 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                         </FormItem>
                       )}
                     />
+                  </div>
+                  <div className="grid grid-cols-2 gap-6 pt-2">
                     <FormField
                       control={form.control}
                       name="avancement"
                       render={({ field }) => (
                         <FormItem>
                           <div className="flex justify-between items-center mb-2">
-                            <FormLabel>Avancement (%)</FormLabel>
-                            <span className="text-sm font-bold text-primary">{field.value}%</span>
+                            <FormLabel className="text-xs font-bold text-slate-600">Avancement Études (%)</FormLabel>
+                            <span className="text-xs font-black text-primary">{field.value}%</span>
                           </div>
                           <FormControl>
                             <Input type="range" min="0" max="100" step="5" {...field} className="h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-primary" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="avancement_travaux"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex justify-between items-center mb-2">
+                            <FormLabel className="text-xs font-bold text-slate-600">Avancement Travaux (%)</FormLabel>
+                            <span className="text-xs font-black text-amber-600">{field.value}%</span>
+                          </div>
+                          <FormControl>
+                            <Input type="range" min="0" max="100" step="5" {...field} className="h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-amber-500" />
                           </FormControl>
                         </FormItem>
                       )}
