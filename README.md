@@ -8,7 +8,6 @@ Cette application est une solution ERP complète conçue spécifiquement pour le
 Le centre de pilotage de votre activité, entièrement personnalisable.
 
 ### Indicateurs de Performance (KPIs)
-Huit indicateurs clés calculés en temps réel pour l'exercice sélectionné :
 - **Total Contrats (HT)** : Somme des montants de base et des avenants signés.
 - **Total Facturé (HT)** : Cumul de toutes les factures de ventes émises.
 - **Reste à Facturer (HT)** : Différence entre le montant total des contrats et le déjà facturé.
@@ -23,63 +22,94 @@ Huit indicateurs clés calculés en temps réel pour l'exercice sélectionné :
 ## 🏗️ 2. Projets & Facturation
 Gestion du cycle de vie des contrats et suivi rigoureux des paiements.
 
-### Fonctionnalités
-- **Tableau Intelligent** : Colonnes redimensionnables, triables et personnalisables.
-- **Suivi des Avenants** : Gestion séparée du montant initial et des modifications contractuelles.
-- **Calcul Automatique du Statut** : Le système détermine si un projet est "Non facturé", "Partiellement" ou "Totalement" selon les factures émises.
-- **Détail des Situations** : Liste déroulante sous chaque projet pour gérer les factures (Avance, Missions S0 à S5, Règlement Définitif).
+### Description des colonnes
+- **Référence** : Identifiant unique du projet (ex: PRJ-2026-001).
+- **Projet** : Nom du projet et nom du client associé.
+- **Contrat** : État du document contractuel (icône verte si téléversé).
+- **Total Contrat HT** : Montant de base du contrat hors taxes.
+- **Avenant HT** : Montant des modifications contractuelles supplémentaires.
+- **TVA** : Montant de la taxe calculé sur le total HT (Base + Avenant).
+- **Total Contrat TTC** : Valeur totale du projet incluant la TVA.
+- **Total Facturé HT** : Somme des montants hors taxes de toutes les factures émises.
+- **Facturé TTC** : Valeur totale facturée incluant la TVA.
+- **Total Reçu TTC** : Montant réellement encaissé (factures au statut "Payé").
+- **Reste à Facturer TTC** : Montant restant à réclamer au client pour atteindre le total TTC du contrat.
+- **Statut** : État de facturation (Non facturé, Partiellement, Totalement).
 
 ---
 
 ## 👷 3. Suivi Technique des Projets
 Coordination technique et suivi de l'avancement physique des chantiers.
 
-### Fonctionnalités
-- **Annuaire des Intervenants** : Identification rapide de l'Architecte, des Ingénieurs (Fluides, Structure) et du Bureau de Contrôle pour chaque projet.
-- **Double Suivi d'Avancement** : 
-    - **Avancement Études** : Progression de la production intellectuelle (0-100%).
-    - **Avancement Travaux** : État réel des travaux sur site (0-100%).
-- **Gestion des Versions** : Colonnes distinctes pour la **Phase** (APS, APD, DAO...) et l'**Indice** (A, B, C...) pour un suivi précis des livrables.
-- **Journal d'Intervention** : Historique des réunions, relevés, envois et réceptions de documents techniques.
+### Description des colonnes
+- **Référence** : Rappel de l'identifiant unique du projet.
+- **Projet / Maître d'Ouvrage** : Nom du projet et entité commanditaire.
+- **Resp. Interne** : Ingénieur ou collaborateur du bureau responsable du dossier.
+- **Architecte** : Cabinet d'architecture partenaire sur le projet.
+- **Ing. Fluides / Structure** : Bureaux d'études partenaires spécialisés.
+- **Bureau de Contrôle** : Organisme chargé de la conformité technique (ex: Veritas).
+- **Phase** : Étape actuelle de l'étude (APS, APD, DAO...).
+- **Indice** : Version actuelle des plans ou documents (A, B, C...).
+- **Avancement Études** : Pourcentage de progression de la production intellectuelle.
+- **Entreprise** : Entreprise de travaux (BTP) en charge de l'exécution.
+- **Avancement Travaux** : Pourcentage de progression réelle du chantier sur site.
 
 ---
 
 ## 👥 4. Annuaires (Clients & Entreprises)
 Gestion des tiers et de leurs contacts.
 
-- **Annuaires Séparés** : Distinction claire entre Maîtres d'Ouvrage (Clients) et Partenaires/Sous-traitants (Entreprises).
-- **Gestion des Responsables** : Liste illimitée de contacts par entité avec rôles, téléphones et emails directs.
+### Description des colonnes (Communes aux deux onglets)
+- **Client / Entreprise** : Nom ou Raison Sociale de l'entité.
+- **Matricule Fiscal** : Identifiant légal de l'entreprise.
+- **Adresse** : Localisation physique du siège ou de l'agence.
+- **Google Maps** : Lien direct vers la localisation GPS.
+- **Téléphone / Fax / Email** : Coordonnées de contact de l'entité.
 
 ---
 
 ## 🛒 5. Achats & Dépenses
 Contrôle des coûts opérationnels.
 
-- **Catégorisation** : Classement des dépenses (Matériel, Déplacement, Logiciels, etc.).
-- **Affectation Analytique** : Possibilité de lier un achat à un projet spécifique pour calculer la marge brute par projet.
+### Description des colonnes
+- **Fournisseur** : Nom du prestataire ou magasin.
+- **N° Facture** : Référence de la facture d'achat.
+- **Date Facture** : Date d'émission du document.
+- **Date Paiement** : Date à laquelle la dépense a été réglée.
+- **Catégorie** : Type de dépense (Matériel, Logiciels, Déplacement...).
+- **Montant HT** : Valeur de l'achat hors taxes.
+- **TTC** : Valeur totale payée incluant la TVA.
+- **Statut** : État du règlement (À payer, Payée).
 
 ---
 
 ## 👨‍💼 6. Salaires & RH
 Gestion du capital humain et des absences.
 
-### Ressources Humaines (RH)
-- **Dossier Employé Complet** : Suivi du Numéro CNSS et du type de contrat (**STAGE, SIVP, CDD, CDI**).
-- **Droit aux Congés** : Configuration du quota annuel par employé (ex: 30 jours).
-- **Suivi des Soldes** : Calcul automatique des jours pris et du solde restant.
+### Onglet Salaires (Colonnes Employés)
+- **Employé** : Nom, prénom et photo/initiales du collaborateur.
+- **CIN** : Numéro de la Carte d'Identité Nationale.
+- **Poste** : Fonction occupée au sein du bureau.
+- **S. Brut** : Salaire brut contractuel.
+- **S. Net** : Salaire net à payer (base).
+- **Téléphone** : Numéro de contact direct.
 
-### Salaires
-- **Fiches de Paie** : Historique mensuel des versements incluant Primes, Tickets Restaurant et Carburant.
+### Onglet RH (Suivi des Congés)
+- **Employé** : Nom et poste du collaborateur.
+- **Total Congés** : Quota annuel de jours de repos (ex: 30j).
+- **Congés Pris** : Nombre de jours de congés déjà validés et consommés.
+- **Solde Restant** : Jours disponibles restants pour l'année.
+- **Maladies** : Cumul des jours d'absence pour raison médicale.
+- **En attente** : Nombre de demandes de congés non encore traitées.
 
 ---
 
 ## 📂 7. Gestion des Documents (Uploads)
-L'application permet de centraliser les documents officiels aux points suivants :
-
-1.  **Contrats Projets** : Téléversement du contrat signé (PDF/Image).
-2.  **Factures de Ventes** : Fichier Facture, Décharge de dépôt et Attestation de Retenue.
-3.  **Dossier RH** : Copie de la **CIN** et **Contrat de travail** signé pour chaque employé.
-4.  **Justificatifs RH** : Certificats médicaux ou demandes de congés signées.
+L'application permet de centraliser les documents officiels :
+1.  **Contrats Projets** : PDF du contrat signé.
+2.  **Factures de Ventes** : Facture, Décharge de dépôt et Attestation de Retenue.
+3.  **Dossier RH** : Copie de la **CIN** et **Contrat de travail** pour chaque employé.
+4.  **Justificatifs RH** : Certificats médicaux ou demandes signées.
 
 ---
 
