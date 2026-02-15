@@ -39,6 +39,7 @@ const userSchema = z.object({
   permissions: z.record(z.boolean()).default({
     dashboard: true,
     projects: true,
+    projectTracking: true,
     clients: true,
     companies: true,
     purchases: true,
@@ -60,6 +61,7 @@ interface UserModalProps {
 const MODULES = [
   { id: "dashboard", label: "Tableau de bord" },
   { id: "projects", label: "Projets & Ventes" },
+  { id: "projectTracking", label: "Suivi Technique" },
   { id: "clients", label: "Clients" },
   { id: "companies", label: "Entreprises" },
   { id: "purchases", label: "Achats" },
@@ -84,6 +86,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
       permissions: {
         dashboard: true,
         projects: true,
+        projectTracking: true,
         clients: true,
         companies: true,
         purchases: true,
@@ -107,6 +110,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
         permissions: {
           dashboard: true,
           projects: true,
+          projectTracking: true,
           clients: true,
           companies: true,
           purchases: true,
