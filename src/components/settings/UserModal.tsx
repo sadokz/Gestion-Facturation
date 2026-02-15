@@ -122,119 +122,121 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] rounded-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[500px] rounded-2xl overflow-hidden flex flex-col h-[85vh] p-0">
+        <DialogHeader className="p-6 pb-2">
           <DialogTitle className="text-xl font-bold text-slate-800">
             {initialData ? "Modifier l'utilisateur" : "Nouvel utilisateur"}
           </DialogTitle>
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-2 flex-1 overflow-hidden flex flex-col">
-            <ScrollArea className="flex-1 pr-4">
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="nom"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nom complet</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nom de l'utilisateur" {...field} className="rounded-xl" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="email@bureau.tn" {...field} className="rounded-xl" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Mot de passe</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input 
-                            type={showPassword ? "text" : "password"} 
-                            placeholder="••••••••" 
-                            {...field} 
-                            className="rounded-xl pr-10" 
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                          >
-                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                          </button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="grid grid-cols-2 gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col overflow-hidden">
+            <ScrollArea className="flex-1 px-6">
+              <div className="space-y-6 py-4">
+                <div className="space-y-4">
                   <FormField
                     control={form.control}
-                    name="poste"
+                    name="nom"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Poste / Rôle</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="rounded-xl">
-                              <SelectValue placeholder="Choisir un poste" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Proprietaire">Propriétaire</SelectItem>
-                            <SelectItem value="CEO">CEO</SelectItem>
-                            <SelectItem value="CFO">CFO</SelectItem>
-                            <SelectItem value="Comptable">Comptable</SelectItem>
-                            <SelectItem value="Ingénieur">Ingénieur</SelectItem>
-                            <SelectItem value="Technicien">Technicien</SelectItem>
-                            <SelectItem value="Secretaire">Secrétaire</SelectItem>
-                            <SelectItem value="Autre">Autre</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <FormLabel>Nom complet</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Nom de l'utilisateur" {...field} className="rounded-xl" />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                   <FormField
                     control={form.control}
-                    name="statut"
+                    name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Statut</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="rounded-xl">
-                              <SelectValue placeholder="Statut" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Actif">Actif</SelectItem>
-                            <SelectItem value="Suspendu">Suspendu</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="email@bureau.tn" {...field} className="rounded-xl" />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Mot de passe</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input 
+                              type={showPassword ? "text" : "password"} 
+                              placeholder="••••••••" 
+                              {...field} 
+                              className="rounded-xl pr-10" 
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                            >
+                              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="poste"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Poste / Rôle</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="rounded-xl">
+                                <SelectValue placeholder="Choisir un poste" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Proprietaire">Propriétaire</SelectItem>
+                              <SelectItem value="CEO">CEO</SelectItem>
+                              <SelectItem value="CFO">CFO</SelectItem>
+                              <SelectItem value="Comptable">Comptable</SelectItem>
+                              <SelectItem value="Ingénieur">Ingénieur</SelectItem>
+                              <SelectItem value="Technicien">Technicien</SelectItem>
+                              <SelectItem value="Secretaire">Secrétaire</SelectItem>
+                              <SelectItem value="Autre">Autre</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="statut"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Statut</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="rounded-xl">
+                                <SelectValue placeholder="Statut" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Actif">Actif</SelectItem>
+                              <SelectItem value="Suspendu">Suspendu</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-3 pt-4 border-t">
@@ -265,7 +267,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
               </div>
             </ScrollArea>
 
-            <DialogFooter className="pt-4 border-t">
+            <DialogFooter className="p-6 border-t bg-slate-50/50">
               <Button type="button" variant="outline" onClick={onClose} className="rounded-xl">Annuler</Button>
               <Button type="submit" className="rounded-xl px-6">Enregistrer</Button>
             </DialogFooter>
