@@ -114,6 +114,9 @@ L'application permet de centraliser les documents officiels :
 ---
 
 ## 🛠️ 8. Outils Transverses & UX
-- **Recherche Globale (Ctrl+K)** : Palette de commande pour naviguer instantanément.
-- **Mode Confidentialité (👁️)** : Masquage instantané de toutes les données financières (`*****`).
-- **Gestion des Exercices** : Séparation stricte des données par année.
+- **Recherche Globale (Ctrl+K)** : Palette de commande pour naviguer instantanément dans l'application.
+- **Mode Confidentialité (👁️)** : Masquage instantané de toutes les données financières sensibles (`*****`).
+- **Gestion des Exercices** : Séparation stricte des données par année fiscale.
+- **Réorganisation par Glisser-Déposer (Drag & Drop)** : Possibilité de réordonner les lignes des tableaux (projets, factures, clients) pour une organisation personnalisée.
+- **Redimensionnement des Colonnes (Resize)** : Ajustement manuel de la largeur des colonnes des tableaux pour optimiser l'affichage selon la taille de l'écran.
+- **Gestion de la Visibilité des Colonnes** : Menu de configuration permettant d'afficher ou de masquer des colonnes spécifiques pour épurer l'interface.
