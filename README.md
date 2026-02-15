@@ -120,3 +120,11 @@ L'application permet de centraliser les documents officiels :
 - **Réorganisation par Glisser-Déposer (Drag & Drop)** : Possibilité de réordonner les lignes des tableaux (projets, factures, clients) pour une organisation personnalisée.
 - **Redimensionnement des Colonnes (Resize)** : Ajustement manuel de la largeur des colonnes des tableaux pour optimiser l'affichage selon la taille de l'écran.
 - **Gestion de la Visibilité des Colonnes** : Menu de configuration permettant d'afficher ou de masquer des colonnes spécifiques pour épurer l'interface.
+
+---
+
+## ⚙️ 9. Paramètres & Sécurité
+- **Profil du Bureau** : Configuration des informations légales de l'entreprise.
+- **Gestion des Utilisateurs** : Création, modification et suppression des comptes collaborateurs.
+- **Activation/Désactivation** : Possibilité de suspendre l'accès d'un utilisateur sans supprimer ses données.
+- **Gestion des Permissions** : Contrôle granulaire de l'accès aux modules (Dashboard, Projets, RH, etc.) pour chaque utilisateur.
