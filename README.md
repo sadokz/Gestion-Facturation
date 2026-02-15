@@ -31,13 +31,16 @@ Gestion du cycle de vie des contrats et suivi rigoureux des paiements.
 
 ---
 
-## 👷 3. Suivi Technique des Projets (Nouveau)
+## 👷 3. Suivi Technique des Projets
 Coordination technique et suivi de l'avancement physique des chantiers.
 
 ### Fonctionnalités
 - **Annuaire des Intervenants** : Identification rapide de l'Architecte, des Ingénieurs (Fluides, Structure) et du Bureau de Contrôle pour chaque projet.
-- **Avancement Physique** : Barre de progression visuelle (0-100%) pour suivre l'état réel des travaux sur site.
-- **Statut Technique** : Distinction entre les phases de démarrage, en cours et terminé.
+- **Double Suivi d'Avancement** : 
+    - **Avancement Études** : Progression de la production intellectuelle (0-100%).
+    - **Avancement Travaux** : État réel des travaux sur site (0-100%).
+- **Gestion des Versions** : Colonnes distinctes pour la **Phase** (APS, APD, DAO...) et l'**Indice** (A, B, C...) pour un suivi précis des livrables.
+- **Journal d'Intervention** : Historique des réunions, relevés, envois et réceptions de documents techniques.
 
 ---
 
@@ -61,6 +64,7 @@ Contrôle des coûts opérationnels.
 Gestion du capital humain et des absences.
 
 ### Ressources Humaines (RH)
+- **Dossier Employé Complet** : Suivi du Numéro CNSS et du type de contrat (**STAGE, SIVP, CDD, CDI**).
 - **Droit aux Congés** : Configuration du quota annuel par employé (ex: 30 jours).
 - **Suivi des Soldes** : Calcul automatique des jours pris et du solde restant.
 
@@ -74,7 +78,8 @@ L'application permet de centraliser les documents officiels aux points suivants 
 
 1.  **Contrats Projets** : Téléversement du contrat signé (PDF/Image).
 2.  **Factures de Ventes** : Fichier Facture, Décharge de dépôt et Attestation de Retenue.
-3.  **Justificatifs RH** : Certificats médicaux ou demandes de congés signées.
+3.  **Dossier RH** : Copie de la **CIN** et **Contrat de travail** signé pour chaque employé.
+4.  **Justificatifs RH** : Certificats médicaux ou demandes de congés signées.
 
 ---
 
