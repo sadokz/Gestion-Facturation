@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetcher } from "@/api/config";
-import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText, UserCheck, Construction } from "lucide-react";
+import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText, UserCheck, Construction, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -47,6 +47,7 @@ const projectSchema = z.object({
   bureau_controle: z.string().optional(),
   entreprise_travaux: z.string().optional(),
   responsable_interne: z.string().optional(),
+  phase: z.string().optional(),
   avancement: z.coerce.number().min(0).max(100).default(0),
 });
 
@@ -84,6 +85,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       bureau_controle: "",
       entreprise_travaux: "",
       responsable_interne: "",
+      phase: "APS - A",
       avancement: 0,
     },
   });
@@ -108,6 +110,12 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       if (initialData) form.reset(initialData);
     }
   }, [isOpen, initialData, form]);
+
+  const phaseOptions = [
+    "APS - A", "APS - B", "APS - C", "APS - D", "APS - E",
+    "APD - A", "APD - B", "APD - C", "APD - D", "APD - E",
+    "DAO - A", "DAO - B", "DAO - C", "DAO - D", "DAO - E"
+  ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -338,21 +346,44 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                       )}
                     />
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="avancement"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex justify-between items-center mb-2">
-                          <FormLabel>État d'avancement Études (%)</FormLabel>
-                          <span className="text-sm font-bold text-primary">{field.value}%</span>
-                        </div>
-                        <FormControl>
-                          <Input type="range" min="0" max="100" step="5" {...field} className="h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-primary" />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="phase"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-slate-700"><Layers size={14} /> Phase d'étude</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="rounded-xl">
+                                <SelectValue placeholder="Sélectionner la phase" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {phaseOptions.map((opt) => (
+                                <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="avancement"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex justify-between items-center mb-2">
+                            <FormLabel>État d'avancement Études (%)</FormLabel>
+                            <span className="text-sm font-bold text-primary">{field.value}%</span>
+                          </div>
+                          <FormControl>
+                            <Input type="range" min="0" max="100" step="5" {...field} className="h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-primary" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </TabsContent>
               </div>
             </Tabs>

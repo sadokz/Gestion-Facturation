@@ -13,7 +13,8 @@ import {
   ChevronDown,
   ChevronRight,
   UserCheck,
-  Construction
+  Construction,
+  Layers
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { fetcher } from "@/api/config";
@@ -56,6 +57,7 @@ const TRACKING_COLUMNS = [
   { id: "ing_fluides", label: "Ing. Fluides" },
   { id: "ing_structure", label: "Ing. Structure" },
   { id: "bureau_controle", label: "Bureau de Contrôle" },
+  { id: "phase", label: "Phase" },
   { id: "avancement", label: "Avancement Études" },
   { id: "entreprise_travaux", label: "Entreprise" },
 ];
@@ -99,6 +101,7 @@ const ProjectTracking = () => {
           ing_structure: "Ingénierie Structure",
           bureau_controle: "Veritas",
           entreprise_travaux: "SOTETRA",
+          phase: "APD - B",
           avancement: 65,
           client_responsibles: [
             { id: 101, nom: "M. Ahmed Ben Salah", role: "Directeur Technique", tel: "98 000 111", email: "ahmed.salah@commune.tn" }, 
@@ -200,6 +203,7 @@ const ProjectTracking = () => {
                   {isVisible("ing_fluides") && <ResizableHeader initialWidth={160} className="text-center">Ing. Fluides</ResizableHeader>}
                   {isVisible("ing_structure") && <ResizableHeader initialWidth={160} className="text-center">Ing. Structure</ResizableHeader>}
                   {isVisible("bureau_controle") && <ResizableHeader initialWidth={160} className="text-center">Bureau de Contrôle</ResizableHeader>}
+                  {isVisible("phase") && <ResizableHeader initialWidth={120} className="text-center">Phase</ResizableHeader>}
                   {isVisible("avancement") && <ResizableHeader initialWidth={180} className="text-center">Avancement Études</ResizableHeader>}
                   {isVisible("entreprise_travaux") && <ResizableHeader initialWidth={160} className="text-center">Entreprise</ResizableHeader>}
                   <ResizableHeader initialWidth={60} resizable={false}>
@@ -274,6 +278,14 @@ const ProjectTracking = () => {
                             <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
                               <Building2 size={12} className="text-slate-400" />
                               {project.bureau_controle || "-"}
+                            </div>
+                          </TableCell>
+                        )}
+                        {isVisible("phase") && (
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center gap-2 text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-lg">
+                              <Layers size={12} className="text-slate-400" />
+                              {project.phase || "-"}
                             </div>
                           </TableCell>
                         )}
