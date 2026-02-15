@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetcher } from "@/api/config";
-import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText, UserCheck, Construction, Layers } from "lucide-react";
+import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText, UserCheck, Construction, Layers, Hash } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -48,6 +48,7 @@ const projectSchema = z.object({
   entreprise_travaux: z.string().optional(),
   responsable_interne: z.string().optional(),
   phase: z.string().optional(),
+  indice: z.string().optional(),
   avancement: z.coerce.number().min(0).max(100).default(0),
 });
 
@@ -85,7 +86,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       bureau_controle: "",
       entreprise_travaux: "",
       responsable_interne: "",
-      phase: "APS - A",
+      phase: "APS",
+      indice: "A",
       avancement: 0,
     },
   });
@@ -111,11 +113,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     }
   }, [isOpen, initialData, form]);
 
-  const phaseOptions = [
-    "APS - A", "APS - B", "APS - C", "APS - D", "APS - E",
-    "APD - A", "APD - B", "APD - C", "APD - D", "APD - E",
-    "DAO - A", "DAO - B", "DAO - C", "DAO - D", "DAO - E"
-  ];
+  const phaseOptions = ["APS", "APD", "DAO"];
+  const indiceOptions = ["A", "B", "C", "D", "E"];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -346,17 +345,17 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                       )}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
                       name="phase"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="flex items-center gap-2 text-slate-700"><Layers size={14} /> Phase d'étude</FormLabel>
+                          <FormLabel className="flex items-center gap-2 text-slate-700"><Layers size={14} /> Phase</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger className="rounded-xl">
-                                <SelectValue placeholder="Sélectionner la phase" />
+                                <SelectValue placeholder="Phase" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -370,11 +369,32 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                     />
                     <FormField
                       control={form.control}
+                      name="indice"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-indigo-700"><Hash size={14} /> Indice</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="rounded-xl">
+                                <SelectValue placeholder="Indice" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {indiceOptions.map((opt) => (
+                                <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
                       name="avancement"
                       render={({ field }) => (
                         <FormItem>
                           <div className="flex justify-between items-center mb-2">
-                            <FormLabel>État d'avancement Études (%)</FormLabel>
+                            <FormLabel>Avancement (%)</FormLabel>
                             <span className="text-sm font-bold text-primary">{field.value}%</span>
                           </div>
                           <FormControl>
