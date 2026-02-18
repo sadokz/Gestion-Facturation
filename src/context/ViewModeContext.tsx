@@ -24,7 +24,14 @@ export const ViewModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     
     // Vues par défaut pour chaque catégorie
     return [
-      { id: "p-default", category: "projects", name: "Vue Complète", columns: ["reference_projet", "nom_projet", "contrat", "montant_total_ht", "montant_avenant_ht", "tva_pct", "total_ttc", "facture_ht", "facture_ttc", "paye_ttc", "reste_ttc", "statut"] },
+      // Nouveaux modes demandés pour les projets
+      { id: "p-ht", category: "projects", name: "Mode HT", columns: ["reference_projet", "nom_projet", "montant_total_ht", "montant_avenant_ht", "total_ht", "facture_ht", "paye_ht", "reste_ht", "statut"] },
+      { id: "p-ttc", category: "projects", name: "Mode TTC", columns: ["reference_projet", "nom_projet", "total_ttc", "facture_ttc", "paye_ttc", "reste_ttc", "statut"] },
+      { id: "p-partial", category: "projects", name: "Partiellement Facturé", columns: ["reference_projet", "nom_projet", "total_ht", "facture_ht", "reste_ht", "statut"] },
+      { id: "p-total", category: "projects", name: "Totalement Facturé", columns: ["reference_projet", "nom_projet", "total_ht", "facture_ht", "statut"] },
+      { id: "p-none", category: "projects", name: "Non Facturé", columns: ["reference_projet", "nom_projet", "total_ht", "reste_ht", "statut"] },
+      
+      // Autres catégories
       { id: "t-default", category: "tracking", name: "Vue Technique", columns: ["reference_projet", "nom_projet", "responsable_interne", "phase", "indice", "avancement", "entreprise_travaux", "avancement_travaux"] },
       { id: "c-default", category: "clients", name: "Vue Standard", columns: ["nom", "matricule_fiscale", "tel", "email"] },
       { id: "co-default", category: "companies", name: "Vue Standard", columns: ["nom", "matricule_fiscale", "tel", "email"] },
@@ -54,7 +61,7 @@ export const ViewModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const deleteViewMode = (id: string) => {
     // Empêcher la suppression des vues par défaut (celles qui commencent par une lettre et un tiret)
-    if (id.includes("-default")) return;
+    if (id.startsWith("p-") || id.includes("-default")) return;
     setViewModes(prev => prev.filter(m => m.id !== id));
   };
 
