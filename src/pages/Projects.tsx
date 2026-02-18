@@ -83,7 +83,7 @@ const PROJECT_COLUMNS = [
   { id: "tva_pct", label: "TVA" },
   { id: "total_ttc", label: "Total Contrat TTC" },
   { id: "facture_ht", label: "Total Facturé HT" },
-  { id: "facture_ttc", label: "Facturé TTC" },
+  { id: "facture_ttc", label: "Total Facturé TTC" },
   { id: "paye_ttc", label: "Total Reçu TTC" },
   { id: "reste_ttc", label: "Reste à Facturer TTC" },
   { id: "statut", label: "Statut" },
@@ -428,7 +428,7 @@ const Projects = () => {
                     {isVisible("tva_pct") && <ResizableHeader initialWidth={120} minWidth={80} className="text-center" sortKey="tva_pct" currentSort={sortConfig} onSort={handleSort}>TVA</ResizableHeader>}
                     {isVisible("total_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center" sortKey="total_ttc" currentSort={sortConfig} onSort={handleSort}>Total Contrat TTC</ResizableHeader>}
                     {isVisible("facture_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Total Facturé HT</ResizableHeader>}
-                    {isVisible("facture_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Facturé TTC</ResizableHeader>}
+                    {isVisible("facture_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Total Facturé TTC</ResizableHeader>}
                     {isVisible("paye_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Total Reçu TTC</ResizableHeader>}
                     {isVisible("reste_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Reste à Facturer TTC</ResizableHeader>}
                     {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} className="text-center" sortKey="statut" currentSort={sortConfig} onSort={handleSort}>Statut</ResizableHeader>}
