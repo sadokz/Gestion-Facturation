@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetcher } from "@/api/config";
-import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText, UserCheck, Construction, Layers, Hash, Info, ShieldCheck, UserCog, ClipboardList } from "lucide-react";
+import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText, UserCheck, Construction, Layers, Hash, Info, ShieldCheck, UserCog, ClipboardList, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -101,6 +101,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       avancement_travaux: 0,
     },
   });
+
+  const currentPhase = form.watch("phase");
 
   useEffect(() => {
     if (isOpen) {
@@ -397,7 +399,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                       name="indice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="flex items-center gap-2 text-indigo-700"><Hash size={14} /> Indice</FormLabel>
+                          <FormLabel className="flex items-center gap-2 text-indigo-700"><Hash size={14} /> Indice</Hash></FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger className="rounded-xl">
@@ -525,14 +527,31 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                       control={form.control}
                       name="avancement_travaux"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className={cn(currentPhase !== "EXE" && "opacity-50")}>
                           <div className="flex justify-between items-center mb-2">
-                            <FormLabel className="text-xs font-bold text-slate-600">Avancement Travaux (%)</FormLabel>
+                            <div className="flex items-center gap-2">
+                              <FormLabel className="text-xs font-bold text-slate-600">Avancement Travaux (%)</FormLabel>
+                              {currentPhase !== "EXE" && <Lock size={10} className="text-slate-400" />}
+                            </div>
                             <span className="text-xs font-black text-amber-600">{field.value}%</span>
                           </div>
                           <FormControl>
-                            <Input type="range" min="0" max="100" step="5" {...field} className="h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-amber-500" />
+                            <Input 
+                              type="range" 
+                              min="0" 
+                              max="100" 
+                              step="5" 
+                              {...field} 
+                              disabled={currentPhase !== "EXE"}
+                              className={cn(
+                                "h-2 bg-slate-100 rounded-lg appearance-none accent-amber-500",
+                                currentPhase === "EXE" ? "cursor-pointer" : "cursor-not-allowed"
+                              )} 
+                            />
                           </FormControl>
+                          {currentPhase !== "EXE" && (
+                            <p className="text-[9px] text-amber-600 font-medium mt-1 italic">Modifiable uniquement en phase EXE</p>
+                          )}
                         </FormItem>
                       )}
                     />
