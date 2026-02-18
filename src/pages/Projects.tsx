@@ -48,7 +48,7 @@ import { ProjectDetail } from "@/components/projects/ProjectDetail";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { ProjectInvoicesList } from "@/components/projects/ProjectInvoicesList";
 import { SalesInvoiceModal } from "@/components/projects/SalesInvoiceModal";
-import { ViewModeModal } from "@/components/projects/ViewModeModal";
+import { ViewModeModal } from "@/components/ui/ViewModeModal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
 import { ColumnToggle } from "@/components/ui/ColumnToggle";
@@ -465,6 +465,7 @@ const Projects = () => {
         isOpen={isViewModeModalOpen} 
         onClose={() => setIsViewModeModalOpen(false)} 
         availableColumns={PROJECT_COLUMNS}
+        category="projects"
         currentVisibleColumns={visibleColumns}
         initialData={selectedViewMode}
       />
