@@ -8,6 +8,7 @@ import { NavigationProvider } from "./context/NavigationContext";
 import { DashboardProvider } from "./context/DashboardContext";
 import { PrivacyProvider } from "./context/PrivacyContext";
 import { CompanyProvider } from "./context/CompanyContext";
+import { ViewModeProvider } from "./context/ViewModeContext";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { ThemeProvider } from "./components/theme-provider";
 import Dashboard from "./pages/Dashboard";
@@ -30,34 +31,36 @@ const App = () => (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <YearProvider>
         <CompanyProvider>
-          <NavigationProvider>
-            <DashboardProvider>
-              <PrivacyProvider>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner position="top-right" expand={false} richColors />
-                  <BrowserRouter>
-                    <DashboardLayout>
-                      <Routes>
-                        <Route path="/" element={<Dashboard />} />
-                        <Route path="/projects" element={<Projects />} />
-                        <Route path="/project-tracking" element={<ProjectTracking />} />
-                        <Route path="/clients" element={<Clients />} />
-                        <Route path="/companies" element={<Companies />} />
-                        <Route path="/purchases" element={<Purchases />} />
-                        <Route path="/salaries" element={<Salaries />} />
-                        <Route path="/hr" element={<HR />} />
-                        <Route path="/cnss" element={<CNSS />} />
-                        <Route path="/accounting" element={<Accounting />} />
-                        <Route path="/settings" element={<Settings />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </DashboardLayout>
-                  </BrowserRouter>
-                </TooltipProvider>
-              </PrivacyProvider>
-            </DashboardProvider>
-          </NavigationProvider>
+          <ViewModeProvider>
+            <NavigationProvider>
+              <DashboardProvider>
+                <PrivacyProvider>
+                  <TooltipProvider>
+                    <Toaster />
+                    <Sonner position="top-right" expand={false} richColors />
+                    <BrowserRouter>
+                      <DashboardLayout>
+                        <Routes>
+                          <Route path="/" element={<Dashboard />} />
+                          <Route path="/projects" element={<Projects />} />
+                          <Route path="/project-tracking" element={<ProjectTracking />} />
+                          <Route path="/clients" element={<Clients />} />
+                          <Route path="/companies" element={<Companies />} />
+                          <Route path="/purchases" element={<Purchases />} />
+                          <Route path="/salaries" element={<Salaries />} />
+                          <Route path="/hr" element={<HR />} />
+                          <Route path="/cnss" element={<CNSS />} />
+                          <Route path="/accounting" element={<Accounting />} />
+                          <Route path="/settings" element={<Settings />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </DashboardLayout>
+                    </BrowserRouter>
+                  </TooltipProvider>
+                </PrivacyProvider>
+              </DashboardProvider>
+            </NavigationProvider>
+          </ViewModeProvider>
         </CompanyProvider>
       </YearProvider>
     </ThemeProvider>

@@ -11,11 +11,15 @@ import {
   ChevronRight,
   GripVertical,
   UploadCloud,
-  CheckCircle2
+  CheckCircle2,
+  Layout,
+  Save,
+  Settings2
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { usePrivacy } from "@/context/PrivacyContext";
 import { useMyCompany } from "@/context/CompanyContext";
+import { useViewModes, ViewMode } from "@/context/ViewModeContext";
 import { fetcher } from "@/api/config";
 import { formatCurrencyDT, computeTTC } from "@/utils/formatters";
 import { cn } from "@/lib/utils";
@@ -31,6 +35,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,6 +48,7 @@ import { ProjectDetail } from "@/components/projects/ProjectDetail";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { ProjectInvoicesList } from "@/components/projects/ProjectInvoicesList";
 import { SalesInvoiceModal } from "@/components/projects/SalesInvoiceModal";
+import { ViewModeModal } from "@/components/projects/ViewModeModal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
 import { ColumnToggle } from "@/components/ui/ColumnToggle";
@@ -219,6 +226,7 @@ const SortableProjectRow = ({
 const Projects = () => {
   const { selectedYear } = useYear();
   const { selectedCompany } = useMyCompany();
+  const { viewModes, deleteViewMode } = useViewModes();
   const [searchParams, setSearchParams] = useSearchParams();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -232,6 +240,7 @@ const Projects = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+  const [isViewModeModalOpen, setIsViewModeModalOpen] = useState(false);
   
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
@@ -334,9 +343,43 @@ const Projects = () => {
           <h1 className="text-3xl font-bold text-slate-900">Projets & Facturation</h1>
           <p className="text-slate-500">Gérez vos contrats pour {selectedCompany?.nom}</p>
         </div>
-        <Button onClick={() => { setSelectedProject(null); setIsModalOpen(true); }} className="rounded-xl shadow-lg shadow-primary/20 gap-2 h-11 px-6">
-          <Plus size={18} /> Nouveau Projet
-        </Button>
+        <div className="flex items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="rounded-xl gap-2 h-11 px-4 border-slate-200">
+                <Layout size={18} /> Modes de vue
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 rounded-xl">
+              <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold">Mes Vues</DropdownMenuLabel>
+              {viewModes.map((mode) => (
+                <div key={mode.id} className="flex items-center group">
+                  <DropdownMenuItem 
+                    className="flex-1 cursor-pointer"
+                    onClick={() => setVisibleColumns(mode.columns)}
+                  >
+                    {mode.name}
+                  </DropdownMenuItem>
+                  {mode.id !== "default" && mode.id !== "finance" && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); deleteViewMode(mode.id); }}
+                      className="p-2 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="gap-2 cursor-pointer text-primary font-bold" onClick={() => setIsViewModeModalOpen(true)}>
+                <Save size={14} /> Enregistrer vue actuelle
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button onClick={() => { setSelectedProject(null); setIsModalOpen(true); }} className="rounded-xl shadow-lg shadow-primary/20 gap-2 h-11 px-6">
+            <Plus size={18} /> Nouveau Projet
+          </Button>
+        </div>
       </div>
 
       <Card className="border-none shadow-md overflow-hidden">
@@ -408,6 +451,11 @@ const Projects = () => {
         onSubmit={() => { showSuccess("Facture enregistrée"); setIsInvoiceModalOpen(false); loadProjects(); }} 
         initialData={selectedInvoice} 
         projectTva={selectedProject?.tva_pct}
+      />
+      <ViewModeModal 
+        isOpen={isViewModeModalOpen} 
+        onClose={() => setIsViewModeModalOpen(false)} 
+        currentColumns={visibleColumns} 
       />
     </div>
   );
