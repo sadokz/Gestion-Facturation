@@ -4,7 +4,14 @@ interface MyCompany {
   id: string;
   nom: string;
   matricule_fiscale?: string;
+  rne?: string;
+  gerant?: string;
+  comptable?: string;
   adresse?: string;
+  tel?: string;
+  fax?: string;
+  email?: string;
+  website?: string;
   logo?: string;
 }
 
@@ -27,7 +34,13 @@ export const CompanyProvider: React.FC<{ children: React.ReactNode }> = ({ child
       id: "1", 
       nom: "Bureau d'Études Principal", 
       matricule_fiscale: "1234567/A/M/000",
-      adresse: "Avenue Habib Bourguiba, Tunis"
+      rne: "1234567X",
+      gerant: "M. Foulen Ben Foulen",
+      comptable: "Cabinet Audit Plus",
+      adresse: "Avenue Habib Bourguiba, Tunis",
+      tel: "71 000 000",
+      email: "contact@bureau-etudes.tn",
+      website: "www.bureau-etudes.tn"
     }];
   });
 

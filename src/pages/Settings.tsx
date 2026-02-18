@@ -21,7 +21,12 @@ import {
   UserPlus,
   Plus,
   Trash2,
-  Edit
+  Edit,
+  Globe,
+  Phone,
+  Mail,
+  User,
+  Briefcase as BriefcaseIcon
 } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 import { useNavigation } from "@/context/NavigationContext";
@@ -41,8 +46,10 @@ const Settings = () => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
   
-  // État local pour l'édition d'une entreprise
-  const [companyForm, setCompanyForm] = useState({ id: "", nom: "", matricule_fiscale: "", adresse: "" });
+  const [companyForm, setCompanyForm] = useState({ 
+    id: "", nom: "", matricule_fiscale: "", rne: "", gerant: "", comptable: "", 
+    adresse: "", tel: "", fax: "", email: "", website: "" 
+  });
 
   const [users, setUsers] = useState([
     { 
@@ -55,17 +62,6 @@ const Settings = () => {
       avatar: "Felix",
       allowedCompanies: ["1"],
       permissions: { dashboard: true, projects: true, projectTracking: true, clients: true, companies: true, purchases: true, salaries: true, hr: true, cnss: true, accounting: true, settings: true }
-    },
-    { 
-      id: 2, 
-      nom: "Mohamed Ben Ali", 
-      email: "m.benali@bureau.tn", 
-      password: "password123",
-      poste: "CEO", 
-      statut: "Actif",
-      avatar: "Aneka",
-      allowedCompanies: ["1"],
-      permissions: { dashboard: true, projects: true, projectTracking: true, clients: true, companies: true, purchases: true, salaries: true, hr: true, cnss: true, accounting: true, settings: false }
     },
   ]);
 
@@ -132,7 +128,7 @@ const Settings = () => {
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
           <h3 className="font-bold text-slate-800">Profil du Bureau</h3>
-          <p className="text-sm text-slate-500">Gérez vos différentes entités juridiques et succursales.</p>
+          <p className="text-sm text-slate-500">Gérez vos différentes entités juridiques et leurs informations légales.</p>
         </div>
         <div className="md:col-span-2 space-y-4">
           <div className="flex justify-end">
@@ -142,47 +138,72 @@ const Settings = () => {
               className="rounded-xl gap-2 border-primary/20 text-primary hover:bg-primary/5"
               onClick={() => {
                 setEditingCompanyId("new");
-                setCompanyForm({ id: "new", nom: "", matricule_fiscale: "", adresse: "" });
+                setCompanyForm({ 
+                  id: "new", nom: "", matricule_fiscale: "", rne: "", gerant: "", 
+                  comptable: "", adresse: "", tel: "", fax: "", email: "", website: "" 
+                });
               }}
             >
               <Plus size={16} /> Ajouter une entité
             </Button>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             {myCompanies.map((company) => (
               <Card key={company.id} className={cn(
-                "border-none shadow-md transition-all",
+                "border-none shadow-md transition-all overflow-hidden",
                 editingCompanyId === company.id ? "ring-2 ring-primary/20" : ""
               )}>
-                <CardContent className="p-6">
+                <CardContent className="p-0">
                   {editingCompanyId === company.id ? (
-                    <div className="space-y-4">
+                    <div className="p-6 space-y-6">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>Nom de l'entité</Label>
-                          <Input 
-                            value={companyForm.nom} 
-                            onChange={(e) => setCompanyForm({...companyForm, nom: e.target.value})}
-                            className="rounded-xl" 
-                          />
+                          <Input value={companyForm.nom} onChange={(e) => setCompanyForm({...companyForm, nom: e.target.value})} className="rounded-xl" />
                         </div>
                         <div className="space-y-2">
+                          <Label>RNE</Label>
+                          <Input value={companyForm.rne} onChange={(e) => setCompanyForm({...companyForm, rne: e.target.value})} className="rounded-xl" placeholder="Registre National des Entreprises" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
                           <Label>Matricule Fiscal</Label>
-                          <Input 
-                            value={companyForm.matricule_fiscale} 
-                            onChange={(e) => setCompanyForm({...companyForm, matricule_fiscale: e.target.value})}
-                            className="rounded-xl" 
-                          />
+                          <Input value={companyForm.matricule_fiscale} onChange={(e) => setCompanyForm({...companyForm, matricule_fiscale: e.target.value})} className="rounded-xl" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Gérant</Label>
+                          <Input value={companyForm.gerant} onChange={(e) => setCompanyForm({...companyForm, gerant: e.target.value})} className="rounded-xl" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Comptable / Cabinet</Label>
+                          <Input value={companyForm.comptable} onChange={(e) => setCompanyForm({...companyForm, comptable: e.target.value})} className="rounded-xl" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Site Web</Label>
+                          <Input value={companyForm.website} onChange={(e) => setCompanyForm({...companyForm, website: e.target.value})} className="rounded-xl" placeholder="www.exemple.tn" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label>Téléphone</Label>
+                          <Input value={companyForm.tel} onChange={(e) => setCompanyForm({...companyForm, tel: e.target.value})} className="rounded-xl" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Fax</Label>
+                          <Input value={companyForm.fax} onChange={(e) => setCompanyForm({...companyForm, fax: e.target.value})} className="rounded-xl" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Email</Label>
+                          <Input value={companyForm.email} onChange={(e) => setCompanyForm({...companyForm, email: e.target.value})} className="rounded-xl" />
                         </div>
                       </div>
                       <div className="space-y-2">
                         <Label>Adresse Siège</Label>
-                        <Input 
-                          value={companyForm.adresse} 
-                          onChange={(e) => setCompanyForm({...companyForm, adresse: e.target.value})}
-                          className="rounded-xl" 
-                        />
+                        <Input value={companyForm.adresse} onChange={(e) => setCompanyForm({...companyForm, adresse: e.target.value})} className="rounded-xl" />
                       </div>
                       <div className="flex justify-end gap-2 pt-2">
                         <Button variant="ghost" onClick={() => setEditingCompanyId(null)} className="rounded-xl">Annuler</Button>
@@ -190,79 +211,77 @@ const Settings = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center">
-                          <Building size={24} />
+                    <div className="p-6">
+                      <div className="flex items-start justify-between mb-6">
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center">
+                            <Building size={28} />
+                          </div>
+                          <div>
+                            <h4 className="font-black text-lg text-slate-800">{company.nom}</h4>
+                            <div className="flex items-center gap-3 mt-1">
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">MF: {company.matricule_fiscale || "-"}</span>
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">RNE: {company.rne || "-"}</span>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="font-bold text-slate-800">{company.nom}</h4>
-                          <p className="text-xs text-slate-500 font-mono">{company.matricule_fiscale || "Pas de matricule"}</p>
-                          <p className="text-xs text-slate-400 mt-1">{company.adresse || "Pas d'adresse"}</p>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => startEditingCompany(company)}>
+                            <Edit size={16} />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="rounded-xl text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                            disabled={myCompanies.length <= 1}
+                            onClick={() => { setCompanyForm(company); setIsCompanyConfirmOpen(true); }}
+                          >
+                            <Trash2 size={16} />
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => startEditingCompany(company)}>
-                          <Edit size={16} />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="rounded-xl text-rose-500 hover:text-rose-600 hover:bg-rose-50"
-                          disabled={myCompanies.length <= 1}
-                          onClick={() => {
-                            setCompanyForm(company);
-                            setIsCompanyConfirmOpen(true);
-                          }}
-                        >
-                          <Trash2 size={16} />
-                        </Button>
+
+                      <div className="grid grid-cols-2 gap-y-4 gap-x-8 border-t pt-6">
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2 text-xs">
+                            <User size={14} className="text-slate-400" />
+                            <span className="text-slate-500">Gérant :</span>
+                            <span className="font-bold text-slate-700">{company.gerant || "-"}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs">
+                            <Calculator size={14} className="text-slate-400" />
+                            <span className="text-slate-500">Comptable :</span>
+                            <span className="font-bold text-slate-700">{company.comptable || "-"}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs">
+                            <Globe size={14} className="text-slate-400" />
+                            <span className="text-slate-500">Site :</span>
+                            <a href={`https://${company.website}`} target="_blank" className="font-bold text-primary hover:underline">{company.website || "-"}</a>
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2 text-xs">
+                            <Phone size={14} className="text-slate-400" />
+                            <span className="text-slate-500">Tel :</span>
+                            <span className="font-bold text-slate-700">{company.tel || "-"}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs">
+                            <Mail size={14} className="text-slate-400" />
+                            <span className="text-slate-500">Email :</span>
+                            <span className="font-bold text-slate-700">{company.email || "-"}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs">
+                            <SettingsIcon size={14} className="text-slate-400" />
+                            <span className="text-slate-500">Fax :</span>
+                            <span className="font-bold text-slate-700">{company.fax || "-"}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
                 </CardContent>
               </Card>
             ))}
-
-            {editingCompanyId === "new" && (
-              <Card className="border-2 border-dashed border-primary/20 shadow-none bg-primary/5">
-                <CardContent className="p-6 space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Nom de l'entité</Label>
-                      <Input 
-                        value={companyForm.nom} 
-                        onChange={(e) => setCompanyForm({...companyForm, nom: e.target.value})}
-                        placeholder="Ex: Bureau d'Études Sud"
-                        className="rounded-xl bg-white" 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Matricule Fiscal</Label>
-                      <Input 
-                        value={companyForm.matricule_fiscale} 
-                        onChange={(e) => setCompanyForm({...companyForm, matricule_fiscale: e.target.value})}
-                        placeholder="0000000/A/M/000"
-                        className="rounded-xl bg-white" 
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Adresse Siège</Label>
-                    <Input 
-                      value={companyForm.adresse} 
-                      onChange={(e) => setCompanyForm({...companyForm, adresse: e.target.value})}
-                      placeholder="Adresse complète..."
-                      className="rounded-xl bg-white" 
-                    />
-                  </div>
-                  <div className="flex justify-end gap-2 pt-2">
-                    <Button variant="ghost" onClick={() => setEditingCompanyId(null)} className="rounded-xl">Annuler</Button>
-                    <Button onClick={saveCompany} className="rounded-xl px-6">Créer l'entité</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
         </div>
       </section>
@@ -277,20 +296,13 @@ const Settings = () => {
         </div>
         <div className="md:col-span-2 space-y-4">
           <div className="flex justify-end">
-            <Button 
-              onClick={() => { setSelectedUser(null); setIsUserModalOpen(true); }} 
-              className="rounded-xl gap-2"
-            >
+            <Button onClick={() => { setSelectedUser(null); setIsUserModalOpen(true); }} className="rounded-xl gap-2">
               <UserPlus size={18} /> Nouvel Utilisateur
             </Button>
           </div>
           <Card className="border-none shadow-md">
             <CardContent className="p-6">
-              <UserList 
-                users={users} 
-                onEdit={(user) => { setSelectedUser(user); setIsUserModalOpen(true); }} 
-                onDelete={(user) => { setSelectedUser(user); setIsConfirmOpen(true); }} 
-              />
+              <UserList users={users} onEdit={(user) => { setSelectedUser(user); setIsUserModalOpen(true); }} onDelete={(user) => { setSelectedUser(user); setIsConfirmOpen(true); }} />
             </CardContent>
           </Card>
         </div>
@@ -328,36 +340,9 @@ const Settings = () => {
         </Button>
       </div>
 
-      <UserModal 
-        isOpen={isUserModalOpen} 
-        onClose={() => setIsUserModalOpen(false)} 
-        onSubmit={handleAddUser} 
-        initialData={selectedUser} 
-      />
-      
-      <ConfirmDialog 
-        isOpen={isConfirmOpen} 
-        onClose={() => setIsConfirmOpen(false)} 
-        onConfirm={handleDeleteUser} 
-        title="Supprimer l'utilisateur ?" 
-        description="Cet utilisateur n'aura plus accès à l'application. Cette action est irréversible." 
-        variant="destructive" 
-        confirmText="Supprimer" 
-      />
-
-      <ConfirmDialog 
-        isOpen={isCompanyConfirmOpen} 
-        onClose={() => setIsCompanyConfirmOpen(false)} 
-        onConfirm={() => {
-          deleteMyCompany(companyForm.id);
-          showSuccess("Entité supprimée");
-          setIsCompanyConfirmOpen(false);
-        }} 
-        title="Supprimer cette entité ?" 
-        description="Toutes les données liées à cette entreprise seront inaccessibles. Cette action est irréversible." 
-        variant="destructive" 
-        confirmText="Supprimer" 
-      />
+      <UserModal isOpen={isUserModalOpen} onClose={() => setIsUserModalOpen(false)} onSubmit={handleAddUser} initialData={selectedUser} />
+      <ConfirmDialog isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={handleDeleteUser} title="Supprimer l'utilisateur ?" description="Cet utilisateur n'aura plus accès à l'application. Cette action est irréversible." variant="destructive" confirmText="Supprimer" />
+      <ConfirmDialog isOpen={isCompanyConfirmOpen} onClose={() => setIsCompanyConfirmOpen(false)} onConfirm={() => { deleteMyCompany(companyForm.id); showSuccess("Entité supprimée"); setIsCompanyConfirmOpen(false); }} title="Supprimer cette entité ?" description="Toutes les données liées à cette entreprise seront inaccessibles. Cette action est irréversible." variant="destructive" confirmText="Supprimer" />
     </div>
   );
 };
