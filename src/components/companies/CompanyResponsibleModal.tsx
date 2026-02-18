@@ -34,9 +34,9 @@ import { Building2 } from "lucide-react";
 
 const responsibleSchema = z.object({
   nom: z.string().min(1, "Le nom est requis"),
-  role: z.string().min(1, "Le rôle est requis"),
-  tel: z.string().min(1, "Le téléphone est requis"),
-  email: z.string().email("Email invalide").min(1, "L'email est requis"),
+  role: z.string().optional().or(z.literal("")),
+  tel: z.string().optional().or(z.literal("")),
+  email: z.string().email("Email invalide").optional().or(z.literal("")),
   projets_suivis: z.string().optional().or(z.literal("")),
   tiers_id: z.string().min(1, "L'entreprise est requise"),
 });
@@ -153,7 +153,7 @@ export const CompanyResponsibleModal: React.FC<CompanyResponsibleModalProps> = (
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Rôle / Poste</FormLabel>
+                  <FormLabel>Rôle / Poste (Optionnel)</FormLabel>
                   <FormControl>
                     <Input placeholder="Ex: Conducteur de travaux, Gérant..." {...field} className="rounded-xl" />
                   </FormControl>
@@ -167,7 +167,7 @@ export const CompanyResponsibleModal: React.FC<CompanyResponsibleModalProps> = (
                 name="tel"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Téléphone direct</FormLabel>
+                    <FormLabel>Téléphone (Optionnel)</FormLabel>
                     <FormControl>
                       <Input placeholder="+216 ..." {...field} className="rounded-xl" />
                     </FormControl>
@@ -180,7 +180,7 @@ export const CompanyResponsibleModal: React.FC<CompanyResponsibleModalProps> = (
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email professionnel</FormLabel>
+                    <FormLabel>Email (Optionnel)</FormLabel>
                     <FormControl>
                       <Input type="email" placeholder="nom@entreprise.tn" {...field} className="rounded-xl" />
                     </FormControl>
