@@ -241,10 +241,15 @@ const Projects = () => {
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [statusFilter, setStatusFilter] = useState("all");
   
-  // Colonnes par défaut correspondant au "Mode HT"
-  const [visibleColumns, setVisibleColumns] = useState(["reference_projet", "nom_projet", "montant_total_ht", "montant_avenant_ht", "total_ht", "facture_ht", "paye_ht", "reste_ht", "statut"]);
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' | null }>({ key: '', direction: null });
+  const projectViewModes = getViewModesByCategory("projects");
   
+  // Initialisation avec le Mode HT par défaut
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(() => {
+    const defaultMode = projectViewModes.find(m => m.id === "p-ht");
+    return defaultMode ? defaultMode.columns : ["reference_projet", "nom_projet", "montant_total_ht", "total_ht", "facture_ht", "reste_ht", "statut"];
+  });
+
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' | null }>({ key: '', direction: null });
   const [expandedProjects, setExpandedProjects] = useState<Set<number>>(new Set());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -255,8 +260,6 @@ const Projects = () => {
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [selectedViewMode, setSelectedViewMode] = useState<ViewMode | null>(null);
-
-  const projectViewModes = getViewModesByCategory("projects");
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 

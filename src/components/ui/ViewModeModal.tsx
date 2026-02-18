@@ -1,4 +1,9 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Dialog,
   DialogContent,
@@ -6,68 +11,70 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useViewModes, ViewMode } from "@/context/ViewModeContext";
-import { showSuccess, showError } from "@/utils/toast";
-import { Layout, Save, ListChecks } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { showSuccess } from "@/utils/toast";
+import { Layout, Save } from "lucide-react";
+
+const viewModeSchema = z.object({
+  name: z.string().min(1, "Le nom est requis"),
+  columns: z.array(z.string()).min(1, "Sélectionnez au moins une colonne"),
+});
 
 interface ViewModeModalProps {
   isOpen: boolean;
   onClose: () => void;
   availableColumns: { id: string; label: string }[];
   category: string;
-  initialData?: ViewMode | null;
   currentVisibleColumns: string[];
+  initialData?: ViewMode | null;
 }
 
-export const ViewModeModal: React.FC<ViewModeModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  availableColumns, 
+export const ViewModeModal: React.FC<ViewModeModalProps> = ({
+  isOpen,
+  onClose,
+  availableColumns,
   category,
+  currentVisibleColumns,
   initialData,
-  currentVisibleColumns
 }) => {
   const { saveViewMode, updateViewMode } = useViewModes();
-  const [name, setName] = useState("");
-  const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
 
-  useEffect(() => {
+  const form = useForm({
+    resolver: zodResolver(viewModeSchema),
+    defaultValues: {
+      name: initialData?.name || "",
+      columns: initialData?.columns || currentVisibleColumns,
+    },
+  });
+
+  React.useEffect(() => {
     if (isOpen) {
-      setName(initialData?.name || "");
-      setSelectedColumns(initialData?.columns || [...currentVisibleColumns]);
+      form.reset({
+        name: initialData?.name || "",
+        columns: initialData?.columns || currentVisibleColumns,
+      });
     }
-  }, [isOpen, initialData, currentVisibleColumns]);
+  }, [isOpen, initialData, currentVisibleColumns, form]);
 
-  const toggleColumn = (id: string) => {
-    setSelectedColumns(prev => 
-      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
-    );
-  };
-
-  const handleSave = () => {
-    if (!name.trim()) {
-      showError("Veuillez donner un nom à ce mode de vue");
-      return;
-    }
-    if (selectedColumns.length === 0) {
-      showError("Veuillez sélectionner au moins une colonne");
-      return;
-    }
-
+  const onSubmit = (data: any) => {
     if (initialData) {
-      updateViewMode(initialData.id, name, selectedColumns);
-      showSuccess(`Mode "${name}" mis à jour`);
+      updateViewMode(initialData.id, data.name, data.columns);
+      showSuccess("Vue mise à jour");
     } else {
-      saveViewMode(name, selectedColumns, category);
-      showSuccess(`Mode "${name}" enregistré`);
+      saveViewMode(data.name, data.columns, category);
+      showSuccess("Nouvelle vue enregistrée");
     }
-    
     onClose();
   };
 
@@ -77,75 +84,69 @@ export const ViewModeModal: React.FC<ViewModeModalProps> = ({
         <DialogHeader className="p-6 pb-2">
           <DialogTitle className="text-xl font-bold text-slate-800 flex items-center gap-2">
             <Layout size={20} className="text-primary" />
-            {initialData ? "Modifier le mode de vue" : "Nouveau mode de vue"}
+            {initialData ? "Modifier la vue" : "Enregistrer la vue actuelle"}
           </DialogTitle>
         </DialogHeader>
-        
-        <div className="flex-1 overflow-hidden flex flex-col px-6 py-2 space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="view-name" className="text-xs font-bold text-slate-500 uppercase">Nom du mode</Label>
-            <Input 
-              id="view-name"
-              value={name} 
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ex: Vue Simplifiée, Export..."
-              className="rounded-xl"
-              autoFocus
-            />
-          </div>
 
-          <div className="space-y-3 flex-1 flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between">
-              <Label className="text-xs font-bold text-slate-500 uppercase flex items-center gap-2">
-                <ListChecks size={14} /> Colonnes à afficher ({selectedColumns.length})
-              </Label>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-7 text-[10px] font-bold uppercase text-primary"
-                onClick={() => setSelectedColumns(availableColumns.map(c => c.id))}
-              >
-                Tout cocher
-              </Button>
-            </div>
-            
-            <ScrollArea className="flex-1 border rounded-xl bg-slate-50/50 p-2">
-              <div className="grid grid-cols-1 gap-1">
-                {availableColumns.map((col) => (
-                  <div 
-                    key={col.id}
-                    className={cn(
-                      "flex items-center space-x-3 p-2.5 rounded-lg transition-colors cursor-pointer hover:bg-white",
-                      selectedColumns.includes(col.id) ? "bg-white shadow-sm" : "opacity-70"
-                    )}
-                    onClick={() => toggleColumn(col.id)}
-                  >
-                    <Checkbox 
-                      id={`col-${col.id}`} 
-                      checked={selectedColumns.includes(col.id)}
-                      onCheckedChange={() => toggleColumn(col.id)}
-                      className="rounded-md"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col min-h-0">
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nom de la vue</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ex: Ma Vue Finance, Export..." {...field} className="rounded-xl" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Colonnes à afficher</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {availableColumns.map((col) => (
+                    <FormField
+                      key={col.id}
+                      control={form.control}
+                      name="columns"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-2 rounded-lg border border-slate-50 hover:bg-slate-50 transition-colors">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value?.includes(col.id)}
+                              onCheckedChange={(checked) => {
+                                const current = field.value || [];
+                                if (checked) {
+                                  field.onChange([...current, col.id]);
+                                } else {
+                                  field.onChange(current.filter((id) => id !== col.id));
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          <FormLabel className="text-xs font-medium cursor-pointer flex-1">
+                            {col.label}
+                          </FormLabel>
+                        </FormItem>
+                      )}
                     />
-                    <label 
-                      htmlFor={`col-${col.id}`}
-                      className="text-sm font-medium leading-none cursor-pointer flex-1"
-                    >
-                      {col.label}
-                    </label>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </ScrollArea>
-          </div>
-        </div>
+            </div>
 
-        <DialogFooter className="p-6 border-t bg-slate-50/50">
-          <Button variant="outline" onClick={onClose} className="rounded-xl">Annuler</Button>
-          <Button onClick={handleSave} className="rounded-xl px-8 gap-2">
-            <Save size={16} />
-            {initialData ? "Mettre à jour" : "Enregistrer"}
-          </Button>
-        </DialogFooter>
+            <DialogFooter className="p-6 border-t bg-slate-50/50">
+              <Button type="button" variant="outline" onClick={onClose} className="rounded-xl">Annuler</Button>
+              <Button type="submit" className="rounded-xl px-6 gap-2">
+                <Save size={16} /> {initialData ? "Mettre à jour" : "Enregistrer"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
