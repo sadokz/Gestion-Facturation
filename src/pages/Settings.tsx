@@ -34,6 +34,7 @@ import {
 import { showSuccess } from "@/utils/toast";
 import { useNavigation } from "@/context/NavigationContext";
 import { useMyCompany } from "@/context/CompanyContext";
+import { useUser } from "@/context/UserContext";
 import { UserModal } from "@/components/settings/UserModal";
 import { UserList } from "@/components/settings/UserList";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -42,6 +43,7 @@ import { cn } from "@/lib/utils";
 const Settings = () => {
   const { tabs, toggleTab } = useNavigation();
   const { myCompanies, selectedCompany, addMyCompany, updateMyCompany, deleteMyCompany } = useMyCompany();
+  const { currentUser, allUsers, setAllUsers } = useUser();
   
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -54,37 +56,6 @@ const Settings = () => {
     adresse: "", tel: "", fax: "", email: "", website: "", logo: "" 
   });
 
-  const [users, setUsers] = useState([
-    { 
-      id: "super-admin", 
-      nom: "Super Admin", 
-      email: "superadmin@system.tn", 
-      password: "admin",
-      poste: "Super Administrateur", 
-      statut: "Actif",
-      avatar: "Jack",
-      isSuperAdmin: true,
-      allowedCompanies: myCompanies.map(c => c.id),
-      permissions: { 
-        dashboard: true, projects: true, projectTracking: true, clients: true, 
-        companies: true, purchases: true, salaries: true, hr: true, 
-        cnss: true, accounting: true, settings: true 
-      }
-    },
-    { 
-      id: 1, 
-      nom: "Admin Principal", 
-      email: "admin@bureau.tn", 
-      password: "password123",
-      poste: "Proprietaire", 
-      statut: "Actif",
-      avatar: "Felix",
-      allowedCompanies: ["1"],
-      permissions: { dashboard: true, projects: true, projectTracking: true, clients: true, companies: true, purchases: true, salaries: true, hr: true, cnss: true, accounting: true, settings: true }
-    },
-  ]);
-
-  const currentUser = users[0]; 
   const isSuperAdmin = currentUser.isSuperAdmin;
 
   const handleSave = () => {
@@ -93,10 +64,10 @@ const Settings = () => {
 
   const handleAddUser = (data: any) => {
     if (selectedUser) {
-      setUsers(users.map(u => u.id === selectedUser.id ? { ...u, ...data } : u));
+      setAllUsers(allUsers.map(u => u.id === selectedUser.id ? { ...u, ...data } : u));
       showSuccess("Utilisateur mis à jour");
     } else {
-      setUsers([...users, { ...data, id: Date.now() }]);
+      setAllUsers([...allUsers, { ...data, id: Date.now() }]);
       showSuccess("Utilisateur ajouté");
     }
     setIsUserModalOpen(false);
@@ -108,7 +79,7 @@ const Settings = () => {
       setIsConfirmOpen(false);
       return;
     }
-    setUsers(users.filter(u => u.id !== selectedUser.id));
+    setAllUsers(allUsers.filter(u => u.id !== selectedUser.id));
     showSuccess("Utilisateur supprimé");
     setIsConfirmOpen(false);
   };
@@ -132,7 +103,6 @@ const Settings = () => {
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Simulation d'URL pour la démo
       const reader = new FileReader();
       reader.onloadend = () => {
         setCompanyForm({ ...companyForm, logo: reader.result as string });
@@ -160,7 +130,7 @@ const Settings = () => {
     ? myCompanies 
     : myCompanies.filter(c => c.id === selectedCompany?.id);
 
-  const filteredUsers = users.filter(u => 
+  const filteredUsers = allUsers.filter(u => 
     u.isSuperAdmin || (selectedCompany && u.allowedCompanies?.includes(selectedCompany.id))
   );
 

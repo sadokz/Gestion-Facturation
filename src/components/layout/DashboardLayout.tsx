@@ -16,12 +16,16 @@ import {
   Settings2,
   Plus,
   ClipboardCheck,
-  Building
+  Building,
+  LogOut,
+  User as UserIcon,
+  ChevronDown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useYear } from "@/context/YearContext";
 import { useNavigation } from "@/context/NavigationContext";
 import { useMyCompany } from "@/context/CompanyContext";
+import { useUser } from "@/context/UserContext";
 import {
   Select,
   SelectContent,
@@ -29,6 +33,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { GlobalSearch } from "./GlobalSearch";
 import { Button } from "@/components/ui/button";
 import { DashboardCustomizationModal } from "../dashboard/DashboardCustomizationModal";
@@ -36,6 +48,7 @@ import { YearManagementModal } from "./YearManagementModal";
 import { CompanyManagementModal } from "./CompanyManagementModal";
 import { ThemeToggle } from "../theme-toggle";
 import { PrivacyToggle } from "./PrivacyToggle";
+import { Badge } from "@/components/ui/badge";
 
 const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
   <Link
@@ -58,12 +71,19 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   const { selectedYear, setSelectedYear, availableYears } = useYear();
   const { selectedCompany, setSelectedCompany, myCompanies } = useMyCompany();
   const { tabs } = useNavigation();
+  const { currentUser, setCurrentUser, allUsers } = useUser();
+  
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isCustomizationModalOpen, setIsCustomizationModalOpen] = useState(false);
   const [isYearModalOpen, setIsYearModalOpen] = useState(false);
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
 
   const companyInitial = selectedCompany?.nom?.charAt(0) || "B";
+
+  // Filtrer les onglets en fonction des permissions de l'utilisateur actuel
+  const isVisible = (tabId: string) => {
+    return tabs[tabId as keyof typeof tabs] && currentUser.permissions[tabId];
+  };
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFC] dark:bg-slate-950 overflow-hidden">
@@ -94,93 +114,38 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
         </button>
 
         <nav className={cn("flex flex-col gap-2 transition-opacity duration-200 overflow-y-auto pr-2", !isSidebarOpen && "opacity-0")}>
-          {tabs.dashboard && (
-            <SidebarItem 
-              to="/" 
-              icon={LayoutDashboard} 
-              label="Tableau de bord" 
-              active={location.pathname === "/"} 
-            />
+          {isVisible("dashboard") && (
+            <SidebarItem to="/" icon={LayoutDashboard} label="Tableau de bord" active={location.pathname === "/"} />
           )}
-          {tabs.projects && (
-            <SidebarItem 
-              to="/projects" 
-              icon={Briefcase} 
-              label="Projets & Ventes" 
-              active={location.pathname.startsWith("/projects")} 
-            />
+          {isVisible("projects") && (
+            <SidebarItem to="/projects" icon={Briefcase} label="Projets & Ventes" active={location.pathname.startsWith("/projects")} />
           )}
-          {tabs.projectTracking && (
-            <SidebarItem 
-              to="/project-tracking" 
-              icon={ClipboardCheck} 
-              label="Suivi Technique" 
-              active={location.pathname === "/project-tracking"} 
-            />
+          {isVisible("projectTracking") && (
+            <SidebarItem to="/project-tracking" icon={ClipboardCheck} label="Suivi Technique" active={location.pathname === "/project-tracking"} />
           )}
-          {tabs.clients && (
-            <SidebarItem 
-              to="/clients" 
-              icon={Users} 
-              label="Clients" 
-              active={location.pathname === "/clients"} 
-            />
+          {isVisible("clients") && (
+            <SidebarItem to="/clients" icon={Users} label="Clients" active={location.pathname === "/clients"} />
           )}
-          {tabs.companies && (
-            <SidebarItem 
-              to="/companies" 
-              icon={Building2} 
-              label="Entreprises" 
-              active={location.pathname === "/companies"} 
-            />
+          {isVisible("companies") && (
+            <SidebarItem to="/companies" icon={Building2} label="Entreprises" active={location.pathname === "/companies"} />
           )}
-          {tabs.purchases && (
-            <SidebarItem 
-              to="/purchases" 
-              icon={ShoppingCart} 
-              label="Achats" 
-              active={location.pathname === "/purchases"} 
-            />
+          {isVisible("purchases") && (
+            <SidebarItem to="/purchases" icon={ShoppingCart} label="Achats" active={location.pathname === "/purchases"} />
           )}
-          {tabs.salaries && (
-            <SidebarItem 
-              to="/salaries" 
-              icon={Banknote} 
-              label="Salaires" 
-              active={location.pathname === "/salaries"} 
-            />
+          {isVisible("salaries") && (
+            <SidebarItem to="/salaries" icon={Banknote} label="Salaires" active={location.pathname === "/salaries"} />
           )}
-          {tabs.hr && (
-            <SidebarItem 
-              to="/hr" 
-              icon={UserCheck} 
-              label="RH (Congés)" 
-              active={location.pathname === "/hr"} 
-            />
+          {isVisible("hr") && (
+            <SidebarItem to="/hr" icon={UserCheck} label="RH (Congés)" active={location.pathname === "/hr"} />
           )}
-          {tabs.cnss && (
-            <SidebarItem 
-              to="/cnss" 
-              icon={ShieldCheck} 
-              label="Déclaration CNSS" 
-              active={location.pathname === "/cnss"} 
-            />
+          {isVisible("cnss") && (
+            <SidebarItem to="/cnss" icon={ShieldCheck} label="Déclaration CNSS" active={location.pathname === "/cnss"} />
           )}
-          {tabs.accounting && (
-            <SidebarItem 
-              to="/accounting" 
-              icon={Calculator} 
-              label="Bilan Comptable" 
-              active={location.pathname === "/accounting"} 
-            />
+          {isVisible("accounting") && (
+            <SidebarItem to="/accounting" icon={Calculator} label="Bilan Comptable" active={location.pathname === "/accounting"} />
           )}
-          {tabs.settings && (
-            <SidebarItem 
-              to="/settings" 
-              icon={SettingsIcon} 
-              label="Paramètres" 
-              active={location.pathname === "/settings"} 
-            />
+          {isVisible("settings") && (
+            <SidebarItem to="/settings" icon={SettingsIcon} label="Paramètres" active={location.pathname === "/settings"} />
           )}
         </nav>
 
@@ -222,7 +187,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             
             <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-1" />
 
-            {/* Sélecteur d'Entreprise (Entité) */}
+            {/* Sélecteur d'Entreprise */}
             <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
               <Building size={16} className="text-primary" />
               <div className="flex items-center gap-1">
@@ -242,14 +207,16 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                     ))}
                   </SelectContent>
                 </Select>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-6 w-6 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
-                  onClick={() => setIsCompanyModalOpen(true)}
-                >
-                  <Plus size={14} />
-                </Button>
+                {currentUser.isSuperAdmin && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-6 w-6 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
+                    onClick={() => setIsCompanyModalOpen(true)}
+                  >
+                    <Plus size={14} />
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -267,14 +234,16 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                     ))}
                   </SelectContent>
                 </Select>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-6 w-6 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
-                  onClick={() => setIsYearModalOpen(true)}
-                >
-                  <Plus size={14} />
-                </Button>
+                {currentUser.isSuperAdmin && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-6 w-6 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
+                    onClick={() => setIsYearModalOpen(true)}
+                  >
+                    <Plus size={14} />
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -287,9 +256,58 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               <Settings2 size={18} />
             </Button>
 
-            <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-white dark:border-slate-700 shadow-sm overflow-hidden shrink-0">
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" />
-            </div>
+            {/* Avatar Dropdown pour changer d'utilisateur */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 p-1 pr-3 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all outline-none group">
+                  <div className="w-9 h-9 rounded-full bg-white dark:bg-slate-900 border-2 border-white dark:border-slate-700 shadow-sm overflow-hidden shrink-0">
+                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.avatar}`} alt={currentUser.nom} />
+                  </div>
+                  <div className="hidden md:flex flex-col items-start text-left">
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-200 leading-tight">{currentUser.nom}</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">{currentUser.poste}</span>
+                  </div>
+                  <ChevronDown size={14} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64 rounded-2xl p-2 shadow-2xl border-slate-200 dark:border-slate-800">
+                <DropdownMenuLabel className="px-3 py-2">
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Changer d'utilisateur</p>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="mx-2" />
+                <div className="max-h-[300px] overflow-y-auto py-1">
+                  {allUsers.map((user) => (
+                    <DropdownMenuItem 
+                      key={user.id} 
+                      className={cn(
+                        "flex items-center gap-3 p-2 rounded-xl cursor-pointer transition-colors mb-1",
+                        currentUser.id === user.id ? "bg-primary/5 border border-primary/10" : "hover:bg-slate-50 dark:hover:bg-slate-800"
+                      )}
+                      onClick={() => setCurrentUser(user)}
+                    >
+                      <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
+                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.avatar}`} alt={user.nom} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">{user.nom}</p>
+                          {user.isSuperAdmin && <ShieldCheck size={12} className="text-primary shrink-0" />}
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{user.poste}</p>
+                      </div>
+                      {currentUser.id === user.id && (
+                        <Badge className="h-4 px-1.5 text-[8px] bg-primary text-white">Actif</Badge>
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </div>
+                <DropdownMenuSeparator className="mx-2" />
+                <DropdownMenuItem className="flex items-center gap-2 p-3 rounded-xl cursor-pointer text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20">
+                  <LogOut size={16} />
+                  <span className="text-sm font-bold">Déconnexion</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 
