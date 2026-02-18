@@ -139,6 +139,11 @@ const Settings = () => {
     </div>
   );
 
+  // Filtrer les utilisateurs pour l'entité sélectionnée
+  const filteredUsers = users.filter(u => 
+    u.isSuperAdmin || (selectedCompany && u.allowedCompanies?.includes(selectedCompany.id))
+  );
+
   return (
     <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
       <div className="flex flex-col gap-1">
@@ -314,7 +319,7 @@ const Settings = () => {
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
           <h3 className="font-bold text-slate-800">Gestion des Utilisateurs</h3>
-          <p className="text-sm text-slate-500">Créez des comptes pour vos collaborateurs et définissez leurs droits d'accès.</p>
+          <p className="text-sm text-slate-500">Gérez les accès pour l'entité : <span className="font-bold text-primary">{selectedCompany?.nom}</span>.</p>
         </div>
         <div className="md:col-span-2 space-y-4">
           <div className="flex justify-end">
@@ -324,7 +329,7 @@ const Settings = () => {
           </div>
           <Card className="border-none shadow-md">
             <CardContent className="p-6">
-              <UserList users={users} onEdit={(user) => { setSelectedUser(user); setIsUserModalOpen(true); }} onDelete={(user) => { setSelectedUser(user); setIsConfirmOpen(true); }} />
+              <UserList users={filteredUsers} onEdit={(user) => { setSelectedUser(user); setIsUserModalOpen(true); }} onDelete={(user) => { setSelectedUser(user); setIsConfirmOpen(true); }} />
             </CardContent>
           </Card>
         </div>
