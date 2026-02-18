@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetcher } from "@/api/config";
-import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText, UserCheck, Construction, Layers, Hash } from "lucide-react";
+import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText, UserCheck, Construction, Layers, Hash, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -49,6 +49,7 @@ const projectSchema = z.object({
   responsable_interne: z.string().optional(),
   phase: z.string().optional(),
   indice: z.string().optional(),
+  etat: z.string().default("En cours"),
   avancement: z.coerce.number().min(0).max(100).default(0),
   avancement_travaux: z.coerce.number().min(0).max(100).default(0),
 });
@@ -89,6 +90,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       responsable_interne: "",
       phase: "APS",
       indice: "A",
+      etat: "En cours",
       avancement: 0,
       avancement_travaux: 0,
     },
@@ -117,6 +119,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 
   const phaseOptions = ["APS", "APD", "DAO"];
   const indiceOptions = ["A", "B", "C", "D", "E"];
+  const etatOptions = ["En cours", "Suspendu", "Livré", "Annulé"];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -347,7 +350,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                       )}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
                       name="phase"
@@ -374,7 +377,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                       name="indice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="flex items-center gap-2 text-indigo-700"><Hash size={14} /> Indice</FormLabel>
+                          <FormLabel className="flex items-center gap-2 text-indigo-700"><Hash size={14} /> Indice</Hash></FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger className="rounded-xl">
@@ -383,6 +386,27 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                             </FormControl>
                             <SelectContent>
                               {indiceOptions.map((opt) => (
+                                <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="etat"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-blue-700"><Info size={14} /> État</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="rounded-xl">
+                                <SelectValue placeholder="État" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {etatOptions.map((opt) => (
                                 <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                               ))}
                             </SelectContent>

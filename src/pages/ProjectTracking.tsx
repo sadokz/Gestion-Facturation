@@ -17,7 +17,8 @@ import {
   Layers,
   Hash,
   Layout,
-  Save
+  Save,
+  Info
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { useViewModes, ViewMode } from "@/context/ViewModeContext";
@@ -66,6 +67,7 @@ const TRACKING_COLUMNS = [
   { id: "bureau_controle", label: "Bureau de Contrôle" },
   { id: "phase", label: "Phase" },
   { id: "indice", label: "Indice" },
+  { id: "etat", label: "État" },
   { id: "avancement", label: "Avancement Études" },
   { id: "entreprise_travaux", label: "Entreprise" },
   { id: "avancement_travaux", label: "Avancement Travaux" },
@@ -117,6 +119,7 @@ const ProjectTracking = () => {
           entreprise_travaux: "SOTETRA",
           phase: "APD",
           indice: "B",
+          etat: "En cours",
           avancement: 65,
           avancement_travaux: 30,
           client_responsibles: [
@@ -186,6 +189,16 @@ const ProjectTracking = () => {
       deleteViewMode(selectedViewMode.id);
       showSuccess("Mode de vue supprimé");
       setIsViewModeConfirmOpen(false);
+    }
+  };
+
+  const getEtatBadge = (etat: string) => {
+    switch (etat) {
+      case "En cours": return <Badge className="bg-blue-50 text-blue-600 border-blue-100">En cours</Badge>;
+      case "Suspendu": return <Badge className="bg-amber-50 text-amber-600 border-amber-100">Suspendu</Badge>;
+      case "Livré": return <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100">Livré</Badge>;
+      case "Annulé": return <Badge className="bg-rose-50 text-rose-600 border-rose-100">Annulé</Badge>;
+      default: return <Badge variant="outline">{etat || "-"}</Badge>;
     }
   };
 
@@ -271,6 +284,7 @@ const ProjectTracking = () => {
                   {isVisible("bureau_controle") && <ResizableHeader initialWidth={160} className="text-center">Bureau de Contrôle</ResizableHeader>}
                   {isVisible("phase") && <ResizableHeader initialWidth={100} className="text-center">Phase</ResizableHeader>}
                   {isVisible("indice") && <ResizableHeader initialWidth={80} className="text-center">Indice</ResizableHeader>}
+                  {isVisible("etat") && <ResizableHeader initialWidth={120} className="text-center">État</ResizableHeader>}
                   {isVisible("avancement") && <ResizableHeader initialWidth={180} className="text-center">Avancement Études</ResizableHeader>}
                   {isVisible("entreprise_travaux") && <ResizableHeader initialWidth={160} className="text-center">Entreprise</ResizableHeader>}
                   {isVisible("avancement_travaux") && <ResizableHeader initialWidth={180} className="text-center">Avancement Travaux</ResizableHeader>}
@@ -363,6 +377,11 @@ const ProjectTracking = () => {
                               <Hash size={12} className="text-indigo-400" />
                               {project.indice || "-"}
                             </div>
+                          </TableCell>
+                        )}
+                        {isVisible("etat") && (
+                          <TableCell className="text-center">
+                            {getEtatBadge(project.etat)}
                           </TableCell>
                         )}
                         {isVisible("avancement") && (

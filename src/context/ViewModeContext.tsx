@@ -28,9 +28,9 @@ export const ViewModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     ];
 
     const defaultTrackingModes = [
-      { id: "t-default", category: "tracking", name: "Vue Technique", columns: ["reference_projet", "nom_projet", "responsable_interne", "phase", "indice", "avancement", "entreprise_travaux", "avancement_travaux"] },
+      { id: "t-default", category: "tracking", name: "Vue Technique", columns: ["reference_projet", "nom_projet", "responsable_interne", "phase", "indice", "etat", "avancement", "entreprise_travaux", "avancement_travaux"] },
       { id: "t-intervenants", category: "tracking", name: "Intervenants", columns: ["reference_projet", "nom_projet", "responsable_interne", "architecte", "ing_fluides", "ing_structure", "bureau_controle", "entreprise_travaux"] },
-      { id: "t-etude", category: "tracking", name: "Mode Étude", columns: ["reference_projet", "nom_projet", "responsable_interne", "phase", "indice", "avancement"] },
+      { id: "t-etude", category: "tracking", name: "Mode Étude", columns: ["reference_projet", "nom_projet", "responsable_interne", "phase", "indice", "etat", "avancement"] },
       { id: "t-travaux", category: "tracking", name: "Mode Travaux", columns: ["reference_projet", "nom_projet", "entreprise_travaux", "avancement_travaux"] },
     ];
 
