@@ -4,6 +4,7 @@ interface MyCompany {
   id: string;
   nom: string;
   matricule_fiscale?: string;
+  adresse?: string;
   logo?: string;
 }
 
@@ -12,6 +13,7 @@ interface CompanyContextType {
   setSelectedCompany: (company: MyCompany) => void;
   myCompanies: MyCompany[];
   addMyCompany: (company: MyCompany) => void;
+  updateMyCompany: (company: MyCompany) => void;
   deleteMyCompany: (id: string) => void;
 }
 
@@ -21,7 +23,12 @@ export const CompanyProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [myCompanies, setMyCompanies] = useState<MyCompany[]>(() => {
     const saved = localStorage.getItem("my_companies");
     if (saved) return JSON.parse(saved);
-    return [{ id: "1", nom: "Bureau d'Études Principal", matricule_fiscale: "1234567/A/M/000" }];
+    return [{ 
+      id: "1", 
+      nom: "Bureau d'Études Principal", 
+      matricule_fiscale: "1234567/A/M/000",
+      adresse: "Avenue Habib Bourguiba, Tunis"
+    }];
   });
 
   const [selectedCompany, setSelectedCompanyState] = useState<MyCompany | null>(() => {
@@ -43,6 +50,13 @@ export const CompanyProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setMyCompanies(prev => [...prev, company]);
   };
 
+  const updateMyCompany = (updated: MyCompany) => {
+    setMyCompanies(prev => prev.map(c => c.id === updated.id ? updated : c));
+    if (selectedCompany?.id === updated.id) {
+      setSelectedCompanyState(updated);
+    }
+  };
+
   const deleteMyCompany = (id: string) => {
     if (myCompanies.length <= 1) return;
     const newCompanies = myCompanies.filter(c => c.id !== id);
@@ -53,7 +67,7 @@ export const CompanyProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   return (
-    <CompanyContext.Provider value={{ selectedCompany, setSelectedCompany, myCompanies, addMyCompany, deleteMyCompany }}>
+    <CompanyContext.Provider value={{ selectedCompany, setSelectedCompany, myCompanies, addMyCompany, updateMyCompany, deleteMyCompany }}>
       {children}
     </CompanyContext.Provider>
   );
