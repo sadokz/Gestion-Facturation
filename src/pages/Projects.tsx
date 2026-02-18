@@ -464,7 +464,8 @@ const Projects = () => {
       <ViewModeModal 
         isOpen={isViewModeModalOpen} 
         onClose={() => setIsViewModeModalOpen(false)} 
-        currentColumns={visibleColumns} 
+        availableColumns={PROJECT_COLUMNS}
+        currentVisibleColumns={visibleColumns}
         initialData={selectedViewMode}
       />
     </div>
