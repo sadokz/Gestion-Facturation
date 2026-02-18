@@ -21,7 +21,8 @@ import {
   Info,
   Calendar,
   ShieldCheck,
-  UserCog
+  UserCog,
+  ClipboardList
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { useViewModes, ViewMode } from "@/context/ViewModeContext";
@@ -73,7 +74,8 @@ const TRACKING_COLUMNS = [
   { id: "indice", label: "Indice" },
   { id: "etat_mo", label: "État MO" },
   { id: "etat_bc", label: "État BC" },
-  { id: "etat", label: "État" },
+  { id: "etat_interne", label: "État Interne" },
+  { id: "etat_global", label: "État Global" },
   { id: "avancement", label: "Avancement Études" },
   { id: "entreprise_travaux", label: "Entreprise" },
   { id: "derniere_visite", label: "Dernière Réunion / Visite" },
@@ -128,7 +130,8 @@ const ProjectTracking = () => {
           indice: "B",
           etat_mo: "Approuvé",
           etat_bc: "Approuvé avec réserves",
-          etat: "En cours",
+          etat_interne: "Vérifié",
+          etat_global: "En cours",
           avancement: 65,
           avancement_travaux: 30,
           client_responsibles: [
@@ -218,6 +221,7 @@ const ProjectTracking = () => {
       case "Approuvé": return <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 text-[10px]">Approuvé</Badge>;
       case "Approuvé avec réserves": return <Badge className="bg-amber-50 text-amber-600 border-amber-100 text-[10px]">Réserves</Badge>;
       case "Refusé": return <Badge className="bg-rose-50 text-rose-600 border-rose-100 text-[10px]">Refusé</Badge>;
+      case "Vérifié": return <Badge className="bg-indigo-50 text-indigo-600 border-indigo-100 text-[10px]">Vérifié</Badge>;
       default: return <Badge variant="outline" className="text-slate-400 text-[10px]">Attente</Badge>;
     }
   };
@@ -312,7 +316,8 @@ const ProjectTracking = () => {
                   {isVisible("indice") && <ResizableHeader initialWidth={80} minWidth={60} className="text-center">Indice</ResizableHeader>}
                   {isVisible("etat_mo") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">État MO</ResizableHeader>}
                   {isVisible("etat_bc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">État BC</ResizableHeader>}
-                  {isVisible("etat") && <ResizableHeader initialWidth={120} minWidth={100} className="text-center">État</ResizableHeader>}
+                  {isVisible("etat_interne") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">État Interne</ResizableHeader>}
+                  {isVisible("etat_global") && <ResizableHeader initialWidth={120} minWidth={100} className="text-center">État Global</ResizableHeader>}
                   {isVisible("avancement") && <ResizableHeader initialWidth={180} minWidth={140} className="text-center">Avancement Études</ResizableHeader>}
                   {isVisible("entreprise_travaux") && <ResizableHeader initialWidth={160} minWidth={120} className="text-center">Entreprise</ResizableHeader>}
                   {isVisible("derniere_visite") && <ResizableHeader initialWidth={180} minWidth={140} className="text-center">Dernière Réunion / Visite</ResizableHeader>}
@@ -427,9 +432,17 @@ const ProjectTracking = () => {
                               </div>
                             </TableCell>
                           )}
-                          {isVisible("etat") && (
+                          {isVisible("etat_interne") && (
                             <TableCell className="text-center">
-                              {getEtatBadge(project.etat)}
+                              <div className="flex items-center justify-center gap-2">
+                                <ClipboardList size={12} className="text-slate-400" />
+                                {getApprovalBadge(project.etat_interne)}
+                              </div>
+                            </TableCell>
+                          )}
+                          {isVisible("etat_global") && (
+                            <TableCell className="text-center">
+                              {getEtatBadge(project.etat_global || project.etat)}
                             </TableCell>
                           )}
                           {isVisible("avancement") && (

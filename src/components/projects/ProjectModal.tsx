@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetcher } from "@/api/config";
-import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText, UserCheck, Construction, Layers, Hash, Info, ShieldCheck, UserCog } from "lucide-react";
+import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText, UserCheck, Construction, Layers, Hash, Info, ShieldCheck, UserCog, ClipboardList } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -51,7 +51,8 @@ const projectSchema = z.object({
   indice: z.string().optional(),
   etat_mo: z.string().default("En attente"),
   etat_bc: z.string().default("En attente"),
-  etat: z.string().default("En cours"),
+  etat_interne: z.string().default("En attente"),
+  etat_global: z.string().default("En cours"),
   avancement: z.coerce.number().min(0).max(100).default(0),
   avancement_travaux: z.coerce.number().min(0).max(100).default(0),
 });
@@ -94,7 +95,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       indice: "A",
       etat_mo: "En attente",
       etat_bc: "En attente",
-      etat: "En cours",
+      etat_interne: "En attente",
+      etat_global: "En cours",
       avancement: 0,
       avancement_travaux: 0,
     },
@@ -116,13 +118,18 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
         }
       };
       loadTiers();
-      if (initialData) form.reset(initialData);
+      if (initialData) {
+        form.reset({
+          ...initialData,
+          etat_global: initialData.etat_global || initialData.etat || "En cours"
+        });
+      }
     }
   }, [isOpen, initialData, form]);
 
   const phaseOptions = ["APS", "APD", "DAO", "EXE"];
   const indiceOptions = ["A", "B", "C", "D", "E"];
-  const approvalOptions = ["En attente", "Approuvé", "Approuvé avec réserves", "Refusé"];
+  const approvalOptions = ["En attente", "Approuvé", "Approuvé avec réserves", "Refusé", "Vérifié"];
   const etatOptions = ["En cours", "Suspendu", "Livré", "Annulé"];
 
   return (
@@ -401,16 +408,16 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 p-4 bg-indigo-50/30 rounded-2xl border border-indigo-100">
+                  <div className="grid grid-cols-3 gap-4 p-4 bg-indigo-50/30 rounded-2xl border border-indigo-100">
                     <FormField
                       control={form.control}
                       name="etat_mo"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="flex items-center gap-2 text-indigo-700"><UserCog size={14} /> État Maître d'Ouvrage</FormLabel>
+                          <FormLabel className="flex items-center gap-2 text-indigo-700 text-[11px]"><UserCog size={12} /> État MO</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
-                              <SelectTrigger className="rounded-xl bg-white">
+                              <SelectTrigger className="rounded-xl bg-white h-9">
                                 <SelectValue placeholder="État MO" />
                               </SelectTrigger>
                             </FormControl>
@@ -428,11 +435,32 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                       name="etat_bc"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="flex items-center gap-2 text-indigo-700"><ShieldCheck size={14} /> État Bureau Contrôle</FormLabel>
+                          <FormLabel className="flex items-center gap-2 text-indigo-700 text-[11px]"><ShieldCheck size={12} /> État BC</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
-                              <SelectTrigger className="rounded-xl bg-white">
+                              <SelectTrigger className="rounded-xl bg-white h-9">
                                 <SelectValue placeholder="État BC" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {approvalOptions.map((opt) => (
+                                <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="etat_interne"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-indigo-700 text-[11px]"><ClipboardList size={12} /> État Interne</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="rounded-xl bg-white h-9">
+                                <SelectValue placeholder="État Interne" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -449,7 +477,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="etat"
+                      name="etat_global"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center gap-2 text-blue-700"><Info size={14} /> État Global</FormLabel>
