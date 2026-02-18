@@ -36,7 +36,7 @@ const AVATAR_SEEDS = ["Felix", "Aneka", "Max", "Jack", "Luna", "Oliver", "Milo",
 
 const userSchema = z.object({
   nom: z.string().min(1, "Le nom est requis"),
-  email: z.string().email("Email invalide"),
+  email: z.string().email("Email invalide").optional().or(z.literal("")),
   password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
   poste: z.string().min(1, "Le poste est requis"),
   statut: z.string().default("Actif"),
@@ -197,7 +197,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>Email (Optionnel)</FormLabel>
                         <FormControl>
                           <Input type="email" placeholder="email@bureau.tn" {...field} className="rounded-xl" />
                         </FormControl>
