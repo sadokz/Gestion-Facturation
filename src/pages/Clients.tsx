@@ -17,7 +17,8 @@ import {
   ExternalLink,
   Fingerprint,
   Layout,
-  Save
+  Save,
+  Lock
 } from "lucide-react";
 import { fetcher } from "@/api/config";
 import { useViewModes, ViewMode } from "@/context/ViewModeContext";
@@ -408,39 +409,50 @@ const Clients = () => {
                 <Layout size={18} /> Modes de vue
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64 rounded-xl">
-              <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold">Mes Vues</DropdownMenuLabel>
-              {clientViewModes.map((mode) => (
-                <div key={mode.id} className="flex items-center group px-1">
-                  <DropdownMenuItem 
-                    className="flex-1 cursor-pointer rounded-lg"
-                    onClick={() => {
-                      setVisibleColumns(mode.columns);
-                      setActiveViewModeName(mode.name);
-                    }}
-                  >
-                    {mode.name}
-                  </DropdownMenuItem>
-                  <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeModalOpen(true); }}
-                      className="p-2 text-slate-400 hover:text-primary"
+            <DropdownMenuContent align="end" className="w-72 rounded-xl p-2">
+              <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold px-2 mb-1">Mes Vues</DropdownMenuLabel>
+              {clientViewModes.map((mode) => {
+                const isSystem = mode.id.includes("-default");
+                return (
+                  <div key={mode.id} className="flex items-center gap-1 group hover:bg-slate-50 rounded-lg pr-1">
+                    <DropdownMenuItem 
+                      className="flex-1 cursor-pointer rounded-lg focus:bg-transparent"
+                      onClick={() => {
+                        setVisibleColumns(mode.columns);
+                        setActiveViewModeName(mode.name);
+                      }}
                     >
-                      <Edit size={12} />
-                    </button>
-                    {!mode.id.includes("-default") && (
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeConfirmOpen(true); }}
-                        className="p-2 text-slate-300 hover:text-rose-500"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    )}
+                      <span className={cn("truncate", activeViewModeName === mode.name && "font-bold text-primary")}>
+                        {mode.name}
+                      </span>
+                    </DropdownMenuItem>
+                    <div className="flex items-center shrink-0">
+                      {isSystem ? (
+                        <div className="p-2 text-slate-300">
+                          <Lock size={12} />
+                        </div>
+                      ) : (
+                        <>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeModalOpen(true); }}
+                            className="p-2 text-slate-400 hover:text-primary transition-colors"
+                          >
+                            <Edit size={12} />
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeConfirmOpen(true); }}
+                            className="p-2 text-slate-400 hover:text-rose-500 transition-colors"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="gap-2 cursor-pointer text-primary font-bold" onClick={() => { setSelectedViewMode(null); setIsViewModeModalOpen(true); }}>
+                );
+              })}
+              <DropdownMenuSeparator className="my-2" />
+              <DropdownMenuItem className="gap-2 cursor-pointer text-primary font-bold rounded-lg" onClick={() => { setSelectedViewMode(null); setIsViewModeModalOpen(true); }}>
                 <Save size={14} /> Enregistrer vue actuelle
               </DropdownMenuItem>
             </DropdownMenuContent>
