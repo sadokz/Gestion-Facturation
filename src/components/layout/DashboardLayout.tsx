@@ -80,6 +80,11 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
 
   const companyInitial = selectedCompany?.nom?.charAt(0) || "B";
 
+  // Filtrer les entités accessibles par l'utilisateur
+  const accessibleCompanies = currentUser.isSuperAdmin 
+    ? myCompanies 
+    : myCompanies.filter(c => currentUser.allowedCompanies?.includes(c.id));
+
   // Filtrer les onglets en fonction des permissions de l'utilisateur actuel
   const isVisible = (tabId: string) => {
     return tabs[tabId as keyof typeof tabs] && currentUser.permissions[tabId];
@@ -187,38 +192,40 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             
             <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-1" />
 
-            {/* Sélecteur d'Entreprise */}
-            <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
-              <Building size={16} className="text-primary" />
-              <div className="flex items-center gap-1">
-                <Select 
-                  value={selectedCompany?.id} 
-                  onValueChange={(id) => {
-                    const found = myCompanies.find(c => c.id === id);
-                    if (found) setSelectedCompany(found);
-                  }}
-                >
-                  <SelectTrigger className="w-[160px] border-none shadow-none h-8 focus:ring-0 font-bold text-slate-700 dark:text-slate-200 bg-transparent truncate">
-                    <SelectValue placeholder="Entreprise" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {myCompanies.map(c => (
-                      <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {currentUser.isSuperAdmin && (
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-6 w-6 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
-                    onClick={() => setIsCompanyModalOpen(true)}
+            {/* Sélecteur d'Entreprise - Visible seulement si plusieurs entités accessibles */}
+            {accessibleCompanies.length > 1 && (
+              <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
+                <Building size={16} className="text-primary" />
+                <div className="flex items-center gap-1">
+                  <Select 
+                    value={selectedCompany?.id} 
+                    onValueChange={(id) => {
+                      const found = accessibleCompanies.find(c => c.id === id);
+                      if (found) setSelectedCompany(found);
+                    }}
                   >
-                    <Plus size={14} />
-                  </Button>
-                )}
+                    <SelectTrigger className="w-[160px] border-none shadow-none h-8 focus:ring-0 font-bold text-slate-700 dark:text-slate-200 bg-transparent truncate">
+                      <SelectValue placeholder="Entreprise" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {accessibleCompanies.map(c => (
+                        <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {currentUser.isSuperAdmin && (
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-6 w-6 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
+                      onClick={() => setIsCompanyModalOpen(true)}
+                    >
+                      <Plus size={14} />
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Sélecteur d'Exercice */}
             <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
