@@ -29,7 +29,7 @@ export const EmployeeLeaveList: React.FC<EmployeeLeaveListProps> = ({
 
   return (
     <div className="bg-indigo-50/30 p-6 rounded-b-2xl border-t border-indigo-100 animate-in slide-in-from-top-2 duration-300">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-4 mb-4">
         <div className="flex items-center gap-2">
           <Calendar size={18} className="text-indigo-600" />
           <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wider">Historique des Absences</h4>

@@ -17,7 +17,7 @@ export const EmployeeSalariesList: React.FC<EmployeeSalariesListProps> = ({
 }) => {
   return (
     <div className="bg-emerald-50/30 p-6 rounded-b-2xl border-t border-emerald-100 animate-in slide-in-from-top-2 duration-300">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-4 mb-4">
         <div className="flex items-center gap-2">
           <Banknote size={18} className="text-emerald-600" />
           <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wider">Historique des Paiements</h4>

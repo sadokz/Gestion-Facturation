@@ -49,7 +49,7 @@ export const TechnicalSubEntriesList: React.FC<TechnicalSubEntriesListProps> = (
 
   return (
     <div className="bg-slate-50/50 p-6 rounded-b-2xl border-t border-slate-100 animate-in slide-in-from-top-2 duration-300">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-4 mb-4">
         <div className="flex items-center gap-2">
           <ClipboardList size={18} className="text-slate-400" />
           <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wider">Interventions & Suivi de Chantier</h4>
