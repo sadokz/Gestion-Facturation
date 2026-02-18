@@ -20,36 +20,14 @@ const ViewModeContext = createContext<ViewModeContextType | undefined>(undefined
 export const ViewModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [viewModes, setViewModes] = useState<ViewMode[]>(() => {
     const saved = localStorage.getItem("app_view_modes");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      // On s'assure que les modes par défaut sont toujours présents même si le localStorage est ancien
-      const defaults = [
-        { id: "p-ht", category: "projects", name: "Mode HT", columns: ["reference_projet", "nom_projet", "montant_total_ht", "montant_avenant_ht", "total_ht", "facture_ht", "paye_ht", "reste_ht", "statut"] },
-        { id: "p-ttc", category: "projects", name: "Mode TTC", columns: ["reference_projet", "nom_projet", "total_ttc", "facture_ttc", "paye_ttc", "reste_ttc", "statut"] },
-        { id: "p-partial", category: "projects", name: "Partiellement Facturé", columns: ["reference_projet", "nom_projet", "total_ht", "facture_ht", "reste_ht", "statut"] },
-        { id: "p-total", category: "projects", name: "Totalement Facturé", columns: ["reference_projet", "nom_projet", "total_ht", "facture_ht", "statut"] },
-        { id: "p-none", category: "projects", name: "Non Facturé", columns: ["reference_projet", "nom_projet", "total_ht", "reste_ht", "statut"] },
-      ];
-      
-      // On filtre les anciens modes projets qui ne sont pas dans la liste demandée
-      const otherModes = parsed.filter((m: ViewMode) => m.category !== "projects" || m.id.startsWith("p-"));
-      
-      // Fusionner en évitant les doublons d'ID
-      const merged = [...defaults];
-      otherModes.forEach((m: ViewMode) => {
-        if (!merged.find(dm => dm.id === m.id)) merged.push(m);
-      });
-      
-      return merged;
-    }
     
-    return [
+    const defaultProjectModes = [
       { id: "p-ht", category: "projects", name: "Mode HT", columns: ["reference_projet", "nom_projet", "montant_total_ht", "montant_avenant_ht", "total_ht", "facture_ht", "paye_ht", "reste_ht", "statut"] },
       { id: "p-ttc", category: "projects", name: "Mode TTC", columns: ["reference_projet", "nom_projet", "total_ttc", "facture_ttc", "paye_ttc", "reste_ttc", "statut"] },
-      { id: "p-partial", category: "projects", name: "Partiellement Facturé", columns: ["reference_projet", "nom_projet", "total_ht", "facture_ht", "reste_ht", "statut"] },
-      { id: "p-total", category: "projects", name: "Totalement Facturé", columns: ["reference_projet", "nom_projet", "total_ht", "facture_ht", "statut"] },
-      { id: "p-none", category: "projects", name: "Non Facturé", columns: ["reference_projet", "nom_projet", "total_ht", "reste_ht", "statut"] },
-      
+      { id: "p-partial", category: "projects", name: "Statut", columns: ["reference_projet", "nom_projet", "total_ht", "facture_ht", "reste_ht", "statut"] },
+    ];
+
+    const otherDefaultModes = [
       { id: "t-default", category: "tracking", name: "Vue Technique", columns: ["reference_projet", "nom_projet", "responsable_interne", "phase", "indice", "avancement", "entreprise_travaux", "avancement_travaux"] },
       { id: "c-default", category: "clients", name: "Vue Standard", columns: ["nom", "matricule_fiscale", "tel", "email"] },
       { id: "co-default", category: "companies", name: "Vue Standard", columns: ["nom", "matricule_fiscale", "tel", "email"] },
@@ -57,6 +35,19 @@ export const ViewModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       { id: "s-default", category: "salaries", name: "Vue Standard", columns: ["nom_complet", "poste", "salaire_net", "tel"] },
       { id: "h-default", category: "hr", name: "Vue Standard", columns: ["employe", "total_conges", "conges_pris", "solde_restant", "maladies"] },
     ];
+
+    const allDefaults = [...defaultProjectModes, ...otherDefaultModes];
+
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // On filtre les anciens modes projets système qui ne sont plus souhaités
+      const userCustomModes = parsed.filter((m: ViewMode) => !m.id.startsWith("p-") && !m.id.includes("-default"));
+      
+      // On fusionne les nouveaux défauts avec les modes personnalisés de l'utilisateur
+      return [...allDefaults, ...userCustomModes];
+    }
+    
+    return allDefaults;
   });
 
   useEffect(() => {
@@ -78,6 +69,7 @@ export const ViewModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const deleteViewMode = (id: string) => {
+    // Protection des vues système
     if (id.startsWith("p-") || id.includes("-default")) return;
     setViewModes(prev => prev.filter(m => m.id !== id));
   };
