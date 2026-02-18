@@ -1,5 +1,5 @@
 import React from "react";
-import { User, MoreHorizontal, Edit, Trash2, ShieldCheck } from "lucide-react";
+import { User, MoreHorizontal, Edit, Trash2, ShieldCheck, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -40,14 +40,21 @@ export const UserList: React.FC<UserListProps> = ({ users, onEdit, onDelete }) =
           </div>
           
           <div className="flex items-center gap-6">
-            <div className="text-right hidden sm:block">
-              <p className="text-xs font-bold text-slate-700">{user.poste}</p>
+            <div className="text-right hidden md:flex flex-col items-end gap-1">
+              <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase">
+                <Building2 size={12} />
+                {user.allowedCompanies?.length || 0} Entité(s)
+              </div>
               <Badge variant="outline" className={cn(
                 "text-[9px] h-4 px-1.5",
                 user.statut === "Actif" ? "text-emerald-600 border-emerald-100 bg-emerald-50" : "text-slate-400"
               )}>
                 {user.statut}
               </Badge>
+            </div>
+
+            <div className="text-right hidden sm:block min-w-[100px]">
+              <p className="text-xs font-bold text-slate-700">{user.poste}</p>
             </div>
             
             <DropdownMenu>

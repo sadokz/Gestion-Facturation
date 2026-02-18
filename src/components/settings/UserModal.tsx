@@ -28,7 +28,8 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Building2, ShieldCheck } from "lucide-react";
+import { useMyCompany } from "@/context/CompanyContext";
 
 const userSchema = z.object({
   nom: z.string().min(1, "Le nom est requis"),
@@ -36,6 +37,7 @@ const userSchema = z.object({
   password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
   poste: z.string().min(1, "Le poste est requis"),
   statut: z.string().default("Actif"),
+  allowedCompanies: z.array(z.string()).default([]),
   permissions: z.record(z.boolean()).default({
     dashboard: true,
     projects: true,
@@ -74,6 +76,7 @@ const MODULES = [
 
 export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, initialData }) => {
   const [showPassword, setShowPassword] = React.useState(false);
+  const { myCompanies } = useMyCompany();
 
   const form = useForm({
     resolver: zodResolver(userSchema),
@@ -83,6 +86,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
       password: "",
       poste: "Ingénieur",
       statut: "Actif",
+      allowedCompanies: [],
       permissions: {
         dashboard: true,
         projects: true,
@@ -107,6 +111,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
         password: "",
         poste: "Ingénieur", 
         statut: "Actif",
+        allowedCompanies: [],
         permissions: {
           dashboard: true,
           projects: true,
@@ -126,7 +131,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] rounded-2xl overflow-hidden flex flex-col h-[85vh] p-0">
+      <DialogContent className="sm:max-w-[550px] rounded-2xl overflow-hidden flex flex-col h-[85vh] p-0">
         <DialogHeader className="p-6 pb-2">
           <DialogTitle className="text-xl font-bold text-slate-800">
             {initialData ? "Modifier l'utilisateur" : "Nouvel utilisateur"}
@@ -136,8 +141,10 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col overflow-hidden">
             <ScrollArea className="flex-1 px-6">
-              <div className="space-y-6 py-4">
+              <div className="space-y-8 py-4">
+                {/* Infos de base */}
                 <div className="space-y-4">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Informations de connexion</h4>
                   <FormField
                     control={form.control}
                     name="nom"
@@ -243,8 +250,71 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
                   </div>
                 </div>
 
+                {/* Accès aux entreprises */}
                 <div className="space-y-3 pt-4 border-t">
-                  <h4 className="text-sm font-bold text-slate-800">Accès aux modules</h4>
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                      <Building2 size={14} /> Accès aux Entités
+                    </h4>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      type="button"
+                      className="h-7 text-[10px] font-bold uppercase text-primary"
+                      onClick={() => form.setValue("allowedCompanies", myCompanies.map(c => c.id))}
+                    >
+                      Tout autoriser
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
+                    {myCompanies.map((company) => (
+                      <FormField
+                        key={company.id}
+                        control={form.control}
+                        name="allowedCompanies"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value?.includes(company.id)}
+                                onCheckedChange={(checked) => {
+                                  const current = field.value || [];
+                                  if (checked) {
+                                    field.onChange([...current, company.id]);
+                                  } else {
+                                    field.onChange(current.filter(id => id !== company.id));
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <div className="flex-1 cursor-pointer" onClick={() => {
+                              const current = field.value || [];
+                              if (current.includes(company.id)) {
+                                field.onChange(current.filter(id => id !== company.id));
+                              } else {
+                                field.onChange([...current, company.id]);
+                              }
+                            }}>
+                              <FormLabel className="text-sm font-bold text-slate-700 cursor-pointer">
+                                {company.nom}
+                              </FormLabel>
+                              <p className="text-[10px] text-slate-400 font-mono">{company.matricule_fiscale || "Sans matricule"}</p>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                    ))}
+                  </div>
+                  {form.watch("allowedCompanies")?.length === 0 && (
+                    <p className="text-[10px] text-rose-500 font-medium italic">Attention : Sans entreprise sélectionnée, l'utilisateur ne verra aucune donnée.</p>
+                  )}
+                </div>
+
+                {/* Permissions modules */}
+                <div className="space-y-3 pt-4 border-t pb-6">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                    <ShieldCheck size={14} /> Permissions Modules
+                  </h4>
                   <div className="grid grid-cols-2 gap-3">
                     {MODULES.map((module) => (
                       <FormField
@@ -273,7 +343,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
 
             <DialogFooter className="p-6 border-t bg-slate-50/50">
               <Button type="button" variant="outline" onClick={onClose} className="rounded-xl">Annuler</Button>
-              <Button type="submit" className="rounded-xl px-6">Enregistrer</Button>
+              <Button type="submit" className="rounded-xl px-6">Enregistrer l'utilisateur</Button>
             </DialogFooter>
           </form>
         </Form>
