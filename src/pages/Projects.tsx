@@ -403,25 +403,23 @@ const Projects = () => {
                       </span>
                     </DropdownMenuItem>
                     <div className="flex items-center shrink-0">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeModalOpen(true); }}
+                        className="p-2 text-slate-400 hover:text-primary transition-colors"
+                      >
+                        <Edit size={12} />
+                      </button>
                       {isSystem ? (
                         <div className="p-2 text-slate-300">
                           <Lock size={12} />
                         </div>
                       ) : (
-                        <>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeModalOpen(true); }}
-                            className="p-2 text-slate-400 hover:text-primary transition-colors"
-                          >
-                            <Edit size={12} />
-                          </button>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeConfirmOpen(true); }}
-                            className="p-2 text-slate-400 hover:text-rose-500 transition-colors"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        </>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeConfirmOpen(true); }}
+                          className="p-2 text-slate-400 hover:text-rose-500 transition-colors"
+                        >
+                          <Trash2 size={12} />
+                        </button>
                       )}
                     </div>
                   </div>
