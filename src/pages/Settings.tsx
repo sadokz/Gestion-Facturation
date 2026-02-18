@@ -26,7 +26,8 @@ import {
   Phone,
   Mail,
   User,
-  Briefcase as BriefcaseIcon
+  Briefcase as BriefcaseIcon,
+  ShieldAlert
 } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 import { useNavigation } from "@/context/NavigationContext";
@@ -52,6 +53,22 @@ const Settings = () => {
   });
 
   const [users, setUsers] = useState([
+    { 
+      id: "super-admin", 
+      nom: "Super Admin", 
+      email: "superadmin@system.tn", 
+      password: "admin",
+      poste: "Super Administrateur", 
+      statut: "Actif",
+      avatar: "Jack",
+      isSuperAdmin: true,
+      allowedCompanies: myCompanies.map(c => c.id),
+      permissions: { 
+        dashboard: true, projects: true, projectTracking: true, clients: true, 
+        companies: true, purchases: true, salaries: true, hr: true, 
+        cnss: true, accounting: true, settings: true 
+      }
+    },
     { 
       id: 1, 
       nom: "Admin Principal", 
@@ -81,6 +98,11 @@ const Settings = () => {
   };
 
   const handleDeleteUser = () => {
+    if (selectedUser?.isSuperAdmin) {
+      showSuccess("Le compte Super Admin ne peut pas être supprimé");
+      setIsConfirmOpen(false);
+      return;
+    }
     setUsers(users.filter(u => u.id !== selectedUser.id));
     showSuccess("Utilisateur supprimé");
     setIsConfirmOpen(false);
