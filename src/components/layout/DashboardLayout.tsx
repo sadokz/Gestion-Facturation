@@ -81,8 +81,12 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             !isSidebarOpen && "opacity-0 pointer-events-none"
           )}
         >
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/30 shrink-0">
-            {companyInitial}
+          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/30 shrink-0 overflow-hidden">
+            {selectedCompany?.logo ? (
+              <img src={selectedCompany.logo} alt="Logo" className="w-full h-full object-contain bg-white" />
+            ) : (
+              companyInitial
+            )}
           </div>
           <span className="font-bold text-lg tracking-tight text-slate-800 dark:text-slate-100 truncate">
             {selectedCompany?.nom || "Bureau d'Étude"}
@@ -197,8 +201,12 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                 onClick={() => setIsSidebarOpen(true)}
                 className="flex items-center gap-3 hover:opacity-80 transition-all outline-none shrink-0 mr-4"
               >
-                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/30 shrink-0">
-                  {companyInitial}
+                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/30 shrink-0 overflow-hidden">
+                  {selectedCompany?.logo ? (
+                    <img src={selectedCompany.logo} alt="Logo" className="w-full h-full object-contain bg-white" />
+                  ) : (
+                    companyInitial
+                  )}
                 </div>
                 <span className="font-bold text-lg tracking-tight text-slate-800 dark:text-slate-100 whitespace-nowrap hidden sm:block">
                   {selectedCompany?.nom || "Bureau d'Étude"}
@@ -292,7 +300,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
       </main>
       <DashboardCustomizationModal isOpen={isCustomizationModalOpen} onClose={() => setIsCustomizationModalOpen(false)} />
       <YearManagementModal isOpen={isYearModalOpen} onClose={() => setIsYearModalOpen(false)} />
-      <CompanyManagementModal isOpen={isCompanyModalOpen} onClose={() => setIsCompanyConfirmOpen(false)} />
+      <CompanyManagementModal isOpen={isCompanyModalOpen} onClose={() => setIsCompanyModalOpen(false)} />
     </div>
   );
 };

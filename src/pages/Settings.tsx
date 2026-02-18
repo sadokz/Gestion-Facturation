@@ -27,7 +27,9 @@ import {
   Mail,
   User,
   Briefcase as BriefcaseIcon,
-  ShieldAlert
+  ShieldAlert,
+  UploadCloud,
+  Image as ImageIcon
 } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 import { useNavigation } from "@/context/NavigationContext";
@@ -49,7 +51,7 @@ const Settings = () => {
   
   const [companyForm, setCompanyForm] = useState({ 
     id: "", nom: "", matricule_fiscale: "", rne: "", gerant: "", comptable: "", 
-    adresse: "", tel: "", fax: "", email: "", website: "" 
+    adresse: "", tel: "", fax: "", email: "", website: "", logo: "" 
   });
 
   const [users, setUsers] = useState([
@@ -82,7 +84,6 @@ const Settings = () => {
     },
   ]);
 
-  // Simulation de l'utilisateur connecté (ici le Super Admin pour la démo)
   const currentUser = users[0]; 
   const isSuperAdmin = currentUser.isSuperAdmin;
 
@@ -128,6 +129,18 @@ const Settings = () => {
     setEditingCompanyId(null);
   };
 
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Simulation d'URL pour la démo
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCompanyForm({ ...companyForm, logo: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const TabToggle = ({ id, label, icon: Icon }: { id: any, label: string, icon: any }) => (
     <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
       <div className="flex items-center gap-3">
@@ -143,12 +156,10 @@ const Settings = () => {
     </div>
   );
 
-  // Filtrer les entreprises à afficher dans le profil
   const companiesToShow = isSuperAdmin 
     ? myCompanies 
     : myCompanies.filter(c => c.id === selectedCompany?.id);
 
-  // Filtrer les utilisateurs pour l'entité sélectionnée
   const filteredUsers = users.filter(u => 
     u.isSuperAdmin || (selectedCompany && u.allowedCompanies?.includes(selectedCompany.id))
   );
@@ -189,7 +200,7 @@ const Settings = () => {
                   setEditingCompanyId("new");
                   setCompanyForm({ 
                     id: "new", nom: "", matricule_fiscale: "", rne: "", gerant: "", 
-                    comptable: "", adresse: "", tel: "", fax: "", email: "", website: "" 
+                    comptable: "", adresse: "", tel: "", fax: "", email: "", website: "", logo: "" 
                   });
                 }}
               >
@@ -207,16 +218,37 @@ const Settings = () => {
                 <CardContent className="p-0">
                   {editingCompanyId === company.id ? (
                     <div className="p-6 space-y-6">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Nom de l'entité</Label>
-                          <Input value={companyForm.nom} onChange={(e) => setCompanyForm({...companyForm, nom: e.target.value})} className="rounded-xl" />
+                      <div className="flex items-center gap-6">
+                        <div className="relative group">
+                          <div className="w-24 h-24 bg-slate-100 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center overflow-hidden">
+                            {companyForm.logo ? (
+                              <img src={companyForm.logo} alt="Logo preview" className="w-full h-full object-contain" />
+                            ) : (
+                              <>
+                                <ImageIcon size={24} className="text-slate-400" />
+                                <span className="text-[10px] font-bold text-slate-400 mt-1">LOGO</span>
+                              </>
+                            )}
+                          </div>
+                          <label htmlFor="logo-upload" className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-2xl">
+                            <UploadCloud size={24} className="text-white" />
+                            <input id="logo-upload" type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
+                          </label>
                         </div>
-                        <div className="space-y-2">
-                          <Label>RNE</Label>
-                          <Input value={companyForm.rne} onChange={(e) => setCompanyForm({...companyForm, rne: e.target.value})} className="rounded-xl" placeholder="Registre National des Entreprises" />
+                        <div className="flex-1 space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Nom de l'entité</Label>
+                              <Input value={companyForm.nom} onChange={(e) => setCompanyForm({...companyForm, nom: e.target.value})} className="rounded-xl" />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>RNE</Label>
+                              <Input value={companyForm.rne} onChange={(e) => setCompanyForm({...companyForm, rne: e.target.value})} className="rounded-xl" placeholder="Registre National des Entreprises" />
+                            </div>
+                          </div>
                         </div>
                       </div>
+
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>Matricule Fiscal</Label>
@@ -264,8 +296,12 @@ const Settings = () => {
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-6">
                         <div className="flex items-center gap-4">
-                          <div className="w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center">
-                            <Building size={28} />
+                          <div className="w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center overflow-hidden">
+                            {company.logo ? (
+                              <img src={company.logo} alt={company.nom} className="w-full h-full object-contain" />
+                            ) : (
+                              <Building size={28} />
+                            )}
                           </div>
                           <div>
                             <h4 className="font-black text-lg text-slate-800">{company.nom}</h4>
