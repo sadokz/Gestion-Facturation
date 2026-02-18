@@ -9,10 +9,11 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import { Briefcase, ShoppingCart, LayoutDashboard, Search, Users, Building2, Banknote, ClipboardCheck } from "lucide-react";
+import { Briefcase, ShoppingCart, LayoutDashboard, Search, Users, Building2, Banknote, ClipboardCheck, FileText, User } from "lucide-react";
 
 export const GlobalSearch = () => {
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,6 +32,29 @@ export const GlobalSearch = () => {
     command();
   };
 
+  // Mock data pour la recherche
+  const mockResults = {
+    projects: [
+      { id: 1, name: "Eclairage Avenue", ref: "PRJ-2026-001" },
+      { id: 2, name: "Rénovation Pont", ref: "PRJ-2026-002" },
+      { id: 3, name: "Audit STEG", ref: "PRJ-2026-003" },
+    ],
+    clients: [
+      { id: 1, name: "Commune de Tunis" },
+      { id: 2, name: "STEG" },
+      { id: 3, name: "Ministère de l'Équipement" },
+    ]
+  };
+
+  const filteredProjects = mockResults.projects.filter(p => 
+    p.name.toLowerCase().includes(search.toLowerCase()) || 
+    p.ref.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const filteredClients = mockResults.clients.filter(c => 
+    c.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <>
       <button
@@ -45,9 +69,39 @@ export const GlobalSearch = () => {
       </button>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Tapez pour rechercher..." />
+        <CommandInput 
+          placeholder="Tapez pour rechercher..." 
+          value={search}
+          onValueChange={setSearch}
+        />
         <CommandList>
           <CommandEmpty>Aucun résultat trouvé.</CommandEmpty>
+          
+          {search.length > 0 && (
+            <>
+              <CommandGroup heading="Projets">
+                {filteredProjects.map(p => (
+                  <CommandItem key={p.id} onSelect={() => runCommand(() => navigate(`/projects?search=${encodeURIComponent(p.name)}`))}>
+                    <FileText className="mr-2 h-4 w-4 text-primary" />
+                    <div className="flex flex-col">
+                      <span>{p.name}</span>
+                      <span className="text-[10px] text-slate-400 font-mono">{p.ref}</span>
+                    </div>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+              <CommandGroup heading="Clients">
+                {filteredClients.map(c => (
+                  <CommandItem key={c.id} onSelect={() => runCommand(() => navigate(`/clients?search=${encodeURIComponent(c.name)}`))}>
+                    <User className="mr-2 h-4 w-4 text-indigo-500" />
+                    <span>{c.name}</span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+              <CommandSeparator />
+            </>
+          )}
+
           <CommandGroup heading="Navigation">
             <CommandItem onSelect={() => runCommand(() => navigate("/"))}>
               <LayoutDashboard className="mr-2 h-4 w-4" />
