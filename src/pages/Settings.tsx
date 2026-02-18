@@ -82,6 +82,10 @@ const Settings = () => {
     },
   ]);
 
+  // Simulation de l'utilisateur connecté (ici le Super Admin pour la démo)
+  const currentUser = users[0]; 
+  const isSuperAdmin = currentUser.isSuperAdmin;
+
   const handleSave = () => {
     showSuccess("Paramètres enregistrés avec succès");
   };
@@ -139,6 +143,11 @@ const Settings = () => {
     </div>
   );
 
+  // Filtrer les entreprises à afficher dans le profil
+  const companiesToShow = isSuperAdmin 
+    ? myCompanies 
+    : myCompanies.filter(c => c.id === selectedCompany?.id);
+
   // Filtrer les utilisateurs pour l'entité sélectionnée
   const filteredUsers = users.filter(u => 
     u.isSuperAdmin || (selectedCompany && u.allowedCompanies?.includes(selectedCompany.id))
@@ -151,32 +160,46 @@ const Settings = () => {
         <p className="text-slate-500">Gérez les informations de votre bureau et les accès utilisateurs</p>
       </div>
 
-      {/* Profil du Bureau (Multi-Entités) */}
+      {/* Profil du Bureau */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
           <h3 className="font-bold text-slate-800">Profil du Bureau</h3>
-          <p className="text-sm text-slate-500">Gérez vos différentes entités juridiques et leurs informations légales.</p>
+          <p className="text-sm text-slate-500">
+            {isSuperAdmin 
+              ? "Gérez toutes les entités juridiques du bureau." 
+              : `Informations légales de l'entité : ${selectedCompany?.nom}.`}
+          </p>
+          {!isSuperAdmin && (
+            <div className="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-100">
+              <p className="text-[10px] font-bold text-amber-600 uppercase flex items-center gap-1">
+                <ShieldAlert size={10} /> Accès Restreint
+              </p>
+              <p className="text-[11px] text-amber-700 mt-1">Seul un Super Admin peut ajouter ou supprimer des entités.</p>
+            </div>
+          )}
         </div>
         <div className="md:col-span-2 space-y-4">
-          <div className="flex justify-end">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="rounded-xl gap-2 border-primary/20 text-primary hover:bg-primary/5"
-              onClick={() => {
-                setEditingCompanyId("new");
-                setCompanyForm({ 
-                  id: "new", nom: "", matricule_fiscale: "", rne: "", gerant: "", 
-                  comptable: "", adresse: "", tel: "", fax: "", email: "", website: "" 
-                });
-              }}
-            >
-              <Plus size={16} /> Ajouter une entité
-            </Button>
-          </div>
+          {isSuperAdmin && (
+            <div className="flex justify-end">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="rounded-xl gap-2 border-primary/20 text-primary hover:bg-primary/5"
+                onClick={() => {
+                  setEditingCompanyId("new");
+                  setCompanyForm({ 
+                    id: "new", nom: "", matricule_fiscale: "", rne: "", gerant: "", 
+                    comptable: "", adresse: "", tel: "", fax: "", email: "", website: "" 
+                  });
+                }}
+              >
+                <Plus size={16} /> Ajouter une entité
+              </Button>
+            </div>
+          )}
 
           <div className="space-y-4">
-            {myCompanies.map((company) => (
+            {companiesToShow.map((company) => (
               <Card key={company.id} className={cn(
                 "border-none shadow-md transition-all overflow-hidden",
                 editingCompanyId === company.id ? "ring-2 ring-primary/20" : ""
@@ -256,15 +279,17 @@ const Settings = () => {
                           <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => startEditingCompany(company)}>
                             <Edit size={16} />
                           </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="rounded-xl text-rose-500 hover:text-rose-600 hover:bg-rose-50"
-                            disabled={myCompanies.length <= 1}
-                            onClick={() => { setCompanyForm(company); setIsCompanyConfirmOpen(true); }}
-                          >
-                            <Trash2 size={16} />
-                          </Button>
+                          {isSuperAdmin && (
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="rounded-xl text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                              disabled={myCompanies.length <= 1}
+                              onClick={() => { setCompanyForm(company); setIsCompanyConfirmOpen(true); }}
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          )}
                         </div>
                       </div>
 
