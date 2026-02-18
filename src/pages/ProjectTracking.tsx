@@ -18,7 +18,8 @@ import {
   Hash,
   Layout,
   Save,
-  Info
+  Info,
+  Calendar
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { useViewModes, ViewMode } from "@/context/ViewModeContext";
@@ -56,6 +57,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { ViewModeModal } from "@/components/ui/ViewModeModal";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
+import { formatDateFR } from "@/utils/formatters";
 
 const TRACKING_COLUMNS = [
   { id: "reference_projet", label: "Référence" },
@@ -70,6 +72,7 @@ const TRACKING_COLUMNS = [
   { id: "etat", label: "État" },
   { id: "avancement", label: "Avancement Études" },
   { id: "entreprise_travaux", label: "Entreprise" },
+  { id: "derniere_visite", label: "Dernière Réunion / Visite" },
   { id: "avancement_travaux", label: "Avancement Travaux" },
 ];
 
@@ -129,7 +132,9 @@ const ProjectTracking = () => {
           enterprise_responsibles: [
             { id: 301, nom: "M. Foulen Ben Foulen", role: "Conducteur de Travaux", tel: "55 111 222", email: "foulen@sotetra.tn" }
           ],
-          technical_entries: []
+          technical_entries: [
+            { id: 1, type: "Réunion", date: "2026-03-10", libelle: "Réunion de chantier n°4", effectue_par: "Ing. Ahmed" }
+          ]
         },
       ]);
     } finally {
@@ -200,6 +205,12 @@ const ProjectTracking = () => {
       case "Annulé": return <Badge className="bg-rose-50 text-rose-600 border-rose-100">Annulé</Badge>;
       default: return <Badge variant="outline">{etat || "-"}</Badge>;
     }
+  };
+
+  const getLastEntryDate = (entries: any[]) => {
+    if (!entries || entries.length === 0) return null;
+    const sorted = [...entries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return sorted[0].date;
   };
 
   return (
@@ -287,6 +298,7 @@ const ProjectTracking = () => {
                   {isVisible("etat") && <ResizableHeader initialWidth={120} minWidth={100} className="text-center">État</ResizableHeader>}
                   {isVisible("avancement") && <ResizableHeader initialWidth={180} minWidth={140} className="text-center">Avancement Études</ResizableHeader>}
                   {isVisible("entreprise_travaux") && <ResizableHeader initialWidth={160} minWidth={120} className="text-center">Entreprise</ResizableHeader>}
+                  {isVisible("derniere_visite") && <ResizableHeader initialWidth={180} minWidth={140} className="text-center">Dernière Réunion / Visite</ResizableHeader>}
                   {isVisible("avancement_travaux") && <ResizableHeader initialWidth={180} minWidth={140} className="text-center">Avancement Travaux</ResizableHeader>}
                   <ResizableHeader initialWidth={60} resizable={false}>
                     <ColumnToggle columns={TRACKING_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
@@ -297,182 +309,198 @@ const ProjectTracking = () => {
                 {loading ? (
                   <TableRow><TableCell colSpan={visibleColumns.length + 2} className="h-16 text-center">Chargement...</TableCell></TableRow>
                 ) : (
-                  projects.map((project) => (
-                    <React.Fragment key={project.id}>
-                      <TableRow className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
-                        <TableCell className="text-center">
-                          <div className="flex items-center justify-center gap-1">
-                            <div className="text-slate-300 group-hover:text-slate-500 transition-colors">
-                              <GripVertical size={14} />
-                            </div>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg hover:bg-primary/10 hover:text-primary" onClick={() => toggleExpand(project.id)}>
-                              {expandedProjects.has(project.id) ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                            </Button>
-                          </div>
-                        </TableCell>
-                        {isVisible("reference_projet") && (
-                          <TableCell className="font-mono text-[11px] font-bold text-primary text-center">
-                            {project.reference_projet}
-                          </TableCell>
-                        )}
-                        {isVisible("nom_projet") && (
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <span className="font-bold text-slate-800 text-sm truncate">{project.nom_projet}</span>
-                              <span className="text-[10px] text-slate-500 uppercase font-medium truncate">{project.client}</span>
-                            </div>
-                          </TableCell>
-                        )}
-                        {isVisible("responsable_interne") && (
+                  projects.map((project) => {
+                    const lastEntryDate = getLastEntryDate(project.technical_entries);
+                    
+                    return (
+                      <React.Fragment key={project.id}>
+                        <TableRow className="hover:bg-slate-50/50 transition-colors border-slate-100 group">
                           <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2 text-xs font-bold text-indigo-600">
-                              <UserCheck size={12} className="shrink-0" />
-                              {project.responsable_interne || "-"}
-                            </div>
-                          </TableCell>
-                        )}
-                        {isVisible("architecte") && (
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
-                              <User size={12} className="text-slate-400" />
-                              {project.architecte || "-"}
-                            </div>
-                          </TableCell>
-                        )}
-                        {isVisible("ing_fluides") && (
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
-                              <Activity size={12} className="text-slate-400" />
-                              {project.ing_fluides || "-"}
-                            </div>
-                          </TableCell>
-                        )}
-                        {isVisible("ing_structure") && (
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
-                              <HardHat size={12} className="text-slate-400" />
-                              {project.ing_structure || "-"}
-                            </div>
-                          </TableCell>
-                        )}
-                        {isVisible("bureau_controle") && (
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
-                              <Building2 size={12} className="text-slate-400" />
-                              {project.bureau_controle || "-"}
-                            </div>
-                          </TableCell>
-                        )}
-                        {isVisible("phase") && (
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2 text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-lg">
-                              <Layers size={12} className="text-slate-400" />
-                              {project.phase || "-"}
-                            </div>
-                          </TableCell>
-                        )}
-                        {isVisible("indice") && (
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2 text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-1 rounded-lg">
-                              <Hash size={12} className="text-indigo-400" />
-                              {project.indice || "-"}
-                            </div>
-                          </TableCell>
-                        )}
-                        {isVisible("etat") && (
-                          <TableCell className="text-center">
-                            {getEtatBadge(project.etat)}
-                          </TableCell>
-                        )}
-                        {isVisible("avancement") && (
-                          <TableCell>
-                            <div className="space-y-2 px-2">
-                              <div className="flex justify-between items-center">
-                                <Badge variant="outline" className={cn(
-                                  "text-[9px] h-4 px-1.5",
-                                  project.avancement === 100 ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-blue-50 text-blue-600 border-blue-100"
-                                )}>
-                                  {project.avancement === 100 ? "Terminé" : "En cours"}
-                                </Badge>
-                                <span className="text-[10px] font-black text-slate-600">{project.avancement}%</span>
+                            <div className="flex items-center justify-center gap-1">
+                              <div className="text-slate-300 group-hover:text-slate-500 transition-colors">
+                                <GripVertical size={14} />
                               </div>
-                              <Progress value={project.avancement} className="h-1.5" />
-                            </div>
-                          </TableCell>
-                        )}
-                        {isVisible("entreprise_travaux") && (
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2 text-xs font-bold text-amber-600">
-                              <Construction size={12} className="shrink-0" />
-                              {project.entreprise_travaux || "-"}
-                            </div>
-                          </TableCell>
-                        )}
-                        {isVisible("avancement_travaux") && (
-                          <TableCell>
-                            <div className="space-y-2 px-2">
-                              <div className="flex justify-between items-center">
-                                <Badge variant="outline" className={cn(
-                                  "text-[9px] h-4 px-1.5",
-                                  project.avancement_travaux === 100 ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-amber-50 text-amber-600 border-amber-100"
-                                )}>
-                                  {project.avancement_travaux === 100 ? "Terminé" : "Chantier"}
-                                </Badge>
-                                <span className="text-[10px] font-black text-slate-600">{project.avancement_travaux || 0}%</span>
-                              </div>
-                              <Progress value={project.avancement_travaux || 0} className="h-1.5 bg-slate-100" />
-                            </div>
-                          </TableCell>
-                        )}
-                        <TableCell className="text-center">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
-                                <MoreHorizontal size={16} />
+                              <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg hover:bg-primary/10 hover:text-primary" onClick={() => toggleExpand(project.id)}>
+                                {expandedProjects.has(project.id) ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                               </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
-                              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}>
-                                <Edit size={14} /> Modifier Suivi
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}>
-                                <Trash2 size={14} /> Supprimer
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                      {expandedProjects.has(project.id) && (
-                        <TableRow className="hover:bg-transparent border-none">
-                          <TableCell colSpan={visibleColumns.length + 2} className="p-0">
-                            <div className="flex flex-col">
-                              <TechnicalClientResponsibles 
-                                clientName={project.client} 
-                                responsibles={project.client_responsibles || []} 
-                                onManage={() => { setSelectedProject(project); setIsSelectionModalOpen(true); }}
-                                onEdit={(resp) => { setSelectedProject(project); setSelectedResp(resp); setIsRespModalOpen(true); }}
-                                onDelete={(resp) => { setSelectedResp(resp); setIsRespConfirmOpen(true); }}
-                                onHide={handleHideResp}
-                              />
-                              <TechnicalEnterpriseResponsibles 
-                                enterpriseName={project.entreprise_travaux} 
-                                responsibles={project.enterprise_responsibles || []} 
-                                onManage={() => { setSelectedProject(project); setIsEnterpriseSelectionModalOpen(true); }}
-                                onEdit={(resp) => { setSelectedProject(project); setSelectedResp(resp); setIsRespModalOpen(true); }}
-                                onDelete={(resp) => { setSelectedResp(resp); setIsRespConfirmOpen(true); }}
-                                onHide={handleHideResp}
-                              />
-                              <TechnicalSubEntriesList 
-                                entries={project.technical_entries || []} 
-                                onAdd={() => { setSelectedProject(project); setSelectedEntry(null); setIsEntryModalOpen(true); }} 
-                                onEdit={(entry) => { setSelectedProject(project); setSelectedEntry(entry); setIsEntryModalOpen(true); }} 
-                              />
                             </div>
+                          </TableCell>
+                          {isVisible("reference_projet") && (
+                            <TableCell className="font-mono text-[11px] font-bold text-primary text-center">
+                              {project.reference_projet}
+                            </TableCell>
+                          )}
+                          {isVisible("nom_projet") && (
+                            <TableCell>
+                              <div className="flex flex-col">
+                                <span className="font-bold text-slate-800 text-sm truncate">{project.nom_projet}</span>
+                                <span className="text-[10px] text-slate-500 uppercase font-medium truncate">{project.client}</span>
+                              </div>
+                            </TableCell>
+                          )}
+                          {isVisible("responsable_interne") && (
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-2 text-xs font-bold text-indigo-600">
+                                <UserCheck size={12} className="shrink-0" />
+                                {project.responsable_interne || "-"}
+                              </div>
+                            </TableCell>
+                          )}
+                          {isVisible("architecte") && (
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
+                                <User size={12} className="text-slate-400" />
+                                {project.architecte || "-"}
+                              </div>
+                            </TableCell>
+                          )}
+                          {isVisible("ing_fluides") && (
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
+                                <Activity size={12} className="text-slate-400" />
+                                {project.ing_fluides || "-"}
+                              </div>
+                            </TableCell>
+                          )}
+                          {isVisible("ing_structure") && (
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
+                                <HardHat size={12} className="text-slate-400" />
+                                {project.ing_structure || "-"}
+                              </div>
+                            </TableCell>
+                          )}
+                          {isVisible("bureau_controle") && (
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
+                                <Building2 size={12} className="text-slate-400" />
+                                {project.bureau_controle || "-"}
+                              </div>
+                            </TableCell>
+                          )}
+                          {isVisible("phase") && (
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-2 text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-lg">
+                                <Layers size={12} className="text-slate-400" />
+                                {project.phase || "-"}
+                              </div>
+                            </TableCell>
+                          )}
+                          {isVisible("indice") && (
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-2 text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-1 rounded-lg">
+                                <Hash size={12} className="text-indigo-400" />
+                                {project.indice || "-"}
+                              </div>
+                            </TableCell>
+                          )}
+                          {isVisible("etat") && (
+                            <TableCell className="text-center">
+                              {getEtatBadge(project.etat)}
+                            </TableCell>
+                          )}
+                          {isVisible("avancement") && (
+                            <TableCell>
+                              <div className="space-y-2 px-2">
+                                <div className="flex justify-between items-center">
+                                  <Badge variant="outline" className={cn(
+                                    "text-[9px] h-4 px-1.5",
+                                    project.avancement === 100 ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-blue-50 text-blue-600 border-blue-100"
+                                  )}>
+                                    {project.avancement === 100 ? "Terminé" : "En cours"}
+                                  </Badge>
+                                  <span className="text-[10px] font-black text-slate-600">{project.avancement}%</span>
+                                </div>
+                                <Progress value={project.avancement} className="h-1.5" />
+                              </div>
+                            </TableCell>
+                          )}
+                          {isVisible("entreprise_travaux") && (
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-2 text-xs font-bold text-amber-600">
+                                <Construction size={12} className="shrink-0" />
+                                {project.entreprise_travaux || "-"}
+                              </div>
+                            </TableCell>
+                          )}
+                          {isVisible("derniere_visite") && (
+                            <TableCell className="text-center">
+                              {lastEntryDate ? (
+                                <div className="flex items-center justify-center gap-2 text-xs font-bold text-slate-700 bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg">
+                                  <Calendar size={12} className="text-primary" />
+                                  {formatDateFR(lastEntryDate)}
+                                </div>
+                              ) : (
+                                <span className="text-[10px] text-slate-300 italic">Aucune</span>
+                              )}
+                            </TableCell>
+                          )}
+                          {isVisible("avancement_travaux") && (
+                            <TableCell>
+                              <div className="space-y-2 px-2">
+                                <div className="flex justify-between items-center">
+                                  <Badge variant="outline" className={cn(
+                                    "text-[9px] h-4 px-1.5",
+                                    project.avancement_travaux === 100 ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-amber-50 text-amber-600 border-amber-100"
+                                  )}>
+                                    {project.avancement_travaux === 100 ? "Terminé" : "Chantier"}
+                                  </Badge>
+                                  <span className="text-[10px] font-black text-slate-600">{project.avancement_travaux || 0}%</span>
+                                </div>
+                                <Progress value={project.avancement_travaux || 0} className="h-1.5 bg-slate-100" />
+                              </div>
+                            </TableCell>
+                          )}
+                          <TableCell className="text-center">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-slate-200">
+                                  <MoreHorizontal size={16} />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
+                                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}>
+                                  <Edit size={14} /> Modifier Suivi
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}>
+                                  <Trash2 size={14} /> Supprimer
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </TableCell>
                         </TableRow>
-                      )}
-                    </React.Fragment>
-                  ))
+                        {expandedProjects.has(project.id) && (
+                          <TableRow className="hover:bg-transparent border-none">
+                            <TableCell colSpan={visibleColumns.length + 2} className="p-0">
+                              <div className="flex flex-col">
+                                <TechnicalClientResponsibles 
+                                  clientName={project.client} 
+                                  responsibles={project.client_responsibles || []} 
+                                  onManage={() => { setSelectedProject(project); setIsSelectionModalOpen(true); }}
+                                  onEdit={(resp) => { setSelectedProject(project); setSelectedResp(resp); setIsRespModalOpen(true); }}
+                                  onDelete={(resp) => { setSelectedResp(resp); setIsRespConfirmOpen(true); }}
+                                  onHide={handleHideResp}
+                                />
+                                <TechnicalEnterpriseResponsibles 
+                                  enterpriseName={project.entreprise_travaux} 
+                                  responsibles={project.enterprise_responsibles || []} 
+                                  onManage={() => { setSelectedProject(project); setIsEnterpriseSelectionModalOpen(true); }}
+                                  onEdit={(resp) => { setSelectedProject(project); setSelectedResp(resp); setIsRespModalOpen(true); }}
+                                  onDelete={(resp) => { setSelectedResp(resp); setIsRespConfirmOpen(true); }}
+                                  onHide={handleHideResp}
+                                />
+                                <TechnicalSubEntriesList 
+                                  entries={project.technical_entries || []} 
+                                  onAdd={() => { setSelectedProject(project); setSelectedEntry(null); setIsEntryModalOpen(true); }} 
+                                  onEdit={(entry) => { setSelectedProject(project); setSelectedEntry(entry); setIsEntryModalOpen(true); }} 
+                                />
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </React.Fragment>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
