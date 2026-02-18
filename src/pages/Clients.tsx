@@ -15,9 +15,12 @@ import {
   Briefcase,
   Map as MapIcon,
   ExternalLink,
-  Fingerprint
+  Fingerprint,
+  Layout,
+  Save
 } from "lucide-react";
 import { fetcher } from "@/api/config";
+import { useViewModes, ViewMode } from "@/context/ViewModeContext";
 import {
   Table,
   TableBody,
@@ -43,6 +46,7 @@ import { ResponsibleModal } from "@/components/clients/ResponsibleModal";
 import { ClientResponsiblesList } from "@/components/clients/ClientResponsiblesList";
 import { ClientProjectsList } from "@/components/clients/ClientProjectsList";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { ViewModeModal } from "@/components/ui/ViewModeModal";
 import { cn } from "@/lib/utils";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
 import { ColumnToggle } from "@/components/ui/ColumnToggle";
@@ -253,6 +257,7 @@ const SortableClientRow = ({
 };
 
 const Clients = () => {
+  const { getViewModesByCategory, deleteViewMode } = useViewModes();
   const [clients, setClients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -263,9 +268,13 @@ const Clients = () => {
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isRespModalOpen, setIsRespModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isViewModeModalOpen, setIsViewModeModalOpen] = useState(false);
   
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [selectedResp, setSelectedResp] = useState<any>(null);
+  const [selectedViewMode, setSelectedViewMode] = useState<ViewMode | null>(null);
+
+  const clientViewModes = getViewModesByCategory("clients");
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
@@ -373,6 +382,46 @@ const Clients = () => {
           <p className="text-slate-500">Gérez vos clients et leurs interlocuteurs privilégiés</p>
         </div>
         <div className="flex items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="rounded-xl gap-2 h-11 px-4 border-slate-200">
+                <Layout size={18} /> Modes de vue
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64 rounded-xl">
+              <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold">Mes Vues</DropdownMenuLabel>
+              {clientViewModes.map((mode) => (
+                <div key={mode.id} className="flex items-center group px-1">
+                  <DropdownMenuItem 
+                    className="flex-1 cursor-pointer rounded-lg"
+                    onClick={() => setVisibleColumns(mode.columns)}
+                  >
+                    {mode.name}
+                  </DropdownMenuItem>
+                  <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeModalOpen(true); }}
+                      className="p-2 text-slate-400 hover:text-primary"
+                    >
+                      <Edit size={12} />
+                    </button>
+                    {!mode.id.includes("-default") && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); deleteViewMode(mode.id); }}
+                        className="p-2 text-slate-300 hover:text-rose-500"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="gap-2 cursor-pointer text-primary font-bold" onClick={() => { setSelectedViewMode(null); setIsViewModeModalOpen(true); }}>
+                <Save size={14} /> Enregistrer vue actuelle
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button onClick={() => { setSelectedClient(null); setIsClientModalOpen(true); }} className="rounded-xl shadow-lg shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 gap-2 h-11 px-6">
             <Plus size={18} /> Nouveau Client
           </Button>
@@ -426,6 +475,15 @@ const Clients = () => {
       <ClientModal isOpen={isClientModalOpen} onClose={() => setIsClientModalOpen(false)} onSubmit={() => { showSuccess("Client enregistré"); setIsClientModalOpen(false); loadClients(); }} initialData={selectedClient} />
       <ResponsibleModal isOpen={isRespModalOpen} onClose={() => setIsRespModalOpen(false)} onSubmit={() => { showSuccess("Responsable enregistré"); setIsRespModalOpen(false); loadClients(); }} initialData={selectedResp} />
       <ConfirmDialog isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={() => { showSuccess("Client supprimé"); setIsConfirmOpen(false); loadClients(); }} title="Supprimer le client ?" description="Cette action supprimera également tous les responsables liés." variant="destructive" confirmText="Supprimer" />
+      
+      <ViewModeModal 
+        isOpen={isViewModeModalOpen} 
+        onClose={() => setIsViewModeModalOpen(false)} 
+        availableColumns={CLIENT_COLUMNS}
+        category="clients"
+        currentVisibleColumns={visibleColumns}
+        initialData={selectedViewMode}
+      />
     </div>
   );
 };

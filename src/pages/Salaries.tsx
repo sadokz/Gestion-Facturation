@@ -14,10 +14,13 @@ import {
   CreditCard,
   GripVertical,
   Briefcase,
-  Banknote
+  Banknote,
+  Layout,
+  Save
 } from "lucide-react";
 import { fetcher } from "@/api/config";
 import { useMyCompany } from "@/context/CompanyContext";
+import { useViewModes, ViewMode } from "@/context/ViewModeContext";
 import {
   Table,
   TableBody,
@@ -30,6 +33,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +45,7 @@ import { EmployeeModal } from "@/components/salaries/EmployeeModal";
 import { SalaryPaymentModal } from "@/components/salaries/SalaryPaymentModal";
 import { EmployeeSalariesList } from "@/components/salaries/EmployeeSalariesList";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { ViewModeModal } from "@/components/ui/ViewModeModal";
 import { cn } from "@/lib/utils";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
 import { ColumnToggle } from "@/components/ui/ColumnToggle";
@@ -56,6 +62,7 @@ const EMPLOYEE_COLUMNS = [
 
 const Salaries = () => {
   const { selectedCompany } = useMyCompany();
+  const { getViewModesByCategory, deleteViewMode } = useViewModes();
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -65,9 +72,13 @@ const Salaries = () => {
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isViewModeModalOpen, setIsViewModeModalOpen] = useState(false);
   
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
+  const [selectedViewMode, setSelectedViewMode] = useState<ViewMode | null>(null);
+
+  const salaryViewModes = getViewModesByCategory("salaries");
 
   const loadEmployees = async () => {
     if (!selectedCompany) return;
@@ -132,9 +143,51 @@ const Salaries = () => {
           <h1 className="text-3xl font-bold text-slate-900">Gestion des Salaires</h1>
           <p className="text-slate-500">Employés de {selectedCompany?.nom}</p>
         </div>
-        <Button onClick={() => { setSelectedEmployee(null); setIsEmployeeModalOpen(true); }} className="rounded-xl shadow-lg shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-700 gap-2 h-11 px-6 text-white">
-          <Plus size={18} /> Nouvel Employé
-        </Button>
+        <div className="flex items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="rounded-xl gap-2 h-11 px-4 border-slate-200">
+                <Layout size={18} /> Modes de vue
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64 rounded-xl">
+              <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold">Mes Vues</DropdownMenuLabel>
+              {salaryViewModes.map((mode) => (
+                <div key={mode.id} className="flex items-center group px-1">
+                  <DropdownMenuItem 
+                    className="flex-1 cursor-pointer rounded-lg"
+                    onClick={() => setVisibleColumns(mode.columns)}
+                  >
+                    {mode.name}
+                  </DropdownMenuItem>
+                  <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeModalOpen(true); }}
+                      className="p-2 text-slate-400 hover:text-primary"
+                    >
+                      <Edit size={12} />
+                    </button>
+                    {!mode.id.includes("-default") && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); deleteViewMode(mode.id); }}
+                        className="p-2 text-slate-300 hover:text-rose-500"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="gap-2 cursor-pointer text-primary font-bold" onClick={() => { setSelectedViewMode(null); setIsViewModeModalOpen(true); }}>
+                <Save size={14} /> Enregistrer vue actuelle
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button onClick={() => { setSelectedEmployee(null); setIsEmployeeModalOpen(true); }} className="rounded-xl shadow-lg shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-700 gap-2 h-11 px-6 text-white">
+            <Plus size={18} /> Nouvel Employé
+          </Button>
+        </div>
       </div>
 
       <Card className="border-none shadow-md overflow-hidden">
@@ -246,6 +299,15 @@ const Salaries = () => {
       <EmployeeModal isOpen={isEmployeeModalOpen} onClose={() => setIsEmployeeModalOpen(false)} onSubmit={() => { showSuccess("Employé enregistré"); setIsEmployeeModalOpen(false); loadEmployees(); }} initialData={selectedEmployee} />
       <SalaryPaymentModal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} onSubmit={() => { showSuccess("Paiement validé"); setIsPaymentModalOpen(false); loadEmployees(); }} initialData={selectedPayment} employeeName={selectedEmployee ? `${selectedEmployee.prenom} ${selectedEmployee.nom}` : ""} />
       <ConfirmDialog isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={() => { showSuccess("Employé supprimé"); setIsConfirmOpen(false); loadEmployees(); }} title="Supprimer l'employé ?" description="Cette action supprimera également tout l'historique de ses salaires." variant="destructive" confirmText="Supprimer" />
+      
+      <ViewModeModal 
+        isOpen={isViewModeModalOpen} 
+        onClose={() => setIsViewModeModalOpen(false)} 
+        availableColumns={EMPLOYEE_COLUMNS}
+        category="salaries"
+        currentVisibleColumns={visibleColumns}
+        initialData={selectedViewMode}
+      />
     </div>
   );
 };

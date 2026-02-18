@@ -6,10 +6,13 @@ import {
   Edit, 
   Trash2,
   Download,
-  GripVertical
+  GripVertical,
+  Layout,
+  Save
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { useMyCompany } from "@/context/CompanyContext";
+import { useViewModes, ViewMode } from "@/context/ViewModeContext";
 import { fetcher } from "@/api/config";
 import { formatCurrencyDT, formatDateFR, computeTTC } from "@/utils/formatters";
 import { exportToCSV } from "@/utils/export";
@@ -25,6 +28,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +37,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { PurchaseModal } from "@/components/purchases/PurchaseModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { ViewModeModal } from "@/components/ui/ViewModeModal";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
@@ -150,6 +156,7 @@ const SortablePurchaseRow = ({
 const Purchases = () => {
   const { selectedYear } = useYear();
   const { selectedCompany } = useMyCompany();
+  const { getViewModesByCategory, deleteViewMode } = useViewModes();
   const [purchases, setPurchases] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -158,7 +165,12 @@ const Purchases = () => {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isViewModeModalOpen, setIsViewModeModalOpen] = useState(false);
+  
   const [selectedPurchase, setSelectedPurchase] = useState<any>(null);
+  const [selectedViewMode, setSelectedViewMode] = useState<ViewMode | null>(null);
+
+  const purchaseViewModes = getViewModesByCategory("purchases");
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
@@ -237,6 +249,46 @@ const Purchases = () => {
           <p className="text-slate-500">Suivez vos coûts pour {selectedCompany?.nom}</p>
         </div>
         <div className="flex items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="rounded-xl gap-2 h-11 px-4 border-slate-200">
+                <Layout size={18} /> Modes de vue
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64 rounded-xl">
+              <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold">Mes Vues</DropdownMenuLabel>
+              {purchaseViewModes.map((mode) => (
+                <div key={mode.id} className="flex items-center group px-1">
+                  <DropdownMenuItem 
+                    className="flex-1 cursor-pointer rounded-lg"
+                    onClick={() => setVisibleColumns(mode.columns)}
+                  >
+                    {mode.name}
+                  </DropdownMenuItem>
+                  <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeModalOpen(true); }}
+                      className="p-2 text-slate-400 hover:text-primary"
+                    >
+                      <Edit size={12} />
+                    </button>
+                    {!mode.id.includes("-default") && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); deleteViewMode(mode.id); }}
+                        className="p-2 text-slate-300 hover:text-rose-500"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="gap-2 cursor-pointer text-primary font-bold" onClick={() => { setSelectedViewMode(null); setIsViewModeModalOpen(true); }}>
+                <Save size={14} /> Enregistrer vue actuelle
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button variant="outline" className="rounded-xl gap-2 h-11 px-4 border-slate-200" onClick={handleExport}><Download size={18} /> Export</Button>
           <Button onClick={() => { setSelectedPurchase(null); setIsModalOpen(true); }} className="rounded-xl shadow-lg shadow-rose-500/20 bg-rose-600 hover:bg-rose-700 gap-2 h-11 px-6"><Plus size={18} /> Nouvel Achat</Button>
         </div>
@@ -289,6 +341,15 @@ const Purchases = () => {
 
       <PurchaseModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSubmit={() => { showSuccess("Action simulée"); setIsModalOpen(false); }} initialData={selectedPurchase} />
       <ConfirmDialog isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={handleDelete} title="Supprimer cet achat ?" description="Cette action est irréversible. La dépense sera retirée de vos statistiques." variant="destructive" confirmText="Supprimer" />
+      
+      <ViewModeModal 
+        isOpen={isViewModeModalOpen} 
+        onClose={() => setIsViewModeModalOpen(false)} 
+        availableColumns={PURCHASE_COLUMNS}
+        category="purchases"
+        currentVisibleColumns={visibleColumns}
+        initialData={selectedViewMode}
+      />
     </div>
   );
 };

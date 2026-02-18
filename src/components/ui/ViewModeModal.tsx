@@ -20,6 +20,7 @@ interface ViewModeModalProps {
   isOpen: boolean;
   onClose: () => void;
   availableColumns: { id: string; label: string }[];
+  category: string;
   initialData?: ViewMode | null;
   currentVisibleColumns: string[];
 }
@@ -28,6 +29,7 @@ export const ViewModeModal: React.FC<ViewModeModalProps> = ({
   isOpen, 
   onClose, 
   availableColumns, 
+  category,
   initialData,
   currentVisibleColumns
 }) => {
@@ -38,7 +40,6 @@ export const ViewModeModal: React.FC<ViewModeModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setName(initialData?.name || "");
-      // Si on édite, on prend les colonnes du mode. Si on crée, on prend les colonnes actuellement visibles.
       setSelectedColumns(initialData?.columns || [...currentVisibleColumns]);
     }
   }, [isOpen, initialData, currentVisibleColumns]);
@@ -63,7 +64,7 @@ export const ViewModeModal: React.FC<ViewModeModalProps> = ({
       updateViewMode(initialData.id, name, selectedColumns);
       showSuccess(`Mode "${name}" mis à jour`);
     } else {
-      saveViewMode(name, selectedColumns);
+      saveViewMode(name, selectedColumns, category);
       showSuccess(`Mode "${name}" enregistré`);
     }
     
@@ -87,7 +88,7 @@ export const ViewModeModal: React.FC<ViewModeModalProps> = ({
               id="view-name"
               value={name} 
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ex: Vue Financière, Suivi Contrat..."
+              placeholder="Ex: Vue Simplifiée, Export..."
               className="rounded-xl"
               autoFocus
             />

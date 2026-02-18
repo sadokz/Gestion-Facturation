@@ -15,9 +15,12 @@ import {
   GripVertical,
   Fingerprint,
   Map as MapIcon,
-  ExternalLink
+  ExternalLink,
+  Layout,
+  Save
 } from "lucide-react";
 import { fetcher } from "@/api/config";
+import { useViewModes, ViewMode } from "@/context/ViewModeContext";
 import {
   Table,
   TableBody,
@@ -30,6 +33,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +45,7 @@ import { CompanyResponsibleModal } from "@/components/companies/CompanyResponsib
 import { CompanyResponsiblesList } from "@/components/companies/CompanyResponsiblesList";
 import { CompanyProjectsList } from "@/components/companies/CompanyProjectsList";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { ViewModeModal } from "@/components/ui/ViewModeModal";
 import { cn } from "@/lib/utils";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
 import { ColumnToggle } from "@/components/ui/ColumnToggle";
@@ -217,6 +223,7 @@ const SortableCompanyRow = ({
 };
 
 const Companies = () => {
+  const { getViewModesByCategory, deleteViewMode } = useViewModes();
   const [companies, setCompanies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -227,9 +234,13 @@ const Companies = () => {
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [isRespModalOpen, setIsRespModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isViewModeModalOpen, setIsViewModeModalOpen] = useState(false);
   
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [selectedResp, setSelectedResp] = useState<any>(null);
+  const [selectedViewMode, setSelectedViewMode] = useState<ViewMode | null>(null);
+
+  const companyViewModes = getViewModesByCategory("companies");
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
@@ -331,6 +342,46 @@ const Companies = () => {
           <p className="text-slate-500">Gérez vos partenaires, sous-traitants et autres entreprises</p>
         </div>
         <div className="flex items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="rounded-xl gap-2 h-11 px-4 border-slate-200">
+                <Layout size={18} /> Modes de vue
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64 rounded-xl">
+              <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold">Mes Vues</DropdownMenuLabel>
+              {companyViewModes.map((mode) => (
+                <div key={mode.id} className="flex items-center group px-1">
+                  <DropdownMenuItem 
+                    className="flex-1 cursor-pointer rounded-lg"
+                    onClick={() => setVisibleColumns(mode.columns)}
+                  >
+                    {mode.name}
+                  </DropdownMenuItem>
+                  <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeModalOpen(true); }}
+                      className="p-2 text-slate-400 hover:text-primary"
+                    >
+                      <Edit size={12} />
+                    </button>
+                    {!mode.id.includes("-default") && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); deleteViewMode(mode.id); }}
+                        className="p-2 text-slate-300 hover:text-rose-500"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="gap-2 cursor-pointer text-primary font-bold" onClick={() => { setSelectedViewMode(null); setIsViewModeModalOpen(true); }}>
+                <Save size={14} /> Enregistrer vue actuelle
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button onClick={() => { setSelectedCompany(null); setIsCompanyModalOpen(true); }} className="rounded-xl shadow-lg shadow-amber-500/20 bg-amber-600 hover:bg-amber-700 gap-2 h-11 px-6 text-white">
             <Plus size={18} /> Nouvelle Entreprise
           </Button>
@@ -384,6 +435,15 @@ const Companies = () => {
       <CompanyModal isOpen={isCompanyModalOpen} onClose={() => setIsCompanyModalOpen(false)} onSubmit={() => { showSuccess("Entreprise enregistrée"); setIsCompanyModalOpen(false); loadCompanies(); }} initialData={selectedCompany} />
       <CompanyResponsibleModal isOpen={isRespModalOpen} onClose={() => setIsRespModalOpen(false)} onSubmit={() => { showSuccess("Responsable enregistré"); setIsRespModalOpen(false); loadCompanies(); }} initialData={selectedResp} />
       <ConfirmDialog isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={() => { showSuccess("Entreprise supprimée"); setIsConfirmOpen(false); loadCompanies(); }} title="Supprimer l'entreprise ?" description="Cette action supprimera également tous les responsables liés à cette entreprise." variant="destructive" confirmText="Supprimer" />
+      
+      <ViewModeModal 
+        isOpen={isViewModeModalOpen} 
+        onClose={() => setIsViewModeModalOpen(false)} 
+        availableColumns={COMPANY_COLUMNS}
+        category="companies"
+        currentVisibleColumns={visibleColumns}
+        initialData={selectedViewMode}
+      />
     </div>
   );
 };
