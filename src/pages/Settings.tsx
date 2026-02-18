@@ -39,7 +39,7 @@ import { cn } from "@/lib/utils";
 
 const Settings = () => {
   const { tabs, toggleTab } = useNavigation();
-  const { myCompanies, addMyCompany, updateMyCompany, deleteMyCompany } = useMyCompany();
+  const { myCompanies, selectedCompany, addMyCompany, updateMyCompany, deleteMyCompany } = useMyCompany();
   
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -336,7 +336,11 @@ const Settings = () => {
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
           <h3 className="font-bold text-slate-800">Visibilité des Modules</h3>
-          <p className="text-sm text-slate-500">Activez ou désactivez les onglets du menu latéral pour l'ensemble de l'application.</p>
+          <p className="text-sm text-slate-500">Configurez les onglets visibles pour l'entité actuellement sélectionnée.</p>
+          <div className="mt-4 p-3 bg-primary/5 rounded-xl border border-primary/10">
+            <p className="text-[10px] font-bold text-primary uppercase">Entité active :</p>
+            <p className="text-sm font-bold text-slate-700">{selectedCompany?.nom}</p>
+          </div>
         </div>
         <Card className="md:col-span-2 border-none shadow-md">
           <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
