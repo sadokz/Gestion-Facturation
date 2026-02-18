@@ -6,125 +6,67 @@ Cette application est une solution ERP complète conçue spécifiquement pour le
 
 ## 📊 1. Tableau de Bord (Dashboard)
 Le centre de pilotage de votre activité, entièrement personnalisable.
-
-### Indicateurs de Performance (KPIs) - [Type : Montant (DT)]
-- **Total Contrats (HT)** : Somme des montants de base et des avenants signés.
-- **Total Facturé (HT)** : Cumul de toutes les factures de ventes émises.
-- **Reste à Facturer (HT)** : Différence entre le montant total des contrats et le déjà facturé.
-- **Total Achats (HT)** : Somme de toutes les dépenses fournisseurs enregistrées.
-- **Total Payé CNSS** : Cumul des cotisations sociales versées.
-- **Total Salaires** : Somme des montants nets versés aux employés.
-- **Total Encaissé (HT)** : Chiffre d'affaires réel basé uniquement sur les factures marquées comme "Payées".
-- **Bénéfice Réel (HT)** : Calculé selon la formule : `Total Encaissé - (Achats + Salaires + CNSS)`.
+- **Personnalisation** : Via l'icône ⚙️ en haut à droite, vous pouvez choisir quels indicateurs afficher, réorganiser les graphiques par glisser-déposer et ajuster la largeur des blocs (25%, 50%, 75% ou 100%).
+- **Indicateurs (KPIs)** : Total Contrats, Facturé, Reste à Facturer, Achats, CNSS, Salaires, Chiffre d'affaires encaissé et Bénéfice Réel.
 
 ---
 
 ## 🏗️ 2. Projets & Facturation
 Gestion du cycle de vie des contrats et suivi rigoureux des paiements.
-
-### Description des colonnes
-- **Référence** [Texte] : Identifiant unique du projet (ex: PRJ-2026-001).
-- **Projet** [Texte] : Nom du projet et nom du client associé.
-- **Contrat** [Fichier] : État du document contractuel (icône verte si téléversé).
-- **Total Contrat HT** [Montant (DT)] : Montant de base du contrat hors taxes.
-- **Avenant HT** [Montant (DT)] : Montant des modifications contractuelles supplémentaires.
-- **TVA** [Montant (DT)] : Montant de la taxe calculé sur le total HT (Base + Avenant).
-- **Total Contrat TTC** [Montant (DT)] : Valeur totale du projet incluant la TVA.
-- **Total Facturé HT** [Montant (DT)] : Somme des montants hors taxes de toutes les factures émises.
-- **Facturé TTC** [Montant (DT)] : Valeur totale facturée incluant la TVA.
-- **Total Reçu TTC** [Montant (DT)] : Montant réellement encaissé (factures au statut "Payé").
-- **Reste à Facturer TTC** [Montant (DT)] : Montant restant à réclamer au client pour atteindre le total TTC du contrat.
-- **Statut** [Badge] : État de facturation (Non facturé, Partiellement, Totalement).
+- **Modes de Vue ("Mes Vues")** : Vous pouvez créer des configurations de colonnes personnalisées (ex: "Vue Financière", "Vue Simplifiée"). Ces vues sont sauvegardées et accessibles via le bouton "Modes de vue".
+- **Suivi des Paiements** : Chaque projet peut être étendu pour afficher l'historique détaillé des factures émises, leur statut (Payé, En attente) et les documents joints (PDF).
 
 ---
 
 ## 👷 3. Suivi Technique des Projets
 Coordination technique et suivi de l'avancement physique des chantiers.
-
-### Description des colonnes
-- **Référence** [Texte] : Rappel de l'identifiant unique du projet.
-- **Projet / Maître d'Ouvrage** [Texte] : Nom du projet et entité commanditaire.
-- **Resp. Interne** [Texte] : Ingénieur ou collaborateur du bureau responsable du dossier.
-- **Architecte** [Texte] : Cabinet d'architecture partenaire sur le projet.
-- **Ing. Fluides / Structure** [Texte] : Bureaux d'études partenaires spécialisés.
-- **Bureau de Contrôle** [Texte] : Organisme chargé de la conformité technique (ex: Veritas).
-- **Phase** [Liste] : Étape actuelle de l'étude (APS, APD, DAO...).
-- **Indice** [Liste] : Version actuelle des plans ou documents (A, B, C...).
-- **Avancement Études** [Pourcentage (%)] : Progression de la production intellectuelle.
-- **Entreprise** [Texte] : Entreprise de travaux (BTP) en charge de l'exécution.
-- **Avancement Travaux** [Pourcentage (%)] : Progression réelle du chantier sur site.
+- **Modes de Vue** : Personnalisez l'affichage pour vous concentrer sur les intervenants (Architecte, Bureau de contrôle) ou sur l'avancement (Phases, Indices).
+- **Interventions** : Enregistrez chaque réunion, envoi de plan ou visite de chantier avec compte-rendu et justificatif.
+- **Gestion des Contacts** : Liez des responsables spécifiques du client ou de l'entreprise de travaux à chaque projet pour un accès rapide à leurs coordonnées.
 
 ---
 
 ## 👥 4. Annuaires (Clients & Entreprises)
 Gestion des tiers et de leurs contacts.
-
-### Description des colonnes (Communes aux deux onglets)
-- **Client / Entreprise** [Texte] : Nom ou Raison Sociale de l'entité.
-- **Matricule Fiscal** [Texte] : Identifiant légal de l'entreprise.
-- **Adresse** [Texte] : Localisation physique du siège ou de l'agence.
-- **Google Maps** [Lien] : Lien direct vers la localisation GPS.
-- **Téléphone / Fax / Email** [Texte/Email] : Coordonnées de contact de l'entité.
+- **Segmentation** : Deux annuaires distincts pour les Maîtres d'Ouvrage (Clients) et les Partenaires/Entreprises de travaux.
+- **Modes de Vue** : Adaptez l'affichage selon vos besoins (Coordonnées complètes, Matricules fiscaux, etc.).
+- **Responsables** : Chaque entité possède sa propre liste de contacts avec rôles et coordonnées directes.
 
 ---
 
 ## 🛒 5. Achats & Dépenses
 Contrôle des coûts opérationnels.
-
-### Description des colonnes
-- **Fournisseur** [Texte] : Nom du prestataire ou magasin.
-- **N° Facture** [Texte] : Référence de la facture d'achat.
-- **Date Facture** [Date] : Date d'émission du document.
-- **Date Paiement** [Date] : Date à laquelle la dépense a été réglée.
-- **Catégorie** [Liste] : Type de dépense (Matériel, Logiciels, Déplacement...).
-- **Montant HT** [Montant (DT)] : Valeur de l'achat hors taxes.
-- **TTC** [Montant (DT)] : Valeur totale payée incluant la TVA.
-- **Statut** [Badge] : État du règlement (À payer, Payée).
+- **Modes de Vue** : Filtrez et affichez les colonnes pertinentes pour votre comptabilité (Catégories, Montants HT/TTC, Statuts de paiement).
+- **Export** : Possibilité d'exporter la liste filtrée en format CSV pour intégration comptable.
 
 ---
 
 ## 👨‍💼 6. Salaires & RH
 Gestion du capital humain et des absences.
-
-### Onglet Salaires (Colonnes Employés)
-- **Employé** [Texte] : Nom, prénom et photo/initiales du collaborateur.
-- **CIN** [Texte] : Numéro de la Carte d'Identité Nationale (8 chiffres).
-- **Poste** [Texte] : Fonction occupée au sein du bureau.
-- **S. Brut** [Montant (DT)] : Salaire brut contractuel.
-- **S. Net** [Montant (DT)] : Salaire net à payer (base).
-- **Téléphone** [Texte] : Numéro de contact direct.
-
-### Onglet RH (Suivi des Congés)
-- **Employé** [Texte] : Nom et poste du collaborateur.
-- **Total Congés** [Nombre] : Quota annuel de jours de repos (ex: 30j).
-- **Congés Pris** [Nombre] : Nombre de jours de congés déjà validés et consommés.
-- **Solde Restant** [Nombre] : Jours disponibles restants pour l'année.
-- **Maladies** [Nombre] : Cumul des jours d'absence pour raison médicale.
-- **En attente** [Nombre] : Nombre de demandes de congés non encore traitées.
+- **Salaires** : Suivi des employés, de leurs contrats (CDI, SIVP, etc.) et historique mensuel des paiements (Net, Primes, Tickets Resto).
+- **RH (Congés)** : Calcul automatique des soldes de congés restants, suivi des maladies et gestion des justificatifs d'absence.
+- **Modes de Vue** : Basculez entre une vue "Contrats" et une vue "Financière" pour les salaires.
 
 ---
 
-## 📂 7. Gestion des Documents (Uploads)
-L'application permet de centraliser les documents officiels :
-1.  **Contrats Projets** : PDF du contrat signé.
-2.  **Factures de Ventes** : Facture, Décharge de dépôt et Attestation de Retenue.
-3.  **Dossier RH** : Copie de la **CIN** et **Contrat de travail** pour chaque employé.
-4.  **Justificatifs RH** : Certificats médicaux ou demandes signées.
+## 🛠️ 7. Outils Transverses & UX
+- **Modes de Vue Personnalisés** : Disponible sur TOUS les modules. Permet de choisir exactement quelles colonnes afficher, de nommer cette configuration et de la retrouver en un clic.
+- **Recherche Globale (Ctrl+K)** : Palette de commande pour naviguer instantanément ou rechercher un élément précis.
+- **Mode Confidentialité (👁️)** : Masquage instantané de toutes les données financières sensibles (`*****`) pour travailler en espace partagé.
+- **Gestion des Exercices** : Séparation stricte des données par année fiscale (2025, 2026, etc.).
+- **Multi-Entités** : Gérez plusieurs bureaux ou succursales au sein de la même interface.
 
 ---
 
-## 🛠️ 8. Outils Transverses & UX
-- **Recherche Globale (Ctrl+K)** : Palette de commande pour naviguer instantanément dans l'application.
-- **Mode Confidentialité (👁️)** : Masquage instantané de toutes les données financières sensibles (`*****`).
-- **Gestion des Exercices** : Séparation stricte des données par année fiscale.
-- **Réorganisation par Glisser-Déposer (Drag & Drop)** : Possibilité de réordonner les lignes des tableaux (projets, factures, clients) pour une organisation personnalisée.
-- **Redimensionnement des Colonnes (Resize)** : Ajustement manuel de la largeur des colonnes des tableaux pour optimiser l'affichage selon la taille de l'écran.
-- **Gestion de la Visibilité des Colonnes** : Menu de configuration permettant d'afficher ou de masquer des colonnes spécifiques pour épurer l'interface.
+## ⚙️ 8. Paramètres & Sécurité (Gestion des Utilisateurs)
+Le module de paramètres permet de configurer les accès de manière extrêmement précise :
 
----
+### Gestion des Utilisateurs
+Pour chaque collaborateur, vous pouvez définir :
+1.  **Identifiants** : Nom, Email et Mot de passe.
+2.  **Accès aux Entités (Nouveau)** : Une liste à cocher permet de restreindre l'utilisateur à certaines entreprises uniquement. S'il n'est pas coché pour une entité, il ne verra aucun projet, achat ou salaire lié à celle-ci.
+3.  **Permissions Modules** : Activez ou désactivez l'accès aux onglets spécifiques (ex: un technicien peut voir le "Suivi Technique" mais pas les "Salaires").
 
-## ⚙️ 9. Paramètres & Sécurité
-- **Profil du Bureau** : Configuration des informations légales de l'entreprise.
-- **Gestion des Utilisateurs** : Création, modification et suppression des comptes collaborateurs.
-- **Activation/Désactivation** : Possibilité de suspendre l'accès d'un utilisateur sans supprimer ses données.
-- **Gestion des Permissions** : Contrôle granulaire de l'accès aux modules (Dashboard, Projets, RH, etc.) pour chaque utilisateur.
+### Visibilité Globale
+- **Activation des Modules** : Possibilité de masquer des modules entiers pour l'ensemble du bureau (ex: désactiver le module "Comptabilité" s'il n'est pas utilisé).
+- **Profil du Bureau** : Configuration des informations légales (Nom, Matricule Fiscal, Adresse) qui servent de base au système.
