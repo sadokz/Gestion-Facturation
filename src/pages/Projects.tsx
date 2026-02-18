@@ -84,6 +84,7 @@ const PROJECT_COLUMNS = [
   { id: "total_ttc", label: "Total Contrat TTC" },
   { id: "facture_ht", label: "Total Facturé HT" },
   { id: "facture_ttc", label: "Total Facturé TTC" },
+  { id: "paye_ht", label: "Total Reçu HT" },
   { id: "paye_ttc", label: "Total Reçu TTC" },
   { id: "reste_ttc", label: "Reste à Facturer TTC" },
   { id: "statut", label: "Statut" },
@@ -129,9 +130,10 @@ const SortableProjectRow = ({
   const invoices = project.invoices || [];
   const totalFactureHT = invoices.reduce((sum: number, inv: any) => sum + inv.montant_ht, 0);
   const totalFactureTTC = invoices.reduce((sum: number, inv: any) => sum + computeTTC(inv.montant_ht, inv.tva_pct || 19), 0);
-  const totalPayeTTC = invoices
-    .filter((inv: any) => inv.statut === "Payé")
-    .reduce((sum: number, inv: any) => sum + computeTTC(inv.montant_ht, inv.tva_pct || 19), 0);
+  
+  const paidInvoices = invoices.filter((inv: any) => inv.statut === "Payé");
+  const totalPayeHT = paidInvoices.reduce((sum: number, inv: any) => sum + inv.montant_ht, 0);
+  const totalPayeTTC = paidInvoices.reduce((sum: number, inv: any) => sum + computeTTC(inv.montant_ht, inv.tva_pct || 19), 0);
   
   const resteAFacturerTTC = totalTTC - totalFactureTTC;
 
@@ -196,6 +198,7 @@ const SortableProjectRow = ({
         {isVisible("total_ttc") && <TableCell className="text-right font-bold text-slate-900 truncate">{format(totalTTC)}</TableCell>}
         {isVisible("facture_ht") && <TableCell className="text-right text-blue-600 font-bold truncate">{format(totalFactureHT)}</TableCell>}
         {isVisible("facture_ttc") && <TableCell className="text-right text-indigo-600 font-bold truncate">{format(totalFactureTTC)}</TableCell>}
+        {isVisible("paye_ht") && <TableCell className="text-right text-emerald-500 font-bold truncate">{format(totalPayeHT)}</TableCell>}
         {isVisible("paye_ttc") && <TableCell className="text-right text-emerald-600 font-bold truncate">{format(totalPayeTTC)}</TableCell>}
         {isVisible("reste_ttc") && <TableCell className="text-right text-rose-600 font-black truncate">{format(resteAFacturerTTC)}</TableCell>}
         {isVisible("statut") && <TableCell className="truncate">{getStatusBadge(calculatedStatus)}</TableCell>}
@@ -429,6 +432,7 @@ const Projects = () => {
                     {isVisible("total_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center" sortKey="total_ttc" currentSort={sortConfig} onSort={handleSort}>Total Contrat TTC</ResizableHeader>}
                     {isVisible("facture_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Total Facturé HT</ResizableHeader>}
                     {isVisible("facture_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Total Facturé TTC</ResizableHeader>}
+                    {isVisible("paye_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Total Reçu HT</ResizableHeader>}
                     {isVisible("paye_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Total Reçu TTC</ResizableHeader>}
                     {isVisible("reste_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Reste à Facturer TTC</ResizableHeader>}
                     {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} className="text-center" sortKey="statut" currentSort={sortConfig} onSort={handleSort}>Statut</ResizableHeader>}
