@@ -79,6 +79,7 @@ const PROJECT_COLUMNS = [
   { id: "contrat", label: "Contrat" },
   { id: "montant_total_ht", label: "Contrat HT" },
   { id: "montant_avenant_ht", label: "Avenant HT" },
+  { id: "total_ht", label: "Total Contrat HT" },
   { id: "tva_pct", label: "TVA" },
   { id: "total_ttc", label: "Total Contrat TTC" },
   { id: "facture_ht", label: "Total Facturé HT" },
@@ -190,6 +191,7 @@ const SortableProjectRow = ({
         )}
         {isVisible("montant_total_ht") && <TableCell className="text-right font-medium text-slate-600 truncate">{format(baseHT)}</TableCell>}
         {isVisible("montant_avenant_ht") && <TableCell className="text-right font-medium text-amber-600 truncate">{format(avenantHT)}</TableCell>}
+        {isVisible("total_ht") && <TableCell className="text-right font-bold text-slate-700 truncate">{format(totalHT)}</TableCell>}
         {isVisible("tva_pct") && <TableCell className="text-right font-medium text-slate-500 truncate">{format(totalTVA)}</TableCell>}
         {isVisible("total_ttc") && <TableCell className="text-right font-bold text-slate-900 truncate">{format(totalTTC)}</TableCell>}
         {isVisible("facture_ht") && <TableCell className="text-right text-blue-600 font-bold truncate">{format(totalFactureHT)}</TableCell>}
@@ -422,6 +424,7 @@ const Projects = () => {
                     {isVisible("contrat") && <ResizableHeader initialWidth={100} minWidth={80} className="text-center">Contrat</ResizableHeader>}
                     {isVisible("montant_total_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center" sortKey="montant_total_ht" currentSort={sortConfig} onSort={handleSort}>Contrat HT</ResizableHeader>}
                     {isVisible("montant_avenant_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center" sortKey="montant_avenant_ht" currentSort={sortConfig} onSort={handleSort}>Avenant HT</ResizableHeader>}
+                    {isVisible("total_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center" sortKey="total_ht" currentSort={sortConfig} onSort={handleSort}>Total Contrat HT</ResizableHeader>}
                     {isVisible("tva_pct") && <ResizableHeader initialWidth={120} minWidth={80} className="text-center" sortKey="tva_pct" currentSort={sortConfig} onSort={handleSort}>TVA</ResizableHeader>}
                     {isVisible("total_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center" sortKey="total_ttc" currentSort={sortConfig} onSort={handleSort}>Total Contrat TTC</ResizableHeader>}
                     {isVisible("facture_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Total Facturé HT</ResizableHeader>}
