@@ -399,7 +399,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                       name="indice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="flex items-center gap-2 text-indigo-700"><Hash size={14} /> Indice</Hash></FormLabel>
+                          <FormLabel className="flex items-center gap-2 text-indigo-700"><Hash size={14} /> Indice</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger className="rounded-xl">
