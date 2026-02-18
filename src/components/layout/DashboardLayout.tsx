@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
   Briefcase, 
@@ -69,6 +69,7 @@ const SidebarItem = ({ to, icon: Icon, label, active, variant = "default" }: { t
 
 export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { selectedYear, setSelectedYear, availableYears } = useYear();
   const { selectedCompany, setSelectedCompany, myCompanies } = useMyCompany();
   const { tabs } = useNavigation();
@@ -87,6 +88,12 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
 
   const isVisible = (tabId: string) => {
     return tabs[tabId as keyof typeof tabs] && currentUser.permissions[tabId];
+  };
+
+  const handleUserSwitch = (user: any) => {
+    setCurrentUser(user);
+    // Redirection automatique vers Suivi Technique lors du changement d'utilisateur
+    navigate("/project-tracking");
   };
 
   return (
@@ -302,7 +309,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                         "flex items-center gap-3 p-2 rounded-xl cursor-pointer transition-colors mb-1",
                         currentUser.id === user.id ? "bg-primary/5 border border-primary/10" : "hover:bg-slate-50 dark:hover:bg-slate-800"
                       )}
-                      onClick={() => setCurrentUser(user)}
+                      onClick={() => handleUserSwitch(user)}
                     >
                       <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
                         <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.avatar}`} alt={user.nom} />
