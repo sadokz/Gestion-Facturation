@@ -77,7 +77,7 @@ const PROJECT_COLUMNS = [
   { id: "reference_projet", label: "Référence" },
   { id: "nom_projet", label: "Projet" },
   { id: "contrat", label: "Contrat" },
-  { id: "montant_total_ht", label: "Total Contrat HT" },
+  { id: "montant_total_ht", label: "Contrat HT" },
   { id: "montant_avenant_ht", label: "Avenant HT" },
   { id: "tva_pct", label: "TVA" },
   { id: "total_ttc", label: "Total Contrat TTC" },
@@ -420,7 +420,7 @@ const Projects = () => {
                     {isVisible("reference_projet") && <ResizableHeader initialWidth={120} minWidth={80} className="text-center" sortKey="reference_projet" currentSort={sortConfig} onSort={handleSort}>Référence</ResizableHeader>}
                     {isVisible("nom_projet") && <ResizableHeader initialWidth={250} minWidth={100} className="text-center" sortKey="nom_projet" currentSort={sortConfig} onSort={handleSort}>Projet</ResizableHeader>}
                     {isVisible("contrat") && <ResizableHeader initialWidth={100} minWidth={80} className="text-center">Contrat</ResizableHeader>}
-                    {isVisible("montant_total_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center" sortKey="montant_total_ht" currentSort={sortConfig} onSort={handleSort}>Total Contrat HT</ResizableHeader>}
+                    {isVisible("montant_total_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center" sortKey="montant_total_ht" currentSort={sortConfig} onSort={handleSort}>Contrat HT</ResizableHeader>}
                     {isVisible("montant_avenant_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center" sortKey="montant_avenant_ht" currentSort={sortConfig} onSort={handleSort}>Avenant HT</ResizableHeader>}
                     {isVisible("tva_pct") && <ResizableHeader initialWidth={120} minWidth={80} className="text-center" sortKey="tva_pct" currentSort={sortConfig} onSort={handleSort}>TVA</ResizableHeader>}
                     {isVisible("total_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center" sortKey="total_ttc" currentSort={sortConfig} onSort={handleSort}>Total Contrat TTC</ResizableHeader>}
