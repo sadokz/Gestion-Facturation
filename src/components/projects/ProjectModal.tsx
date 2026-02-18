@@ -103,7 +103,6 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
           const data = await fetcher("/tiers");
           setTiers(data);
         } catch (err) {
-          // Mock unifié
           setTiers([
             { id: 1, nom: "Commune de Tunis", type: "Client" },
             { id: 2, nom: "STEG", type: "Client" },
@@ -377,7 +376,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                       name="indice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="flex items-center gap-2 text-indigo-700"><Hash size={14} /> Indice</Hash></FormLabel>
+                          <FormLabel className="flex items-center gap-2 text-indigo-700"><Hash size={14} /> Indice</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger className="rounded-xl">
