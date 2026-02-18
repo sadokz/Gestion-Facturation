@@ -28,7 +28,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Eye, EyeOff, Building2, ShieldCheck, User as UserIcon, Shield } from "lucide-react";
 import { useMyCompany } from "@/context/CompanyContext";
 import { useRoles } from "@/context/RoleContext";
@@ -112,7 +111,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[550px] rounded-2xl overflow-hidden flex flex-col h-[85vh] p-0">
+      <DialogContent className="sm:max-w-[550px] rounded-2xl overflow-hidden flex flex-col max-h-[90vh] p-0">
         <DialogHeader className="p-6 pb-2">
           <DialogTitle className="text-xl font-bold text-slate-800">
             {initialData ? "Modifier l'utilisateur" : "Nouvel utilisateur"}
@@ -120,237 +119,235 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col overflow-hidden">
-            <ScrollArea className="flex-1 px-6">
-              <div className="space-y-8 py-4">
-                {/* Sélection d'Avatar */}
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                    <UserIcon size={14} /> Avatar de l'utilisateur
-                  </h4>
-                  <div className="flex flex-wrap gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    {AVATAR_SEEDS.map((seed) => (
-                      <button
-                        key={seed}
-                        type="button"
-                        onClick={() => form.setValue("avatar", seed)}
-                        className={cn(
-                          "w-12 h-12 rounded-full border-2 transition-all overflow-hidden bg-white",
-                          form.watch("avatar") === seed 
-                            ? "border-primary ring-4 ring-primary/10 scale-110" 
-                            : "border-transparent hover:border-slate-300"
-                        )}
-                      >
-                        <img 
-                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`} 
-                          alt={seed}
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    ))}
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col min-h-0">
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-8">
+              {/* Sélection d'Avatar */}
+              <div className="space-y-4">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                  <UserIcon size={14} /> Avatar de l'utilisateur
+                </h4>
+                <div className="flex flex-wrap gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  {AVATAR_SEEDS.map((seed) => (
+                    <button
+                      key={seed}
+                      type="button"
+                      onClick={() => form.setValue("avatar", seed)}
+                      className={cn(
+                        "w-12 h-12 rounded-full border-2 transition-all overflow-hidden bg-white",
+                        form.watch("avatar") === seed 
+                          ? "border-primary ring-4 ring-primary/10 scale-110" 
+                          : "border-transparent hover:border-slate-300"
+                      )}
+                    >
+                      <img 
+                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`} 
+                        alt={seed}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Infos de base */}
+              <div className="space-y-4">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Informations de connexion</h4>
+                <FormField
+                  control={form.control}
+                  name="nom"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nom complet</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nom de l'utilisateur" {...field} className="rounded-xl" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email (Optionnel)</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="email@bureau.tn" {...field} className="rounded-xl" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mot de passe</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input 
+                            type={showPassword ? "text" : "password"} 
+                            placeholder="••••••••" 
+                            {...field} 
+                            className="rounded-xl pr-10" 
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                          >
+                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 space-y-4">
+                  <div className="flex items-center gap-2 text-primary">
+                    <Shield size={16} />
+                    <span className="text-xs font-bold uppercase">Rôle & Permissions</span>
                   </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold text-slate-400 uppercase">Appliquer un rôle prédéfini</Label>
+                    <Select onValueChange={handleRoleSelect}>
+                      <SelectTrigger className="rounded-xl bg-white">
+                        <SelectValue placeholder="Choisir un rôle type..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {roles.map(role => (
+                          <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="poste"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Poste affiché</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ingénieur, Technicien..." {...field} className="rounded-xl bg-white" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
-                {/* Infos de base */}
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Informations de connexion</h4>
-                  <FormField
-                    control={form.control}
-                    name="nom"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nom complet</FormLabel>
+                <FormField
+                  control={form.control}
+                  name="statut"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Statut du compte</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <Input placeholder="Nom de l'utilisateur" {...field} className="rounded-xl" />
+                          <SelectTrigger className="rounded-xl">
+                            <SelectValue placeholder="Statut" />
+                          </SelectTrigger>
                         </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email (Optionnel)</FormLabel>
-                        <FormControl>
-                          <Input type="email" placeholder="email@bureau.tn" {...field} className="rounded-xl" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Mot de passe</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input 
-                              type={showPassword ? "text" : "password"} 
-                              placeholder="••••••••" 
-                              {...field} 
-                              className="rounded-xl pr-10" 
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                            >
-                              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                            </button>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 space-y-4">
-                    <div className="flex items-center gap-2 text-primary">
-                      <Shield size={16} />
-                      <span className="text-xs font-bold uppercase">Rôle & Permissions</span>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-bold text-slate-400 uppercase">Appliquer un rôle prédéfini</Label>
-                      <Select onValueChange={handleRoleSelect}>
-                        <SelectTrigger className="rounded-xl bg-white">
-                          <SelectValue placeholder="Choisir un rôle type..." />
-                        </SelectTrigger>
                         <SelectContent>
-                          {roles.map(role => (
-                            <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
-                          ))}
+                          <SelectItem value="Actif">Actif</SelectItem>
+                          <SelectItem value="Suspendu">Suspendu</SelectItem>
                         </SelectContent>
                       </Select>
-                    </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Accès aux entreprises */}
+              <div className="space-y-3 pt-4 border-t">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                    <Building2 size={14} /> Accès aux Entités
+                  </h4>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    type="button"
+                    className="h-7 text-[10px] font-bold uppercase text-primary"
+                    onClick={() => form.setValue("allowedCompanies", myCompanies.map(c => c.id))}
+                  >
+                    Tout autoriser
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  {myCompanies.map((company) => (
                     <FormField
+                      key={company.id}
                       control={form.control}
-                      name="poste"
+                      name="allowedCompanies"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Poste affiché</FormLabel>
+                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
                           <FormControl>
-                            <Input placeholder="Ingénieur, Technicien..." {...field} className="rounded-xl bg-white" />
+                            <Checkbox
+                              checked={field.value?.includes(company.id)}
+                              onCheckedChange={(checked) => {
+                                const current = field.value || [];
+                                if (checked) {
+                                  field.onChange([...current, company.id]);
+                                } else {
+                                  field.onChange(current.filter(id => id !== company.id));
+                                }
+                              }}
+                            />
                           </FormControl>
-                          <FormMessage />
+                          <div className="flex-1 cursor-pointer" onClick={() => {
+                            const current = field.value || [];
+                            if (current.includes(company.id)) {
+                              field.onChange(current.filter(id => id !== company.id));
+                            } else {
+                              field.onChange([...current, company.id]);
+                            }
+                          }}>
+                            <FormLabel className="text-sm font-bold text-slate-700 cursor-pointer">
+                              {company.nom}
+                            </FormLabel>
+                            <p className="text-[10px] text-slate-400 font-mono">{company.matricule_fiscale || "Sans matricule"}</p>
+                          </div>
                         </FormItem>
                       )}
                     />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="statut"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Statut du compte</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="rounded-xl">
-                              <SelectValue placeholder="Statut" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Actif">Actif</SelectItem>
-                            <SelectItem value="Suspendu">Suspendu</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Accès aux entreprises */}
-                <div className="space-y-3 pt-4 border-t">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                      <Building2 size={14} /> Accès aux Entités
-                    </h4>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      type="button"
-                      className="h-7 text-[10px] font-bold uppercase text-primary"
-                      onClick={() => form.setValue("allowedCompanies", myCompanies.map(c => c.id))}
-                    >
-                      Tout autoriser
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-1 gap-2">
-                    {myCompanies.map((company) => (
-                      <FormField
-                        key={company.id}
-                        control={form.control}
-                        name="allowedCompanies"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(company.id)}
-                                onCheckedChange={(checked) => {
-                                  const current = field.value || [];
-                                  if (checked) {
-                                    field.onChange([...current, company.id]);
-                                  } else {
-                                    field.onChange(current.filter(id => id !== company.id));
-                                  }
-                                }}
-                              />
-                            </FormControl>
-                            <div className="flex-1 cursor-pointer" onClick={() => {
-                              const current = field.value || [];
-                              if (current.includes(company.id)) {
-                                field.onChange(current.filter(id => id !== company.id));
-                              } else {
-                                field.onChange([...current, company.id]);
-                              }
-                            }}>
-                              <FormLabel className="text-sm font-bold text-slate-700 cursor-pointer">
-                                {company.nom}
-                              </FormLabel>
-                              <p className="text-[10px] text-slate-400 font-mono">{company.matricule_fiscale || "Sans matricule"}</p>
-                            </div>
-                          </FormItem>
-                        )}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Permissions modules */}
-                <div className="space-y-3 pt-4 border-t pb-6">
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                    <ShieldCheck size={14} /> Permissions Modules (Personnalisées)
-                  </h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    {MODULES.map((module) => (
-                      <FormField
-                        key={module.id}
-                        control={form.control}
-                        name={`permissions.${module.id}`}
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormLabel className="text-xs font-medium cursor-pointer">
-                              {module.label}
-                            </FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                    ))}
-                  </div>
+                  ))}
                 </div>
               </div>
-            </ScrollArea>
+
+              {/* Permissions modules */}
+              <div className="space-y-3 pt-4 border-t pb-6">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                  <ShieldCheck size={14} /> Permissions Modules (Personnalisées)
+                </h4>
+                <div className="grid grid-cols-2 gap-3">
+                  {MODULES.map((module) => (
+                    <FormField
+                      key={module.id}
+                      control={form.control}
+                      name={`permissions.${module.id}`}
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormLabel className="text-xs font-medium cursor-pointer">
+                            {module.label}
+                          </FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
 
             <DialogFooter className="p-6 border-t bg-slate-50/50">
               <Button type="button" variant="outline" onClick={onClose} className="rounded-xl">Annuler</Button>
