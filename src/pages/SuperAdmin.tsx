@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -18,10 +18,18 @@ import {
   Plus,
   Shield,
   ShieldAlert,
-  Save
+  Save,
+  Building2
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { showSuccess } from "@/utils/toast";
-import { useNavigation } from "@/context/NavigationContext";
+import { useNavigation, NavigationState } from "@/context/NavigationContext";
 import { useRoles, Role } from "@/context/RoleContext";
 import { RoleModal } from "@/components/settings/RoleModal";
 import { RoleList } from "@/components/settings/RoleList";
@@ -32,13 +40,22 @@ import { Navigate } from "react-router-dom";
 
 const SuperAdmin = () => {
   const { currentUser } = useUser();
-  const { selectedCompany } = useMyCompany();
-  const { tabs, toggleTab } = useNavigation();
+  const { myCompanies, selectedCompany: activeCompany } = useMyCompany();
+  const { getTabsForCompany, toggleTabForCompany } = useNavigation();
   const { roles, addRole, updateRole, deleteRole } = useRoles();
   
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isRoleConfirmOpen, setIsRoleConfirmOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+
+  // État local pour l'entité en cours de configuration (indépendant de l'entité active)
+  const [configCompanyId, setConfigCompanyId] = useState<string>(activeCompany?.id || myCompanies[0]?.id || "");
+
+  useEffect(() => {
+    if (!configCompanyId && activeCompany?.id) {
+      setConfigCompanyId(activeCompany.id);
+    }
+  }, [activeCompany, configCompanyId]);
 
   if (!currentUser.isSuperAdmin) {
     return <Navigate to="/" replace />;
@@ -63,7 +80,9 @@ const SuperAdmin = () => {
     setIsRoleConfirmOpen(false);
   };
 
-  const TabToggle = ({ id, label, icon: Icon }: { id: any, label: string, icon: any }) => (
+  const currentConfigTabs = getTabsForCompany(configCompanyId);
+
+  const TabToggle = ({ id, label, icon: Icon }: { id: keyof NavigationState, label: string, icon: any }) => (
     <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
       <div className="flex items-center gap-3">
         <div className="p-2 bg-slate-100 rounded-lg text-slate-600">
@@ -72,8 +91,8 @@ const SuperAdmin = () => {
         <span className="text-sm font-medium text-slate-700">{label}</span>
       </div>
       <Switch 
-        checked={tabs[id as keyof typeof tabs]} 
-        onCheckedChange={() => toggleTab(id)} 
+        checked={currentConfigTabs[id]} 
+        onCheckedChange={() => toggleTabForCompany(configCompanyId, id)} 
       />
     </div>
   );
@@ -122,12 +141,35 @@ const SuperAdmin = () => {
 
       {/* Visibilité des Modules */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="space-y-1">
-          <h3 className="font-bold text-slate-800">Visibilité des Modules</h3>
-          <p className="text-sm text-slate-500">
-            Configurez les onglets visibles pour l'entité : <span className="font-bold text-primary">{selectedCompany?.nom}</span>.
-          </p>
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <h3 className="font-bold text-slate-800">Visibilité des Modules</h3>
+            <p className="text-sm text-slate-500">
+              Configurez les onglets visibles pour l'entité sélectionnée ci-dessous.
+            </p>
+          </div>
+          
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Entité à configurer</label>
+            <Select value={configCompanyId} onValueChange={setConfigCompanyId}>
+              <SelectTrigger className="rounded-xl border-slate-200 bg-white shadow-sm h-12">
+                <div className="flex items-center gap-2">
+                  <Building2 size={16} className="text-primary" />
+                  <SelectValue placeholder="Choisir une entité" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                {myCompanies.map(c => (
+                  <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-[10px] text-amber-600 font-medium italic">
+              * Cette sélection n'affecte pas votre entité de travail actuelle.
+            </p>
+          </div>
         </div>
+
         <Card className="md:col-span-2 border-none shadow-md">
           <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <TabToggle id="dashboard" label="Tableau de bord" icon={LayoutDashboard} />

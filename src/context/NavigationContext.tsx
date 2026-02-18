@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useMyCompany } from "./CompanyContext";
 
-interface NavigationState {
+export interface NavigationState {
   dashboard: boolean;
   projects: boolean;
   projectTracking: boolean;
@@ -15,7 +15,7 @@ interface NavigationState {
   settings: boolean;
 }
 
-const DEFAULT_TABS: NavigationState = {
+export const DEFAULT_TABS: NavigationState = {
   dashboard: true,
   projects: true,
   projectTracking: true,
@@ -32,6 +32,8 @@ const DEFAULT_TABS: NavigationState = {
 interface NavigationContextType {
   tabs: NavigationState;
   toggleTab: (tab: keyof NavigationState) => void;
+  getTabsForCompany: (companyId: string) => NavigationState;
+  toggleTabForCompany: (companyId: string, tab: keyof NavigationState) => void;
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
@@ -39,7 +41,6 @@ const NavigationContext = createContext<NavigationContextType | undefined>(undef
 export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { selectedCompany } = useMyCompany();
   
-  // État global stockant les préférences par ID d'entreprise : { [companyId]: NavigationState }
   const [allCompanyTabs, setAllCompanyTabs] = useState<Record<string, NavigationState>>(() => {
     const saved = localStorage.getItem("app_navigation_tabs_per_company");
     return saved ? JSON.parse(saved) : {};
@@ -49,25 +50,30 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     localStorage.setItem("app_navigation_tabs_per_company", JSON.stringify(allCompanyTabs));
   }, [allCompanyTabs]);
 
-  // Récupérer les onglets de l'entreprise actuelle ou les valeurs par défaut
-  const currentTabs = (selectedCompany && allCompanyTabs[selectedCompany.id]) 
-    ? allCompanyTabs[selectedCompany.id] 
-    : DEFAULT_TABS;
+  const getTabsForCompany = (companyId: string) => {
+    return allCompanyTabs[companyId] || DEFAULT_TABS;
+  };
 
-  const toggleTab = (tab: keyof NavigationState) => {
-    if (!selectedCompany) return;
-    
+  const toggleTabForCompany = (companyId: string, tab: keyof NavigationState) => {
+    const current = getTabsForCompany(companyId);
     setAllCompanyTabs((prev) => ({
       ...prev,
-      [selectedCompany.id]: {
-        ...currentTabs,
-        [tab]: !currentTabs[tab]
+      [companyId]: {
+        ...current,
+        [tab]: !current[tab]
       }
     }));
   };
 
+  const currentTabs = selectedCompany ? getTabsForCompany(selectedCompany.id) : DEFAULT_TABS;
+
+  const toggleTab = (tab: keyof NavigationState) => {
+    if (!selectedCompany) return;
+    toggleTabForCompany(selectedCompany.id, tab);
+  };
+
   return (
-    <NavigationContext.Provider value={{ tabs: currentTabs, toggleTab }}>
+    <NavigationContext.Provider value={{ tabs: currentTabs, toggleTab, getTabsForCompany, toggleTabForCompany }}>
       {children}
     </NavigationContext.Provider>
   );
