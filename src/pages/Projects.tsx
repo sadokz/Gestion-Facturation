@@ -243,6 +243,9 @@ const Projects = () => {
   
   const projectViewModes = getViewModesByCategory("projects");
   
+  // État pour le nom du mode actif
+  const [activeViewModeName, setActiveViewModeName] = useState("Mode HT");
+
   // Initialisation avec le Mode HT par défaut
   const [visibleColumns, setVisibleColumns] = useState<string[]>(() => {
     const defaultMode = projectViewModes.find(m => m.id === "p-ht");
@@ -329,6 +332,7 @@ const Projects = () => {
 
   const toggleColumn = (id: string) => {
     setVisibleColumns(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
+    setActiveViewModeName("Vue personnalisée");
   };
 
   const toggleExpand = (id: number) => {
@@ -356,7 +360,12 @@ const Projects = () => {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-bold text-slate-900">Projets & Facturation</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-slate-900">Projets & Facturation</h1>
+            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 font-bold px-3 py-1 rounded-full">
+              {activeViewModeName}
+            </Badge>
+          </div>
           <p className="text-slate-500">Gérez vos contrats pour {selectedCompany?.nom}</p>
         </div>
         <div className="flex items-center gap-3">
@@ -372,7 +381,10 @@ const Projects = () => {
                 <div key={mode.id} className="flex items-center group px-1">
                   <DropdownMenuItem 
                     className="flex-1 cursor-pointer rounded-lg"
-                    onClick={() => setVisibleColumns(mode.columns)}
+                    onClick={() => {
+                      setVisibleColumns(mode.columns);
+                      setActiveViewModeName(mode.name);
+                    }}
                   >
                     {mode.name}
                   </DropdownMenuItem>

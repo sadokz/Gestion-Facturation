@@ -262,7 +262,11 @@ const Clients = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [expandedClients, setExpandedClients] = useState<Set<number>>(new Set());
+  
+  const clientViewModes = getViewModesByCategory("clients");
+  const [activeViewModeName, setActiveViewModeName] = useState("Vue Standard");
   const [visibleColumns, setVisibleColumns] = useState(CLIENT_COLUMNS.map(c => c.id));
+  
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' | null }>({ key: '', direction: null });
   
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
@@ -273,8 +277,6 @@ const Clients = () => {
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [selectedResp, setSelectedResp] = useState<any>(null);
   const [selectedViewMode, setSelectedViewMode] = useState<ViewMode | null>(null);
-
-  const clientViewModes = getViewModesByCategory("clients");
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
@@ -363,6 +365,7 @@ const Clients = () => {
 
   const toggleColumn = (id: string) => {
     setVisibleColumns(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
+    setActiveViewModeName("Vue personnalisée");
   };
 
   const toggleExpand = (id: number) => {
@@ -378,7 +381,12 @@ const Clients = () => {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-bold text-slate-900">Annuaire Clients</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-slate-900">Annuaire Clients</h1>
+            <Badge variant="secondary" className="bg-indigo-100 text-indigo-600 border-indigo-200 font-bold px-3 py-1 rounded-full">
+              {activeViewModeName}
+            </Badge>
+          </div>
           <p className="text-slate-500">Gérez vos clients et leurs interlocuteurs privilégiés</p>
         </div>
         <div className="flex items-center gap-3">
@@ -394,7 +402,10 @@ const Clients = () => {
                 <div key={mode.id} className="flex items-center group px-1">
                   <DropdownMenuItem 
                     className="flex-1 cursor-pointer rounded-lg"
-                    onClick={() => setVisibleColumns(mode.columns)}
+                    onClick={() => {
+                      setVisibleColumns(mode.columns);
+                      setActiveViewModeName(mode.name);
+                    }}
                   >
                     {mode.name}
                   </DropdownMenuItem>
