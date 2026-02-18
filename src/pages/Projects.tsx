@@ -244,6 +244,7 @@ const Projects = () => {
   
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+  const [selectedViewMode, setSelectedViewMode] = useState<ViewMode | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
@@ -350,28 +351,36 @@ const Projects = () => {
                 <Layout size={18} /> Modes de vue
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 rounded-xl">
+            <DropdownMenuContent align="end" className="w-64 rounded-xl">
               <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold">Mes Vues</DropdownMenuLabel>
               {viewModes.map((mode) => (
-                <div key={mode.id} className="flex items-center group">
+                <div key={mode.id} className="flex items-center group px-1">
                   <DropdownMenuItem 
-                    className="flex-1 cursor-pointer"
+                    className="flex-1 cursor-pointer rounded-lg"
                     onClick={() => setVisibleColumns(mode.columns)}
                   >
                     {mode.name}
                   </DropdownMenuItem>
-                  {mode.id !== "default" && mode.id !== "finance" && (
+                  <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <button 
-                      onClick={(e) => { e.stopPropagation(); deleteViewMode(mode.id); }}
-                      className="p-2 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeModalOpen(true); }}
+                      className="p-2 text-slate-400 hover:text-primary"
                     >
-                      <Trash2 size={12} />
+                      <Edit size={12} />
                     </button>
-                  )}
+                    {mode.id !== "default" && mode.id !== "finance" && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); deleteViewMode(mode.id); }}
+                        className="p-2 text-slate-300 hover:text-rose-500"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="gap-2 cursor-pointer text-primary font-bold" onClick={() => setIsViewModeModalOpen(true)}>
+              <DropdownMenuItem className="gap-2 cursor-pointer text-primary font-bold" onClick={() => { setSelectedViewMode(null); setIsViewModeModalOpen(true); }}>
                 <Save size={14} /> Enregistrer vue actuelle
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -456,6 +465,7 @@ const Projects = () => {
         isOpen={isViewModeModalOpen} 
         onClose={() => setIsViewModeModalOpen(false)} 
         currentColumns={visibleColumns} 
+        initialData={selectedViewMode}
       />
     </div>
   );

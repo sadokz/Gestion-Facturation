@@ -9,6 +9,7 @@ export interface ViewMode {
 interface ViewModeContextType {
   viewModes: ViewMode[];
   saveViewMode: (name: string, columns: string[]) => void;
+  updateViewMode: (id: string, name: string, columns: string[]) => void;
   deleteViewMode: (id: string) => void;
 }
 
@@ -36,13 +37,17 @@ export const ViewModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setViewModes(prev => [...prev, newMode]);
   };
 
+  const updateViewMode = (id: string, name: string, columns: string[]) => {
+    setViewModes(prev => prev.map(m => m.id === id ? { ...m, name, columns } : m));
+  };
+
   const deleteViewMode = (id: string) => {
-    if (id === "default" || id === "finance") return; // Garder les modes de base
+    if (id === "default" || id === "finance") return;
     setViewModes(prev => prev.filter(m => m.id !== id));
   };
 
   return (
-    <ViewModeContext.Provider value={{ viewModes, saveViewMode, deleteViewMode }}>
+    <ViewModeContext.Provider value={{ viewModes, saveViewMode, updateViewMode, deleteViewMode }}>
       {children}
     </ViewModeContext.Provider>
   );
