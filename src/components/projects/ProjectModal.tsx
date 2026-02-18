@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetcher } from "@/api/config";
-import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText, UserCheck, Construction, Layers, Hash, Info } from "lucide-react";
+import { UploadCloud, FileCheck, HardHat, User, Building2, Activity, FileText, UserCheck, Construction, Layers, Hash, Info, ShieldCheck, UserCog } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -49,6 +49,8 @@ const projectSchema = z.object({
   responsable_interne: z.string().optional(),
   phase: z.string().optional(),
   indice: z.string().optional(),
+  etat_mo: z.string().default("En attente"),
+  etat_bc: z.string().default("En attente"),
   etat: z.string().default("En cours"),
   avancement: z.coerce.number().min(0).max(100).default(0),
   avancement_travaux: z.coerce.number().min(0).max(100).default(0),
@@ -90,6 +92,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       responsable_interne: "",
       phase: "APS",
       indice: "A",
+      etat_mo: "En attente",
+      etat_bc: "En attente",
       etat: "En cours",
       avancement: 0,
       avancement_travaux: 0,
@@ -116,13 +120,14 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     }
   }, [isOpen, initialData, form]);
 
-  const phaseOptions = ["APS", "APD", "DAO"];
+  const phaseOptions = ["APS", "APD", "DAO", "EXE"];
   const indiceOptions = ["A", "B", "C", "D", "E"];
+  const approvalOptions = ["En attente", "Approuvé", "Approuvé avec réserves", "Refusé"];
   const etatOptions = ["En cours", "Suspendu", "Livré", "Annulé"];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px] rounded-2xl overflow-hidden p-0">
+      <DialogContent className="sm:max-w-[750px] rounded-2xl overflow-hidden p-0">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-2xl font-bold text-slate-800">
             {technicalOnly ? "Suivi Technique" : (initialData ? "Modifier le projet" : "Nouveau projet")}
@@ -323,6 +328,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                       )}
                     />
                   </div>
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -349,7 +355,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                       )}
                     />
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
+
+                  <div className="grid grid-cols-2 gap-4 border-t pt-4">
                     <FormField
                       control={form.control}
                       name="phase"
@@ -392,12 +399,60 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                         </FormItem>
                       )}
                     />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 p-4 bg-indigo-50/30 rounded-2xl border border-indigo-100">
+                    <FormField
+                      control={form.control}
+                      name="etat_mo"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-indigo-700"><UserCog size={14} /> État Maître d'Ouvrage</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="rounded-xl bg-white">
+                                <SelectValue placeholder="État MO" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {approvalOptions.map((opt) => (
+                                <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="etat_bc"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-indigo-700"><ShieldCheck size={14} /> État Bureau Contrôle</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="rounded-xl bg-white">
+                                <SelectValue placeholder="État BC" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {approvalOptions.map((opt) => (
+                                <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="etat"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="flex items-center gap-2 text-blue-700"><Info size={14} /> État</FormLabel>
+                          <FormLabel className="flex items-center gap-2 text-blue-700"><Info size={14} /> État Global</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger className="rounded-xl">
@@ -414,6 +469,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                       )}
                     />
                   </div>
+
                   <div className="grid grid-cols-2 gap-6 pt-2">
                     <FormField
                       control={form.control}

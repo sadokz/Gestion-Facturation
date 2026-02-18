@@ -19,7 +19,9 @@ import {
   Layout,
   Save,
   Info,
-  Calendar
+  Calendar,
+  ShieldCheck,
+  UserCog
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { useViewModes, ViewMode } from "@/context/ViewModeContext";
@@ -69,6 +71,8 @@ const TRACKING_COLUMNS = [
   { id: "bureau_controle", label: "Bureau de Contrôle" },
   { id: "phase", label: "Phase" },
   { id: "indice", label: "Indice" },
+  { id: "etat_mo", label: "État MO" },
+  { id: "etat_bc", label: "État BC" },
   { id: "etat", label: "État" },
   { id: "avancement", label: "Avancement Études" },
   { id: "entreprise_travaux", label: "Entreprise" },
@@ -122,6 +126,8 @@ const ProjectTracking = () => {
           entreprise_travaux: "SOTETRA",
           phase: "APD",
           indice: "B",
+          etat_mo: "Approuvé",
+          etat_bc: "Approuvé avec réserves",
           etat: "En cours",
           avancement: 65,
           avancement_travaux: 30,
@@ -204,6 +210,15 @@ const ProjectTracking = () => {
       case "Livré": return <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100">Livré</Badge>;
       case "Annulé": return <Badge className="bg-rose-50 text-rose-600 border-rose-100">Annulé</Badge>;
       default: return <Badge variant="outline">{etat || "-"}</Badge>;
+    }
+  };
+
+  const getApprovalBadge = (status: string) => {
+    switch (status) {
+      case "Approuvé": return <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 text-[10px]">Approuvé</Badge>;
+      case "Approuvé avec réserves": return <Badge className="bg-amber-50 text-amber-600 border-amber-100 text-[10px]">Réserves</Badge>;
+      case "Refusé": return <Badge className="bg-rose-50 text-rose-600 border-rose-100 text-[10px]">Refusé</Badge>;
+      default: return <Badge variant="outline" className="text-slate-400 text-[10px]">Attente</Badge>;
     }
   };
 
@@ -295,6 +310,8 @@ const ProjectTracking = () => {
                   {isVisible("bureau_controle") && <ResizableHeader initialWidth={160} minWidth={120} className="text-center">Bureau de Contrôle</ResizableHeader>}
                   {isVisible("phase") && <ResizableHeader initialWidth={100} minWidth={80} className="text-center">Phase</ResizableHeader>}
                   {isVisible("indice") && <ResizableHeader initialWidth={80} minWidth={60} className="text-center">Indice</ResizableHeader>}
+                  {isVisible("etat_mo") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">État MO</ResizableHeader>}
+                  {isVisible("etat_bc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">État BC</ResizableHeader>}
                   {isVisible("etat") && <ResizableHeader initialWidth={120} minWidth={100} className="text-center">État</ResizableHeader>}
                   {isVisible("avancement") && <ResizableHeader initialWidth={180} minWidth={140} className="text-center">Avancement Études</ResizableHeader>}
                   {isVisible("entreprise_travaux") && <ResizableHeader initialWidth={160} minWidth={120} className="text-center">Entreprise</ResizableHeader>}
@@ -391,6 +408,22 @@ const ProjectTracking = () => {
                               <div className="flex items-center justify-center gap-2 text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-1 rounded-lg">
                                 <Hash size={12} className="text-indigo-400" />
                                 {project.indice || "-"}
+                              </div>
+                            </TableCell>
+                          )}
+                          {isVisible("etat_mo") && (
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-2">
+                                <UserCog size={12} className="text-slate-400" />
+                                {getApprovalBadge(project.etat_mo)}
+                              </div>
+                            </TableCell>
+                          )}
+                          {isVisible("etat_bc") && (
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-2">
+                                <ShieldCheck size={12} className="text-slate-400" />
+                                {getApprovalBadge(project.etat_bc)}
                               </div>
                             </TableCell>
                           )}

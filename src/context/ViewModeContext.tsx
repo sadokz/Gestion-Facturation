@@ -28,9 +28,9 @@ export const ViewModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     ];
 
     const defaultTrackingModes = [
-      { id: "t-default", category: "tracking", name: "Vue Technique", columns: ["reference_projet", "nom_projet", "responsable_interne", "phase", "indice", "etat", "avancement", "entreprise_travaux", "derniere_visite", "avancement_travaux"] },
+      { id: "t-default", category: "tracking", name: "Vue Technique", columns: ["reference_projet", "nom_projet", "responsable_interne", "phase", "indice", "etat_mo", "etat_bc", "etat", "avancement", "entreprise_travaux", "derniere_visite", "avancement_travaux"] },
       { id: "t-intervenants", category: "tracking", name: "Intervenants", columns: ["reference_projet", "nom_projet", "responsable_interne", "architecte", "ing_fluides", "ing_structure", "bureau_controle", "entreprise_travaux"] },
-      { id: "t-etude", category: "tracking", name: "Mode Étude", columns: ["reference_projet", "nom_projet", "responsable_interne", "phase", "indice", "etat", "avancement"] },
+      { id: "t-etude", category: "tracking", name: "Mode Étude", columns: ["reference_projet", "nom_projet", "responsable_interne", "phase", "indice", "etat_mo", "etat_bc", "etat", "avancement"] },
       { id: "t-travaux", category: "tracking", name: "Mode Travaux", columns: ["reference_projet", "nom_projet", "entreprise_travaux", "derniere_visite", "avancement_travaux"] },
     ];
 
@@ -46,7 +46,6 @@ export const ViewModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     if (saved) {
       const parsed = JSON.parse(saved);
-      // On filtre les anciens modes système pour forcer les nouveaux défauts
       const userCustomModes = parsed.filter((m: ViewMode) => 
         !m.id.startsWith("p-") && 
         !m.id.startsWith("t-") && 
@@ -78,7 +77,6 @@ export const ViewModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const deleteViewMode = (id: string) => {
-    // Protection des vues système
     if (id.startsWith("p-") || id.startsWith("t-") || id.includes("-default")) return;
     setViewModes(prev => prev.filter(m => m.id !== id));
   };
