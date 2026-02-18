@@ -26,17 +26,20 @@ import {
   Phone,
   Mail,
   User,
-  Briefcase as BriefcaseIcon,
+  Shield,
   ShieldAlert,
   UploadCloud,
-  Image as ImageIcon
+  ImageIcon
 } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 import { useNavigation } from "@/context/NavigationContext";
 import { useMyCompany } from "@/context/CompanyContext";
 import { useUser } from "@/context/UserContext";
+import { useRoles, Role } from "@/context/RoleContext";
 import { UserModal } from "@/components/settings/UserModal";
 import { UserList } from "@/components/settings/UserList";
+import { RoleModal } from "@/components/settings/RoleModal";
+import { RoleList } from "@/components/settings/RoleList";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/utils";
 
@@ -44,11 +47,16 @@ const Settings = () => {
   const { tabs, toggleTab } = useNavigation();
   const { myCompanies, selectedCompany, addMyCompany, updateMyCompany, deleteMyCompany } = useMyCompany();
   const { currentUser, allUsers, setAllUsers } = useUser();
+  const { roles, addRole, updateRole, deleteRole } = useRoles();
   
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isRoleConfirmOpen, setIsRoleConfirmOpen] = useState(false);
   const [isCompanyConfirmOpen, setIsCompanyConfirmOpen] = useState(false);
+  
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
   
   const [companyForm, setCompanyForm] = useState({ 
@@ -73,6 +81,17 @@ const Settings = () => {
     setIsUserModalOpen(false);
   };
 
+  const handleAddRole = (data: any) => {
+    if (selectedRole) {
+      updateRole({ ...data, id: selectedRole.id });
+      showSuccess("Rôle mis à jour");
+    } else {
+      addRole({ ...data, id: Date.now().toString() });
+      showSuccess("Rôle ajouté");
+    }
+    setIsRoleModalOpen(false);
+  };
+
   const handleDeleteUser = () => {
     if (selectedUser?.isSuperAdmin) {
       showSuccess("Le compte Super Admin ne peut pas être supprimé");
@@ -82,6 +101,14 @@ const Settings = () => {
     setAllUsers(allUsers.filter(u => u.id !== selectedUser.id));
     showSuccess("Utilisateur supprimé");
     setIsConfirmOpen(false);
+  };
+
+  const handleDeleteRole = () => {
+    if (selectedRole) {
+      deleteRole(selectedRole.id);
+      showSuccess("Rôle supprimé");
+    }
+    setIsRoleConfirmOpen(false);
   };
 
   const startEditingCompany = (company: any) => {
@@ -150,14 +177,6 @@ const Settings = () => {
               ? "Gérez toutes les entités juridiques du bureau." 
               : `Informations légales de l'entité : ${selectedCompany?.nom}.`}
           </p>
-          {!isSuperAdmin && (
-            <div className="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-100">
-              <p className="text-[10px] font-bold text-amber-600 uppercase flex items-center gap-1">
-                <ShieldAlert size={10} /> Accès Restreint
-              </p>
-              <p className="text-[11px] text-amber-700 mt-1">Seul un Super Admin peut ajouter ou supprimer des entités.</p>
-            </div>
-          )}
         </div>
         <div className="md:col-span-2 space-y-4">
           {isSuperAdmin && (
@@ -346,6 +365,36 @@ const Settings = () => {
 
       <Separator />
 
+      {/* Gestion des Rôles */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="space-y-1">
+          <h3 className="font-bold text-slate-800">Gestion des Rôles</h3>
+          <p className="text-sm text-slate-500">Définissez des profils types et leurs permissions par défaut.</p>
+        </div>
+        <div className="md:col-span-2 space-y-4">
+          <div className="flex justify-end">
+            <Button 
+              variant="outline" 
+              onClick={() => { setSelectedRole(null); setIsRoleModalOpen(true); }} 
+              className="rounded-xl gap-2 border-primary/20 text-primary hover:bg-primary/5"
+            >
+              <Shield size={18} /> Nouveau Rôle
+            </Button>
+          </div>
+          <Card className="border-none shadow-md">
+            <CardContent className="p-6">
+              <RoleList 
+                roles={roles} 
+                onEdit={(role) => { setSelectedRole(role); setIsRoleModalOpen(true); }} 
+                onDelete={(role) => { setSelectedRole(role); setIsRoleConfirmOpen(true); }} 
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <Separator />
+
       {/* Gestion des Utilisateurs */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
@@ -373,10 +422,6 @@ const Settings = () => {
         <div className="space-y-1">
           <h3 className="font-bold text-slate-800">Visibilité des Modules</h3>
           <p className="text-sm text-slate-500">Configurez les onglets visibles pour l'entité actuellement sélectionnée.</p>
-          <div className="mt-4 p-3 bg-primary/5 rounded-xl border border-primary/10">
-            <p className="text-[10px] font-bold text-primary uppercase">Entité active :</p>
-            <p className="text-sm font-bold text-slate-700">{selectedCompany?.nom}</p>
-          </div>
         </div>
         <Card className="md:col-span-2 border-none shadow-md">
           <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -403,7 +448,10 @@ const Settings = () => {
       </div>
 
       <UserModal isOpen={isUserModalOpen} onClose={() => setIsUserModalOpen(false)} onSubmit={handleAddUser} initialData={selectedUser} />
+      <RoleModal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)} onSubmit={handleAddRole} initialData={selectedRole} />
+      
       <ConfirmDialog isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={handleDeleteUser} title="Supprimer l'utilisateur ?" description="Cet utilisateur n'aura plus accès à l'application. Cette action est irréversible." variant="destructive" confirmText="Supprimer" />
+      <ConfirmDialog isOpen={isRoleConfirmOpen} onClose={() => setIsRoleConfirmOpen(false)} onConfirm={handleDeleteRole} title="Supprimer ce rôle ?" description="Les utilisateurs ayant ce rôle conserveront leurs permissions actuelles mais le profil type sera supprimé." variant="destructive" confirmText="Supprimer" />
       <ConfirmDialog isOpen={isCompanyConfirmOpen} onClose={() => setIsCompanyConfirmOpen(false)} onConfirm={() => { deleteMyCompany(companyForm.id); showSuccess("Entité supprimée"); setIsCompanyConfirmOpen(false); }} title="Supprimer cette entité ?" description="Toutes les données liées à cette entreprise seront inaccessibles. Cette action est irréversible." variant="destructive" confirmText="Supprimer" />
     </div>
   );

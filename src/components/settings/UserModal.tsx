@@ -28,8 +28,9 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Eye, EyeOff, Building2, ShieldCheck, User as UserIcon } from "lucide-react";
+import { Eye, EyeOff, Building2, ShieldCheck, User as UserIcon, Shield } from "lucide-react";
 import { useMyCompany } from "@/context/CompanyContext";
+import { useRoles } from "@/context/RoleContext";
 import { cn } from "@/lib/utils";
 
 const AVATAR_SEEDS = ["Felix", "Aneka", "Max", "Jack", "Luna", "Oliver", "Milo", "Sophie"];
@@ -42,27 +43,8 @@ const userSchema = z.object({
   statut: z.string().default("Actif"),
   avatar: z.string().default("Felix"),
   allowedCompanies: z.array(z.string()).default([]),
-  permissions: z.record(z.boolean()).default({
-    dashboard: true,
-    projects: true,
-    projectTracking: true,
-    clients: true,
-    companies: true,
-    purchases: true,
-    salaries: true,
-    hr: true,
-    cnss: true,
-    accounting: true,
-    settings: false,
-  }),
+  permissions: z.record(z.boolean()).default({}),
 });
-
-interface UserModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: any) => void;
-  initialData?: any;
-}
 
 const MODULES = [
   { id: "dashboard", label: "Tableau de bord" },
@@ -78,9 +60,17 @@ const MODULES = [
   { id: "settings", label: "Paramètres" },
 ];
 
+interface UserModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: any) => void;
+  initialData?: any;
+}
+
 export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, initialData }) => {
   const [showPassword, setShowPassword] = React.useState(false);
   const { myCompanies } = useMyCompany();
+  const { roles } = useRoles();
 
   const form = useForm({
     resolver: zodResolver(userSchema),
@@ -92,19 +82,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
       statut: "Actif",
       avatar: "Felix",
       allowedCompanies: [],
-      permissions: {
-        dashboard: true,
-        projects: true,
-        projectTracking: true,
-        clients: true,
-        companies: true,
-        purchases: true,
-        salaries: true,
-        hr: true,
-        cnss: true,
-        accounting: true,
-        settings: false,
-      },
+      permissions: MODULES.reduce((acc, mod) => ({ ...acc, [mod.id]: false }), {}),
     },
   });
 
@@ -118,22 +96,18 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
         statut: "Actif",
         avatar: "Felix",
         allowedCompanies: [],
-        permissions: {
-          dashboard: true,
-          projects: true,
-          projectTracking: true,
-          clients: true,
-          companies: true,
-          purchases: true,
-          salaries: true,
-          hr: true,
-          cnss: true,
-          accounting: true,
-          settings: false,
-        }
+        permissions: MODULES.reduce((acc, mod) => ({ ...acc, [mod.id]: false }), {})
       });
     }
   }, [isOpen, initialData, form]);
+
+  const handleRoleSelect = (roleId: string) => {
+    const selectedRole = roles.find(r => r.id === roleId);
+    if (selectedRole) {
+      form.setValue("permissions", selectedRole.permissions);
+      form.setValue("poste", selectedRole.name);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -232,56 +206,61 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
                       </FormItem>
                     )}
                   />
-                  <div className="grid grid-cols-2 gap-4">
+                  
+                  <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 space-y-4">
+                    <div className="flex items-center gap-2 text-primary">
+                      <Shield size={16} />
+                      <span className="text-xs font-bold uppercase">Rôle & Permissions</span>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-bold text-slate-400 uppercase">Appliquer un rôle prédéfini</Label>
+                      <Select onValueChange={handleRoleSelect}>
+                        <SelectTrigger className="rounded-xl bg-white">
+                          <SelectValue placeholder="Choisir un rôle type..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {roles.map(role => (
+                            <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <FormField
                       control={form.control}
                       name="poste"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Poste / Rôle</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="rounded-xl">
-                                <SelectValue placeholder="Choisir un poste" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="Proprietaire">Propriétaire</SelectItem>
-                              <SelectItem value="CEO">CEO</SelectItem>
-                              <SelectItem value="CFO">CFO</SelectItem>
-                              <SelectItem value="Comptable">Comptable</SelectItem>
-                              <SelectItem value="Ingénieur">Ingénieur</SelectItem>
-                              <SelectItem value="Technicien">Technicien</SelectItem>
-                              <SelectItem value="Secretaire">Secrétaire</SelectItem>
-                              <SelectItem value="Autre">Autre</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="statut"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Statut</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="rounded-xl">
-                                <SelectValue placeholder="Statut" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="Actif">Actif</SelectItem>
-                              <SelectItem value="Suspendu">Suspendu</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormLabel>Poste affiché</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Ingénieur, Technicien..." {...field} className="rounded-xl bg-white" />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                   </div>
+
+                  <FormField
+                    control={form.control}
+                    name="statut"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Statut du compte</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="rounded-xl">
+                              <SelectValue placeholder="Statut" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Actif">Actif</SelectItem>
+                            <SelectItem value="Suspendu">Suspendu</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
                 {/* Accès aux entreprises */}
@@ -344,7 +323,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
                 {/* Permissions modules */}
                 <div className="space-y-3 pt-4 border-t pb-6">
                   <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                    <ShieldCheck size={14} /> Permissions Modules
+                    <ShieldCheck size={14} /> Permissions Modules (Personnalisées)
                   </h4>
                   <div className="grid grid-cols-2 gap-3">
                     {MODULES.map((module) => (
