@@ -19,7 +19,8 @@ import {
   Building,
   LogOut,
   User as UserIcon,
-  ChevronDown
+  ChevronDown,
+  ShieldAlert
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useYear } from "@/context/YearContext";
@@ -50,17 +51,17 @@ import { ThemeToggle } from "../theme-toggle";
 import { PrivacyToggle } from "./PrivacyToggle";
 import { Badge } from "@/components/ui/badge";
 
-const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
+const SidebarItem = ({ to, icon: Icon, label, active, variant = "default" }: { to: string, icon: any, label: string, active: boolean, variant?: "default" | "danger" }) => (
   <Link
     to={to}
     className={cn(
       "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group whitespace-nowrap",
       active 
-        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
+        ? (variant === "danger" ? "bg-rose-600 text-white shadow-lg shadow-rose-500/20" : "bg-primary text-primary-foreground shadow-lg shadow-primary/20")
         : "text-muted-foreground hover:bg-secondary hover:text-foreground"
     )}
   >
-    <Icon size={20} className={cn("transition-transform group-hover:scale-110 shrink-0", active ? "text-white" : "")} />
+    <Icon size={20} className={cn("transition-transform group-hover:scale-110 shrink-0", active ? "text-white" : (variant === "danger" ? "text-rose-500" : ""))} />
     <span className="font-medium">{label}</span>
     {active && <ChevronRight size={16} className="ml-auto shrink-0" />}
   </Link>
@@ -80,12 +81,10 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
 
   const companyInitial = selectedCompany?.nom?.charAt(0) || "B";
 
-  // Filtrer les entités accessibles par l'utilisateur
   const accessibleCompanies = currentUser.isSuperAdmin 
     ? myCompanies 
     : myCompanies.filter(c => currentUser.allowedCompanies?.includes(c.id));
 
-  // Filtrer les onglets en fonction des permissions de l'utilisateur actuel
   const isVisible = (tabId: string) => {
     return tabs[tabId as keyof typeof tabs] && currentUser.permissions[tabId];
   };
@@ -152,6 +151,19 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
           {isVisible("settings") && (
             <SidebarItem to="/settings" icon={SettingsIcon} label="Paramètres" active={location.pathname === "/settings"} />
           )}
+          
+          {/* Onglet Super Admin - Uniquement pour les super admins */}
+          {currentUser.isSuperAdmin && (
+            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <SidebarItem 
+                to="/super-admin" 
+                icon={ShieldAlert} 
+                label="Super Admin" 
+                active={location.pathname === "/super-admin"}
+                variant="danger"
+              />
+            </div>
+          )}
         </nav>
 
         <div className={cn("mt-auto p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 transition-opacity duration-200", !isSidebarOpen && "opacity-0")}>
@@ -192,7 +204,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             
             <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-1" />
 
-            {/* Sélecteur d'Entreprise - Visible seulement si plusieurs entités accessibles */}
+            {/* Sélecteur d'Entreprise */}
             {accessibleCompanies.length > 1 && (
               <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
                 <Building size={16} className="text-primary" />
@@ -263,7 +275,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               <Settings2 size={18} />
             </Button>
 
-            {/* Avatar Dropdown pour changer d'utilisateur */}
+            {/* Avatar Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 p-1 pr-3 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all outline-none group">

@@ -4,21 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
 import { 
   Save, 
-  LayoutDashboard, 
-  Briefcase, 
-  Users as UsersIcon, 
-  Building, 
-  ShoppingCart, 
-  Banknote, 
-  UserCheck, 
-  ShieldCheck,
-  Calculator,
-  Settings as SettingsIcon,
-  ClipboardCheck,
-  UserPlus,
   Plus,
   Trash2,
   Edit,
@@ -26,37 +13,30 @@ import {
   Phone,
   Mail,
   User,
-  Shield,
-  ShieldAlert,
+  Calculator,
+  Settings as SettingsIcon,
   UploadCloud,
-  ImageIcon
+  ImageIcon,
+  UserPlus,
+  Building
 } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
-import { useNavigation } from "@/context/NavigationContext";
 import { useMyCompany } from "@/context/CompanyContext";
 import { useUser } from "@/context/UserContext";
-import { useRoles, Role } from "@/context/RoleContext";
 import { UserModal } from "@/components/settings/UserModal";
 import { UserList } from "@/components/settings/UserList";
-import { RoleModal } from "@/components/settings/RoleModal";
-import { RoleList } from "@/components/settings/RoleList";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/utils";
 
 const Settings = () => {
-  const { tabs, toggleTab } = useNavigation();
   const { myCompanies, selectedCompany, addMyCompany, updateMyCompany, deleteMyCompany } = useMyCompany();
   const { currentUser, allUsers, setAllUsers } = useUser();
-  const { roles, addRole, updateRole, deleteRole } = useRoles();
   
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [isRoleConfirmOpen, setIsRoleConfirmOpen] = useState(false);
   const [isCompanyConfirmOpen, setIsCompanyConfirmOpen] = useState(false);
   
   const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
   
   const [companyForm, setCompanyForm] = useState({ 
@@ -65,10 +45,6 @@ const Settings = () => {
   });
 
   const isSuperAdmin = currentUser.isSuperAdmin;
-
-  const handleSave = () => {
-    showSuccess("Paramètres enregistrés avec succès");
-  };
 
   const handleAddUser = (data: any) => {
     if (selectedUser) {
@@ -81,17 +57,6 @@ const Settings = () => {
     setIsUserModalOpen(false);
   };
 
-  const handleAddRole = (data: any) => {
-    if (selectedRole) {
-      updateRole({ ...data, id: selectedRole.id });
-      showSuccess("Rôle mis à jour");
-    } else {
-      addRole({ ...data, id: Date.now().toString() });
-      showSuccess("Rôle ajouté");
-    }
-    setIsRoleModalOpen(false);
-  };
-
   const handleDeleteUser = () => {
     if (selectedUser?.isSuperAdmin) {
       showSuccess("Le compte Super Admin ne peut pas être supprimé");
@@ -101,14 +66,6 @@ const Settings = () => {
     setAllUsers(allUsers.filter(u => u.id !== selectedUser.id));
     showSuccess("Utilisateur supprimé");
     setIsConfirmOpen(false);
-  };
-
-  const handleDeleteRole = () => {
-    if (selectedRole) {
-      deleteRole(selectedRole.id);
-      showSuccess("Rôle supprimé");
-    }
-    setIsRoleConfirmOpen(false);
   };
 
   const startEditingCompany = (company: any) => {
@@ -137,21 +94,6 @@ const Settings = () => {
       reader.readAsDataURL(file);
     }
   };
-
-  const TabToggle = ({ id, label, icon: Icon }: { id: any, label: string, icon: any }) => (
-    <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-slate-100 rounded-lg text-slate-600">
-          <Icon size={18} />
-        </div>
-        <span className="text-sm font-medium text-slate-700">{label}</span>
-      </div>
-      <Switch 
-        checked={tabs[id as keyof typeof tabs]} 
-        onCheckedChange={() => toggleTab(id)} 
-      />
-    </div>
-  );
 
   const companiesToShow = isSuperAdmin 
     ? myCompanies 
@@ -365,36 +307,6 @@ const Settings = () => {
 
       <Separator />
 
-      {/* Gestion des Rôles */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="space-y-1">
-          <h3 className="font-bold text-slate-800">Gestion des Rôles</h3>
-          <p className="text-sm text-slate-500">Définissez des profils types et leurs permissions par défaut.</p>
-        </div>
-        <div className="md:col-span-2 space-y-4">
-          <div className="flex justify-end">
-            <Button 
-              variant="outline" 
-              onClick={() => { setSelectedRole(null); setIsRoleModalOpen(true); }} 
-              className="rounded-xl gap-2 border-primary/20 text-primary hover:bg-primary/5"
-            >
-              <Shield size={18} /> Nouveau Rôle
-            </Button>
-          </div>
-          <Card className="border-none shadow-md">
-            <CardContent className="p-6">
-              <RoleList 
-                roles={roles} 
-                onEdit={(role) => { setSelectedRole(role); setIsRoleModalOpen(true); }} 
-                onDelete={(role) => { setSelectedRole(role); setIsRoleConfirmOpen(true); }} 
-              />
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      <Separator />
-
       {/* Gestion des Utilisateurs */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
@@ -415,43 +327,14 @@ const Settings = () => {
         </div>
       </section>
 
-      <Separator />
-
-      {/* Visibilité des Modules */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="space-y-1">
-          <h3 className="font-bold text-slate-800">Visibilité des Modules</h3>
-          <p className="text-sm text-slate-500">Configurez les onglets visibles pour l'entité actuellement sélectionnée.</p>
-        </div>
-        <Card className="md:col-span-2 border-none shadow-md">
-          <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <TabToggle id="dashboard" label="Tableau de bord" icon={LayoutDashboard} />
-            <TabToggle id="projects" label="Projets & Ventes" icon={Briefcase} />
-            <TabToggle id="projectTracking" label="Suivi Technique" icon={ClipboardCheck} />
-            <TabToggle id="clients" label="Clients" icon={UsersIcon} />
-            <TabToggle id="companies" label="Entreprises" icon={Building} />
-            <TabToggle id="purchases" label="Achats" icon={ShoppingCart} />
-            <TabToggle id="salaries" label="Salaires" icon={Banknote} />
-            <TabToggle id="hr" label="RH (Congés)" icon={UserCheck} />
-            <TabToggle id="cnss" label="Déclaration CNSS" icon={ShieldCheck} />
-            <TabToggle id="accounting" label="Bilan Comptable" icon={Calculator} />
-            <TabToggle id="settings" label="Paramètres" icon={SettingsIcon} />
-          </CardContent>
-        </Card>
-      </section>
-
       <div className="flex justify-end gap-4 pt-4">
-        <Button variant="outline" className="rounded-xl px-6">Annuler</Button>
-        <Button onClick={handleSave} className="rounded-xl px-8 gap-2">
+        <Button onClick={() => showSuccess("Paramètres enregistrés")} className="rounded-xl px-8 gap-2">
           <Save size={18} /> Enregistrer les modifications
         </Button>
       </div>
 
       <UserModal isOpen={isUserModalOpen} onClose={() => setIsUserModalOpen(false)} onSubmit={handleAddUser} initialData={selectedUser} />
-      <RoleModal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)} onSubmit={handleAddRole} initialData={selectedRole} />
-      
       <ConfirmDialog isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={handleDeleteUser} title="Supprimer l'utilisateur ?" description="Cet utilisateur n'aura plus accès à l'application. Cette action est irréversible." variant="destructive" confirmText="Supprimer" />
-      <ConfirmDialog isOpen={isRoleConfirmOpen} onClose={() => setIsRoleConfirmOpen(false)} onConfirm={handleDeleteRole} title="Supprimer ce rôle ?" description="Les utilisateurs ayant ce rôle conserveront leurs permissions actuelles mais le profil type sera supprimé." variant="destructive" confirmText="Supprimer" />
       <ConfirmDialog isOpen={isCompanyConfirmOpen} onClose={() => setIsCompanyConfirmOpen(false)} onConfirm={() => { deleteMyCompany(companyForm.id); showSuccess("Entité supprimée"); setIsCompanyConfirmOpen(false); }} title="Supprimer cette entité ?" description="Toutes les données liées à cette entreprise seront inaccessibles. Cette action est irréversible." variant="destructive" confirmText="Supprimer" />
     </div>
   );

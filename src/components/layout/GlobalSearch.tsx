@@ -9,12 +9,14 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import { Briefcase, ShoppingCart, LayoutDashboard, Search, Users, Building2, Banknote, ClipboardCheck, FileText, User } from "lucide-react";
+import { Briefcase, ShoppingCart, LayoutDashboard, Search, Users, Building2, Banknote, ClipboardCheck, FileText, User, ShieldAlert } from "lucide-react";
+import { useUser } from "@/context/UserContext";
 
 export const GlobalSearch = () => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
+  const { currentUser } = useUser();
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -131,6 +133,12 @@ export const GlobalSearch = () => {
               <Banknote className="mr-2 h-4 w-4" />
               <span>Salaires</span>
             </CommandItem>
+            {currentUser.isSuperAdmin && (
+              <CommandItem onSelect={() => runCommand(() => navigate("/super-admin"))}>
+                <ShieldAlert className="mr-2 h-4 w-4 text-rose-500" />
+                <span>Super Admin</span>
+              </CommandItem>
+            )}
           </CommandGroup>
           <CommandSeparator />
           <CommandGroup heading="Actions Rapides">

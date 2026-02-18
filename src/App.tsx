@@ -24,6 +24,7 @@ import HR from "./pages/HR";
 import CNSS from "./pages/CNSS";
 import Accounting from "./pages/Accounting";
 import Settings from "./pages/Settings";
+import SuperAdmin from "./pages/SuperAdmin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -56,6 +57,7 @@ const App = () => (
                               <Route path="/cnss" element={<CNSS />} />
                               <Route path="/accounting" element={<Accounting />} />
                               <Route path="/settings" element={<Settings />} />
+                              <Route path="/super-admin" element={<SuperAdmin />} />
                               <Route path="*" element={<NotFound />} />
                             </Routes>
                           </DashboardLayout>
