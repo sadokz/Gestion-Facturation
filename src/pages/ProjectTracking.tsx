@@ -131,7 +131,7 @@ const ProjectTracking = () => {
           etat_mo: "Approuvé",
           etat_bc: "En Attente de Réponse",
           etat_interne: "Vérifié",
-          etat_global: "En cours",
+          etat_global: "Etude en Cours",
           avancement: 65,
           avancement_travaux: 30,
           client_responsibles: [
@@ -208,10 +208,12 @@ const ProjectTracking = () => {
 
   const getEtatBadge = (etat: string) => {
     switch (etat) {
-      case "En cours": return <Badge className="bg-blue-50 text-blue-600 border-blue-100">En cours</Badge>;
-      case "Suspendu": return <Badge className="bg-amber-50 text-amber-600 border-amber-100">Suspendu</Badge>;
-      case "Livré": return <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100">Livré</Badge>;
-      case "Annulé": return <Badge className="bg-rose-50 text-rose-600 border-rose-100">Annulé</Badge>;
+      case "Etude en Cours": return <Badge className="bg-blue-50 text-blue-600 border-blue-100">Etude en Cours</Badge>;
+      case "Etudes Achevé": return <Badge className="bg-indigo-50 text-indigo-600 border-indigo-100">Etudes Achevé</Badge>;
+      case "Travaux en Cours": return <Badge className="bg-amber-50 text-amber-600 border-amber-100">Travaux en Cours</Badge>;
+      case "Travaux Achevés": return <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100">Travaux Achevés</Badge>;
+      case "Réceptionné Provisoirement": return <Badge className="bg-teal-50 text-teal-600 border-teal-100">Réceptionné Provisoirement</Badge>;
+      case "Réceptionné Définitivement": return <Badge className="bg-green-50 text-green-600 border-green-100">Réceptionné Définitivement</Badge>;
       default: return <Badge variant="outline">{etat || "-"}</Badge>;
     }
   };

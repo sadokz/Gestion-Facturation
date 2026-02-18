@@ -52,7 +52,7 @@ const projectSchema = z.object({
   etat_mo: z.string().default("Non Envoyé"),
   etat_bc: z.string().default("Non Envoyé"),
   etat_interne: z.string().default("Non Envoyé"),
-  etat_global: z.string().default("En cours"),
+  etat_global: z.string().default("Etude en Cours"),
   avancement: z.coerce.number().min(0).max(100).default(0),
   avancement_travaux: z.coerce.number().min(0).max(100).default(0),
 });
@@ -96,7 +96,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       etat_mo: "Non Envoyé",
       etat_bc: "Non Envoyé",
       etat_interne: "Non Envoyé",
-      etat_global: "En cours",
+      etat_global: "Etude en Cours",
       avancement: 0,
       avancement_travaux: 0,
     },
@@ -121,7 +121,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       if (initialData) {
         form.reset({
           ...initialData,
-          etat_global: initialData.etat_global || initialData.etat || "En cours"
+          etat_global: initialData.etat_global || initialData.etat || "Etude en Cours"
         });
       }
     }
@@ -130,7 +130,14 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
   const phaseOptions = ["APS", "APD", "DAO", "EXE"];
   const indiceOptions = ["A", "B", "C", "D", "E"];
   const approvalOptions = ["Non Envoyé", "En Attente de Réponse", "Approuvé", "Approuvé avec réserves", "Refusé", "Vérifié"];
-  const etatOptions = ["En cours", "Suspendu", "Livré", "Annulé"];
+  const etatOptions = [
+    "Etude en Cours", 
+    "Etudes Achevé", 
+    "Travaux en Cours", 
+    "Travaux Achevés", 
+    "Réceptionné Provisoirement", 
+    "Réceptionné Définitivement"
+  ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
