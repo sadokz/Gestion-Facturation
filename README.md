@@ -5,68 +5,73 @@ Cette application est une solution ERP complète conçue spécifiquement pour le
 ---
 
 ## 📊 1. Tableau de Bord (Dashboard)
-Le centre de pilotage de votre activité, entièrement personnalisable.
-- **Personnalisation** : Via l'icône ⚙️ en haut à droite, vous pouvez choisir quels indicateurs afficher, réorganiser les graphiques par glisser-déposer et ajuster la largeur des blocs (25%, 50%, 75% ou 100%).
+Le centre de pilotage de votre activité, entièrement personnalisable par chaque utilisateur.
+- **Personnalisation Avancée** : Via l'icône ⚙️ en haut à droite, vous pouvez choisir quels indicateurs afficher, réorganiser les graphiques par glisser-déposer et ajuster la largeur des blocs (25%, 50%, 75% ou 100%).
 - **Indicateurs (KPIs)** : Total Contrats, Facturé, Reste à Facturer, Achats, CNSS, Salaires, Chiffre d'affaires encaissé et Bénéfice Réel.
+- **Flux de Trésorerie** : Graphique comparatif mensuel entre les ventes (encaissées/en attente) et les dépenses (achats/salaires).
 
 ---
 
 ## 🏗️ 2. Projets & Facturation
 Gestion du cycle de vie des contrats et suivi rigoureux des paiements.
-- **Modes de Vue ("Mes Vues")** : Vous pouvez créer des configurations de colonnes personnalisées (ex: "Vue Financière", "Vue Simplifiée"). Ces vues sont sauvegardées et accessibles via le bouton "Modes de vue".
+- **Modes de Vue ("Mes Vues")** : Créez des configurations de colonnes personnalisées (ex: "Vue Financière", "Vue Simplifiée"). Ces vues sont sauvegardées par catégorie et accessibles via le bouton "Modes de vue".
 - **Suivi des Paiements** : Chaque projet peut être étendu pour afficher l'historique détaillé des factures émises, leur statut (Payé, En attente) et les documents joints (PDF).
+- **Calculs Automatiques** : Gestion des avenants, calcul de la TVA et du reste à facturer en temps réel.
 
 ---
 
 ## 👷 3. Suivi Technique des Projets
 Coordination technique et suivi de l'avancement physique des chantiers.
-- **Modes de Vue** : Personnalisez l'affichage pour vous concentrer sur les intervenants (Architecte, Bureau de contrôle) ou sur l'avancement (Phases, Indices).
-- **Interventions** : Enregistrez chaque réunion, envoi de plan ou visite de chantier avec compte-rendu et justificatif.
-- **Gestion des Contacts** : Liez des responsables spécifiques du client ou de l'entreprise de travaux à chaque projet pour un accès rapide à leurs coordonnées.
+- **Interventions & PV** : Enregistrez chaque réunion, relevé, envoi de plan ou visite de chantier. Possibilité de joindre des comptes-rendus et des décharges signées.
+- **Gestion des Intervenants** : Centralisation des contacts tiers (Architectes, Bureaux de contrôle, Ingénieurs spécialisés).
+- **Liaison de Contacts** : Pour chaque projet, sélectionnez les responsables spécifiques chez le client ou l'entreprise de travaux pour un accès rapide.
+- **Avancement Double** : Suivi distinct de l'avancement des études (interne) et de l'avancement des travaux (chantier).
 
 ---
 
 ## 👥 4. Annuaires (Clients & Entreprises)
 Gestion des tiers et de leurs contacts.
 - **Segmentation** : Deux annuaires distincts pour les Maîtres d'Ouvrage (Clients) et les Partenaires/Entreprises de travaux.
-- **Modes de Vue** : Adaptez l'affichage selon vos besoins (Coordonnées complètes, Matricules fiscaux, etc.).
-- **Responsables** : Chaque entité possède sa propre liste de contacts avec rôles et coordonnées directes.
+- **Fiches Détaillées** : Matricules fiscaux, adresses avec liens Google Maps, coordonnées complètes.
+- **Historique** : Visualisation immédiate de tous les projets liés à un client ou une entreprise depuis sa fiche.
 
 ---
 
 ## 🛒 5. Achats & Dépenses
-Contrôle des coûts opérationnels.
-- **Modes de Vue** : Filtrez et affichez les colonnes pertinentes pour votre comptabilité (Catégories, Montants HT/TTC, Statuts de paiement).
-- **Export** : Possibilité d'exporter la liste filtrée en format CSV pour intégration comptable.
+Contrôle des coûts opérationnels et frais généraux.
+- **Catégorisation** : Classement des dépenses (Matériel, Logiciels, Abonnements, etc.).
+- **Statuts de Paiement** : Suivi des factures fournisseurs à payer vs payées.
+- **Export Comptable** : Exportation de la liste filtrée en format CSV pour une intégration facile dans vos outils comptables.
 
 ---
 
 ## 👨‍💼 6. Salaires & RH
 Gestion du capital humain et des absences.
-- **Salaires** : Suivi des employés, de leurs contrats (CDI, SIVP, etc.) et historique mensuel des paiements (Net, Primes, Tickets Resto).
-- **RH (Congés)** : Calcul automatique des soldes de congés restants, suivi des maladies et gestion des justificatifs d'absence.
-- **Modes de Vue** : Basculez entre une vue "Contrats" et une vue "Financière" pour les salaires.
+- **Salaires** : Historique mensuel des paiements incluant le Net, les Primes, les Tickets Resto et le Carburant.
+- **RH (Congés & Absences)** : 
+    - Calcul automatique des soldes de congés restants sur la base du droit annuel.
+    - Suivi des arrêts maladie avec archivage des justificatifs.
+    - Système de validation des demandes (En attente, Validé, Refusé).
 
 ---
 
-## 🛠️ 7. Outils Transverses & UX
-- **Modes de Vue Personnalisés** : Disponible sur TOUS les modules. Permet de choisir exactement quelles colonnes afficher, de nommer cette configuration et de la retrouver en un clic.
-- **Recherche Globale (Ctrl+K)** : Palette de commande pour naviguer instantanément ou rechercher un élément précis.
-- **Mode Confidentialité (👁️)** : Masquage instantané de toutes les données financières sensibles (`*****`) pour travailler en espace partagé.
-- **Gestion des Exercices** : Séparation stricte des données par année fiscale (2025, 2026, etc.).
-- **Multi-Entités** : Gérez plusieurs bureaux ou succursales au sein de la même interface.
+## ⚙️ 7. Paramètres, Sécurité & Multi-Entités
+Le cœur de la configuration du bureau.
+
+### 🏢 Profil du Bureau & Logos
+- **Gestion Multi-Entités** : Gérez plusieurs bureaux ou succursales (ex: Bureau Tunis, Bureau Sfax) au sein de la même interface.
+- **Logos Personnalisés** : Chaque entité peut avoir son propre logo. Une fois téléversé dans les paramètres, il remplace l'icône par défaut dans la barre latérale et l'en-tête pour une identification visuelle immédiate.
+
+### 🔐 Gestion des Utilisateurs & Permissions
+- **Changement d'Utilisateur** : L'avatar en haut à droite permet de basculer instantanément entre les profils (simulant une déconnexion/reconnexion).
+- **Accès aux Entités** : Un utilisateur peut être restreint à une seule entreprise ou avoir accès à plusieurs. 
+    - *Note* : Le sélecteur d'entité dans le header ne s'affiche que si l'utilisateur a accès à au moins deux entreprises.
+- **Permissions Granulaires** : Activez ou désactivez l'accès aux modules (ex: un technicien ne verra pas les "Salaires" ou les "Achats" si la permission n'est pas cochée).
 
 ---
 
-## ⚙️ 8. Paramètres & Sécurité (Gestion des Utilisateurs)
-Le module de paramètres permet de configurer les accès de manière extrêmement précise :
-
-### Gestion des Utilisateurs
-Pour chaque collaborateur, vous pouvez définir :
-1.  **Identifiants** : Nom, Email et Mot de passe.
-2.  **Accès aux Entités (Nouveau)** : Une liste à cocher permet de restreindre l'utilisateur à certaines entreprises uniquement. S'il n'est pas coché pour une entité, il ne verra aucun projet, achat ou salaire lié à celle-ci.
-3.  **Permissions Modules** : Activez ou désactivez l'accès aux onglets spécifiques (ex: un technicien peut voir le "Suivi Technique" mais pas les "Salaires").
-
-### Visibilité Globale
-- **Activation des Modules** : Possibilité de masquer des modules entiers pour l'ensemble du bureau (ex: désactiver le module "Comptabilité" s'il n'est pas utilisé).
-- **Profil du Bureau** : Configuration des informations légales (Nom, Matricule Fiscal, Adresse) qui servent de base au système.
+## 🛠️ 8. Outils Transverses & UX
+- **Recherche Globale (⌘K / Ctrl+K)** : Palette de commande pour naviguer instantanément vers un projet, un client ou un module.
+- **Mode Confidentialité (👁️)** : Masquage instantané de toutes les données financières sensibles (`*****`) sur tous les écrans (Dashboard, Tableaux, Modals).
+- **Gestion des Exercices** : Séparation stricte des données par année fiscale. Les Super Admins peuvent ajouter de nouvelles années ou supprimer les anciens exercices.
+- **Tableaux Resizables** : Ajustez la largeur des colonnes et masquez celles qui ne vous sont pas utiles via le menu de configuration des colonnes.
