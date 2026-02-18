@@ -243,10 +243,8 @@ const Projects = () => {
   
   const projectViewModes = getViewModesByCategory("projects");
   
-  // État pour le nom du mode actif
   const [activeViewModeName, setActiveViewModeName] = useState("Mode HT");
 
-  // Initialisation avec le Mode HT par défaut
   const [visibleColumns, setVisibleColumns] = useState<string[]>(() => {
     const defaultMode = projectViewModes.find(m => m.id === "p-ht");
     return defaultMode ? defaultMode.columns : ["reference_projet", "nom_projet", "montant_total_ht", "total_ht", "facture_ht", "reste_ht", "statut"];
@@ -259,6 +257,7 @@ const Projects = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const [isViewModeModalOpen, setIsViewModeModalOpen] = useState(false);
+  const [isViewModeConfirmOpen, setIsViewModeConfirmOpen] = useState(false);
   
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
@@ -356,6 +355,14 @@ const Projects = () => {
 
   const isVisible = (id: string) => visibleColumns.includes(id);
 
+  const handleDeleteViewMode = () => {
+    if (selectedViewMode) {
+      deleteViewMode(selectedViewMode.id);
+      showSuccess("Mode de vue supprimé");
+      setIsViewModeConfirmOpen(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -397,7 +404,7 @@ const Projects = () => {
                     </button>
                     {!mode.id.startsWith("p-") && (
                       <button 
-                        onClick={(e) => { e.stopPropagation(); deleteViewMode(mode.id); }}
+                        onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeConfirmOpen(true); }}
                         className="p-2 text-slate-300 hover:text-rose-500"
                       >
                         <Trash2 size={12} />
@@ -484,6 +491,8 @@ const Projects = () => {
       <ProjectModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSubmit={() => { showSuccess("Projet enregistré"); setIsModalOpen(false); loadProjects(); }} initialData={selectedProject} />
       <ProjectDetail isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} project={selectedProject} />
       <ConfirmDialog isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={() => { showSuccess("Projet supprimé"); setIsConfirmOpen(false); loadProjects(); }} title="Supprimer le projet ?" description="Cette action supprimera également toutes les factures liées." variant="destructive" confirmText="Supprimer" />
+      <ConfirmDialog isOpen={isViewModeConfirmOpen} onClose={() => setIsViewModeConfirmOpen(false)} onConfirm={handleDeleteViewMode} title="Supprimer ce mode de vue ?" description="Cette action est irréversible." variant="destructive" confirmText="Supprimer" />
+      
       <SalesInvoiceModal 
         isOpen={isInvoiceModalOpen} 
         onClose={() => setIsInvoiceModalOpen(false)} 
