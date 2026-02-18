@@ -15,11 +15,13 @@ import {
   Calculator,
   Settings2,
   Plus,
-  ClipboardCheck
+  ClipboardCheck,
+  Building
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useYear } from "@/context/YearContext";
 import { useNavigation } from "@/context/NavigationContext";
+import { useMyCompany } from "@/context/CompanyContext";
 import {
   Select,
   SelectContent,
@@ -31,6 +33,7 @@ import { GlobalSearch } from "./GlobalSearch";
 import { Button } from "@/components/ui/button";
 import { DashboardCustomizationModal } from "../dashboard/DashboardCustomizationModal";
 import { YearManagementModal } from "./YearManagementModal";
+import { CompanyManagementModal } from "./CompanyManagementModal";
 import { ThemeToggle } from "../theme-toggle";
 import { PrivacyToggle } from "./PrivacyToggle";
 
@@ -53,10 +56,12 @@ const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any,
 export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const { selectedYear, setSelectedYear, availableYears } = useYear();
+  const { selectedCompany, setSelectedCompany, myCompanies } = useMyCompany();
   const { tabs } = useNavigation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isCustomizationModalOpen, setIsCustomizationModalOpen] = useState(false);
   const [isYearModalOpen, setIsYearModalOpen] = useState(false);
+  const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFC] dark:bg-slate-950 overflow-hidden">
@@ -197,23 +202,49 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             <GlobalSearch />
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <PrivacyToggle />
             <ThemeToggle />
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="rounded-xl gap-2 h-9 px-4 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-              onClick={() => setIsCustomizationModalOpen(true)}
-            >
-              <Settings2 size={16} /> Personnaliser
-            </Button>
+            
+            <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-1" />
+
+            {/* Sélecteur d'Entreprise (Entité) */}
+            <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
+              <Building size={16} className="text-primary" />
+              <div className="flex items-center gap-1">
+                <Select 
+                  value={selectedCompany?.id} 
+                  onValueChange={(id) => {
+                    const found = myCompanies.find(c => c.id === id);
+                    if (found) setSelectedCompany(found);
+                  }}
+                >
+                  <SelectTrigger className="w-[160px] border-none shadow-none h-8 focus:ring-0 font-bold text-slate-700 dark:text-slate-200 bg-transparent truncate">
+                    <SelectValue placeholder="Entreprise" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {myCompanies.map(c => (
+                      <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
+                  onClick={() => setIsCompanyModalOpen(true)}
+                >
+                  <Plus size={14} />
+                </Button>
+              </div>
+            </div>
+
+            {/* Sélecteur d'Exercice */}
             <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
               <Calendar size={16} className="text-slate-500" />
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Exercice :</span>
               <div className="flex items-center gap-1">
                 <Select value={selectedYear.toString()} onValueChange={(v) => setSelectedYear(parseInt(v))}>
-                  <SelectTrigger className="w-[100px] border-none shadow-none h-8 focus:ring-0 font-bold text-primary bg-transparent">
+                  <SelectTrigger className="w-[90px] border-none shadow-none h-8 focus:ring-0 font-bold text-primary bg-transparent">
                     <SelectValue placeholder="Année" />
                   </SelectTrigger>
                   <SelectContent>
@@ -232,6 +263,16 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                 </Button>
               </div>
             </div>
+
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="rounded-xl h-9 w-9 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+              onClick={() => setIsCustomizationModalOpen(true)}
+            >
+              <Settings2 size={18} />
+            </Button>
+
             <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-white dark:border-slate-700 shadow-sm overflow-hidden shrink-0">
               <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" />
             </div>
@@ -245,6 +286,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
       </main>
       <DashboardCustomizationModal isOpen={isCustomizationModalOpen} onClose={() => setIsCustomizationModalOpen(false)} />
       <YearManagementModal isOpen={isYearModalOpen} onClose={() => setIsYearModalOpen(false)} />
+      <CompanyManagementModal isOpen={isCompanyModalOpen} onClose={() => setIsCompanyModalOpen(false)} />
     </div>
   );
 };
