@@ -86,6 +86,7 @@ const PROJECT_COLUMNS = [
   { id: "facture_ttc", label: "Total Facturé TTC" },
   { id: "paye_ht", label: "Total Reçu HT" },
   { id: "paye_ttc", label: "Total Reçu TTC" },
+  { id: "reste_ht", label: "Reste à Facturer HT" },
   { id: "reste_ttc", label: "Reste à Facturer TTC" },
   { id: "statut", label: "Statut" },
 ];
@@ -135,6 +136,7 @@ const SortableProjectRow = ({
   const totalPayeHT = paidInvoices.reduce((sum: number, inv: any) => sum + inv.montant_ht, 0);
   const totalPayeTTC = paidInvoices.reduce((sum: number, inv: any) => sum + computeTTC(inv.montant_ht, inv.tva_pct || 19), 0);
   
+  const resteAFacturerHT = totalHT - totalFactureHT;
   const resteAFacturerTTC = totalTTC - totalFactureTTC;
 
   let calculatedStatus = "Non facturé";
@@ -200,6 +202,7 @@ const SortableProjectRow = ({
         {isVisible("facture_ttc") && <TableCell className="text-right text-indigo-600 font-bold truncate">{format(totalFactureTTC)}</TableCell>}
         {isVisible("paye_ht") && <TableCell className="text-right text-emerald-500 font-bold truncate">{format(totalPayeHT)}</TableCell>}
         {isVisible("paye_ttc") && <TableCell className="text-right text-emerald-600 font-bold truncate">{format(totalPayeTTC)}</TableCell>}
+        {isVisible("reste_ht") && <TableCell className="text-right text-amber-600 font-bold truncate">{format(resteAFacturerHT)}</TableCell>}
         {isVisible("reste_ttc") && <TableCell className="text-right text-rose-600 font-black truncate">{format(resteAFacturerTTC)}</TableCell>}
         {isVisible("statut") && <TableCell className="truncate">{getStatusBadge(calculatedStatus)}</TableCell>}
         <TableCell className="p-0 text-center">
@@ -434,6 +437,7 @@ const Projects = () => {
                     {isVisible("facture_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Total Facturé TTC</ResizableHeader>}
                     {isVisible("paye_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Total Reçu HT</ResizableHeader>}
                     {isVisible("paye_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Total Reçu TTC</ResizableHeader>}
+                    {isVisible("reste_ht") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Reste à Facturer HT</ResizableHeader>}
                     {isVisible("reste_ttc") && <ResizableHeader initialWidth={140} minWidth={100} className="text-center">Reste à Facturer TTC</ResizableHeader>}
                     {isVisible("statut") && <ResizableHeader initialWidth={150} minWidth={100} className="text-center" sortKey="statut" currentSort={sortConfig} onSort={handleSort}>Statut</ResizableHeader>}
                     <ResizableHeader initialWidth={60} resizable={false}>
