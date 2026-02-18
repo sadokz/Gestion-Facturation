@@ -40,6 +40,7 @@ const Settings = () => {
       password: "password123",
       poste: "Proprietaire", 
       statut: "Actif",
+      avatar: "Felix",
       allowedCompanies: ["1"],
       permissions: { dashboard: true, projects: true, projectTracking: true, clients: true, companies: true, purchases: true, salaries: true, hr: true, cnss: true, accounting: true, settings: true }
     },
@@ -50,6 +51,7 @@ const Settings = () => {
       password: "password123",
       poste: "CEO", 
       statut: "Actif",
+      avatar: "Aneka",
       allowedCompanies: ["1"],
       permissions: { dashboard: true, projects: true, projectTracking: true, clients: true, companies: true, purchases: true, salaries: true, hr: true, cnss: true, accounting: true, settings: false }
     },

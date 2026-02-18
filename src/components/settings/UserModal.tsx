@@ -28,8 +28,11 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Eye, EyeOff, Building2, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, Building2, ShieldCheck, User as UserIcon } from "lucide-react";
 import { useMyCompany } from "@/context/CompanyContext";
+import { cn } from "@/lib/utils";
+
+const AVATAR_SEEDS = ["Felix", "Aneka", "Max", "Jack", "Luna", "Oliver", "Milo", "Sophie"];
 
 const userSchema = z.object({
   nom: z.string().min(1, "Le nom est requis"),
@@ -37,6 +40,7 @@ const userSchema = z.object({
   password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
   poste: z.string().min(1, "Le poste est requis"),
   statut: z.string().default("Actif"),
+  avatar: z.string().default("Felix"),
   allowedCompanies: z.array(z.string()).default([]),
   permissions: z.record(z.boolean()).default({
     dashboard: true,
@@ -86,6 +90,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
       password: "",
       poste: "Ingénieur",
       statut: "Actif",
+      avatar: "Felix",
       allowedCompanies: [],
       permissions: {
         dashboard: true,
@@ -111,6 +116,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
         password: "",
         poste: "Ingénieur", 
         statut: "Actif",
+        avatar: "Felix",
         allowedCompanies: [],
         permissions: {
           dashboard: true,
@@ -142,6 +148,34 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col overflow-hidden">
             <ScrollArea className="flex-1 px-6">
               <div className="space-y-8 py-4">
+                {/* Sélection d'Avatar */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                    <UserIcon size={14} /> Avatar de l'utilisateur
+                  </h4>
+                  <div className="flex flex-wrap gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    {AVATAR_SEEDS.map((seed) => (
+                      <button
+                        key={seed}
+                        type="button"
+                        onClick={() => form.setValue("avatar", seed)}
+                        className={cn(
+                          "w-12 h-12 rounded-full border-2 transition-all overflow-hidden bg-white",
+                          form.watch("avatar") === seed 
+                            ? "border-primary ring-4 ring-primary/10 scale-110" 
+                            : "border-transparent hover:border-slate-300"
+                        )}
+                      >
+                        <img 
+                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`} 
+                          alt={seed}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Infos de base */}
                 <div className="space-y-4">
                   <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Informations de connexion</h4>
@@ -305,9 +339,6 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
                       />
                     ))}
                   </div>
-                  {form.watch("allowedCompanies")?.length === 0 && (
-                    <p className="text-[10px] text-rose-500 font-medium italic">Attention : Sans entreprise sélectionnée, l'utilisateur ne verra aucune donnée.</p>
-                  )}
                 </div>
 
                 {/* Permissions modules */}

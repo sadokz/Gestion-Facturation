@@ -25,8 +25,16 @@ export const UserList: React.FC<UserListProps> = ({ users, onEdit, onDelete }) =
           className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:shadow-sm transition-all group"
         >
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 shrink-0">
-              <User size={20} />
+            <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 shrink-0 overflow-hidden">
+              {user.avatar ? (
+                <img 
+                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.avatar}`} 
+                  alt={user.nom}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User size={24} />
+              )}
             </div>
             <div>
               <div className="flex items-center gap-2">
