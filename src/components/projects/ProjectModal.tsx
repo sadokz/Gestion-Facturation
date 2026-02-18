@@ -49,9 +49,9 @@ const projectSchema = z.object({
   responsable_interne: z.string().optional(),
   phase: z.string().optional(),
   indice: z.string().optional(),
-  etat_mo: z.string().default("En attente"),
-  etat_bc: z.string().default("En attente"),
-  etat_interne: z.string().default("En attente"),
+  etat_mo: z.string().default("Non Envoyé"),
+  etat_bc: z.string().default("Non Envoyé"),
+  etat_interne: z.string().default("Non Envoyé"),
   etat_global: z.string().default("En cours"),
   avancement: z.coerce.number().min(0).max(100).default(0),
   avancement_travaux: z.coerce.number().min(0).max(100).default(0),
@@ -93,9 +93,9 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       responsable_interne: "",
       phase: "APS",
       indice: "A",
-      etat_mo: "En attente",
-      etat_bc: "En attente",
-      etat_interne: "En attente",
+      etat_mo: "Non Envoyé",
+      etat_bc: "Non Envoyé",
+      etat_interne: "Non Envoyé",
       etat_global: "En cours",
       avancement: 0,
       avancement_travaux: 0,
@@ -129,7 +129,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 
   const phaseOptions = ["APS", "APD", "DAO", "EXE"];
   const indiceOptions = ["A", "B", "C", "D", "E"];
-  const approvalOptions = ["En attente", "Approuvé", "Approuvé avec réserves", "Refusé", "Vérifié"];
+  const approvalOptions = ["Non Envoyé", "En Attente de Réponse", "Approuvé", "Approuvé avec réserves", "Refusé", "Vérifié"];
   const etatOptions = ["En cours", "Suspendu", "Livré", "Annulé"];
 
   return (

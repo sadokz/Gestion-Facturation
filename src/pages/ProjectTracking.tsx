@@ -129,7 +129,7 @@ const ProjectTracking = () => {
           phase: "APD",
           indice: "B",
           etat_mo: "Approuvé",
-          etat_bc: "Approuvé avec réserves",
+          etat_bc: "En Attente de Réponse",
           etat_interne: "Vérifié",
           etat_global: "En cours",
           avancement: 65,
@@ -222,7 +222,9 @@ const ProjectTracking = () => {
       case "Approuvé avec réserves": return <Badge className="bg-amber-50 text-amber-600 border-amber-100 text-[10px]">Réserves</Badge>;
       case "Refusé": return <Badge className="bg-rose-50 text-rose-600 border-rose-100 text-[10px]">Refusé</Badge>;
       case "Vérifié": return <Badge className="bg-indigo-50 text-indigo-600 border-indigo-100 text-[10px]">Vérifié</Badge>;
-      default: return <Badge variant="outline" className="text-slate-400 text-[10px]">Attente</Badge>;
+      case "En Attente de Réponse": return <Badge className="bg-blue-50 text-blue-600 border-blue-100 text-[10px]">Attente</Badge>;
+      case "Non Envoyé": return <Badge variant="outline" className="text-slate-400 border-slate-200 text-[10px]">Non Envoyé</Badge>;
+      default: return <Badge variant="outline" className="text-slate-400 text-[10px]">{status || "Attente"}</Badge>;
     }
   };
 
