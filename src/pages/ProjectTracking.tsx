@@ -271,23 +271,23 @@ const ProjectTracking = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <Table className="table-fixed w-full">
+            <Table className="table-fixed w-max min-w-full">
               <TableHeader className="bg-slate-50/50">
                 <TableRow className="hover:bg-transparent border-slate-100">
-                  <ResizableHeader initialWidth={60} resizable={false}></ResizableHeader>
-                  {isVisible("reference_projet") && <ResizableHeader initialWidth={120} className="text-center">Référence</ResizableHeader>}
-                  {isVisible("nom_projet") && <ResizableHeader initialWidth={220} className="text-center">Projet / Maître d'Ouvrage</ResizableHeader>}
-                  {isVisible("responsable_interne") && <ResizableHeader initialWidth={160} className="text-center">Resp. Interne</ResizableHeader>}
-                  {isVisible("architecte") && <ResizableHeader initialWidth={160} className="text-center">Architecte</ResizableHeader>}
-                  {isVisible("ing_fluides") && <ResizableHeader initialWidth={160} className="text-center">Ing. Fluides</ResizableHeader>}
-                  {isVisible("ing_structure") && <ResizableHeader initialWidth={160} className="text-center">Ing. Structure</ResizableHeader>}
-                  {isVisible("bureau_controle") && <ResizableHeader initialWidth={160} className="text-center">Bureau de Contrôle</ResizableHeader>}
-                  {isVisible("phase") && <ResizableHeader initialWidth={100} className="text-center">Phase</ResizableHeader>}
-                  {isVisible("indice") && <ResizableHeader initialWidth={80} className="text-center">Indice</ResizableHeader>}
-                  {isVisible("etat") && <ResizableHeader initialWidth={120} className="text-center">État</ResizableHeader>}
-                  {isVisible("avancement") && <ResizableHeader initialWidth={180} className="text-center">Avancement Études</ResizableHeader>}
-                  {isVisible("entreprise_travaux") && <ResizableHeader initialWidth={160} className="text-center">Entreprise</ResizableHeader>}
-                  {isVisible("avancement_travaux") && <ResizableHeader initialWidth={180} className="text-center">Avancement Travaux</ResizableHeader>}
+                  <ResizableHeader initialWidth={70} resizable={false}></ResizableHeader>
+                  {isVisible("reference_projet") && <ResizableHeader initialWidth={120} minWidth={80} className="text-center">Référence</ResizableHeader>}
+                  {isVisible("nom_projet") && <ResizableHeader initialWidth={250} minWidth={150} className="text-center">Projet / Maître d'Ouvrage</ResizableHeader>}
+                  {isVisible("responsable_interne") && <ResizableHeader initialWidth={160} minWidth={120} className="text-center">Resp. Interne</ResizableHeader>}
+                  {isVisible("architecte") && <ResizableHeader initialWidth={160} minWidth={120} className="text-center">Architecte</ResizableHeader>}
+                  {isVisible("ing_fluides") && <ResizableHeader initialWidth={160} minWidth={120} className="text-center">Ing. Fluides</ResizableHeader>}
+                  {isVisible("ing_structure") && <ResizableHeader initialWidth={160} minWidth={120} className="text-center">Ing. Structure</ResizableHeader>}
+                  {isVisible("bureau_controle") && <ResizableHeader initialWidth={160} minWidth={120} className="text-center">Bureau de Contrôle</ResizableHeader>}
+                  {isVisible("phase") && <ResizableHeader initialWidth={100} minWidth={80} className="text-center">Phase</ResizableHeader>}
+                  {isVisible("indice") && <ResizableHeader initialWidth={80} minWidth={60} className="text-center">Indice</ResizableHeader>}
+                  {isVisible("etat") && <ResizableHeader initialWidth={120} minWidth={100} className="text-center">État</ResizableHeader>}
+                  {isVisible("avancement") && <ResizableHeader initialWidth={180} minWidth={140} className="text-center">Avancement Études</ResizableHeader>}
+                  {isVisible("entreprise_travaux") && <ResizableHeader initialWidth={160} minWidth={120} className="text-center">Entreprise</ResizableHeader>}
+                  {isVisible("avancement_travaux") && <ResizableHeader initialWidth={180} minWidth={140} className="text-center">Avancement Travaux</ResizableHeader>}
                   <ResizableHeader initialWidth={60} resizable={false}>
                     <ColumnToggle columns={TRACKING_COLUMNS} visibleColumns={visibleColumns} onToggle={toggleColumn} />
                   </ResizableHeader>
