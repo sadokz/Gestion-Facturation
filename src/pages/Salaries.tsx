@@ -17,6 +17,7 @@ import {
   Banknote
 } from "lucide-react";
 import { fetcher } from "@/api/config";
+import { useMyCompany } from "@/context/CompanyContext";
 import {
   Table,
   TableBody,
@@ -54,6 +55,7 @@ const EMPLOYEE_COLUMNS = [
 ];
 
 const Salaries = () => {
+  const { selectedCompany } = useMyCompany();
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -68,9 +70,10 @@ const Salaries = () => {
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
 
   const loadEmployees = async () => {
+    if (!selectedCompany) return;
     setLoading(true);
     try {
-      const data = await fetcher(`/employees?q=${search}`);
+      const data = await fetcher(`/employees?company_id=${selectedCompany.id}&q=${search}`);
       setEmployees(data);
     } catch (err) {
       setEmployees([
@@ -111,7 +114,7 @@ const Salaries = () => {
     }
   };
 
-  useEffect(() => { loadEmployees(); }, [search]);
+  useEffect(() => { loadEmployees(); }, [selectedCompany, search]);
 
   const toggleExpand = (id: number) => {
     const newExpanded = new Set(expandedEmployees);
@@ -127,7 +130,7 @@ const Salaries = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-slate-900">Gestion des Salaires</h1>
-          <p className="text-slate-500">Gérez vos employés et suivez l'historique des rémunérations</p>
+          <p className="text-slate-500">Employés de {selectedCompany?.nom}</p>
         </div>
         <Button onClick={() => { setSelectedEmployee(null); setIsEmployeeModalOpen(true); }} className="rounded-xl shadow-lg shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-700 gap-2 h-11 px-6 text-white">
           <Plus size={18} /> Nouvel Employé

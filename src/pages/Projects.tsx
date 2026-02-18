@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { usePrivacy } from "@/context/PrivacyContext";
+import { useMyCompany } from "@/context/CompanyContext";
 import { fetcher } from "@/api/config";
 import { formatCurrencyDT, computeTTC } from "@/utils/formatters";
 import { cn } from "@/lib/utils";
@@ -217,6 +218,7 @@ const SortableProjectRow = ({
 
 const Projects = () => {
   const { selectedYear } = useYear();
+  const { selectedCompany } = useMyCompany();
   const [searchParams, setSearchParams] = useSearchParams();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -237,9 +239,10 @@ const Projects = () => {
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
   const loadProjects = async () => {
+    if (!selectedCompany) return;
     setLoading(true);
     try {
-      const data = await fetcher(`/projects?year=${selectedYear}&q=${search}&status=${statusFilter === 'all' ? '' : statusFilter}`);
+      const data = await fetcher(`/projects?year=${selectedYear}&company_id=${selectedCompany.id}&q=${search}&status=${statusFilter === 'all' ? '' : statusFilter}`);
       setProjects(data);
     } catch (err) {
       setProjects([
@@ -258,7 +261,7 @@ const Projects = () => {
       setSearch(urlSearch);
     }
     loadProjects(); 
-  }, [selectedYear, search, statusFilter, searchParams]);
+  }, [selectedYear, selectedCompany, search, statusFilter, searchParams]);
 
   const handleSort = (key: string) => {
     let direction: 'asc' | 'desc' | null = 'asc';
@@ -329,7 +332,7 @@ const Projects = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-slate-900">Projets & Facturation</h1>
-          <p className="text-slate-500">Gérez vos contrats et suivez l'avancement de la facturation</p>
+          <p className="text-slate-500">Gérez vos contrats pour {selectedCompany?.nom}</p>
         </div>
         <Button onClick={() => { setSelectedProject(null); setIsModalOpen(true); }} className="rounded-xl shadow-lg shadow-primary/20 gap-2 h-11 px-6">
           <Plus size={18} /> Nouveau Projet

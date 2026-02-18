@@ -9,6 +9,7 @@ import {
   GripVertical
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
+import { useMyCompany } from "@/context/CompanyContext";
 import { fetcher } from "@/api/config";
 import { formatCurrencyDT, formatDateFR, computeTTC } from "@/utils/formatters";
 import { exportToCSV } from "@/utils/export";
@@ -148,6 +149,7 @@ const SortablePurchaseRow = ({
 
 const Purchases = () => {
   const { selectedYear } = useYear();
+  const { selectedCompany } = useMyCompany();
   const [purchases, setPurchases] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -161,9 +163,10 @@ const Purchases = () => {
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
   const loadPurchases = async () => {
+    if (!selectedCompany) return;
     setLoading(true);
     try {
-      const data = await fetcher(`/purchases?year=${selectedYear}&q=${search}`);
+      const data = await fetcher(`/purchases?year=${selectedYear}&company_id=${selectedCompany.id}&q=${search}`);
       setPurchases(data);
     } catch (err) {
       setPurchases([
@@ -176,7 +179,7 @@ const Purchases = () => {
     }
   };
 
-  useEffect(() => { loadPurchases(); }, [selectedYear, search]);
+  useEffect(() => { loadPurchases(); }, [selectedYear, selectedCompany, search]);
 
   const handleSort = (key: string) => {
     let direction: 'asc' | 'desc' | null = 'asc';
@@ -231,7 +234,7 @@ const Purchases = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-slate-900">Achats & Dépenses</h1>
-          <p className="text-slate-500">Suivez vos factures fournisseurs et vos coûts opérationnels</p>
+          <p className="text-slate-500">Suivez vos coûts pour {selectedCompany?.nom}</p>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="outline" className="rounded-xl gap-2 h-11 px-4 border-slate-200" onClick={handleExport}><Download size={18} /> Export</Button>

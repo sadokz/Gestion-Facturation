@@ -19,6 +19,7 @@ import { KPICard } from "@/components/dashboard/KPICard";
 import { useYear } from "@/context/YearContext";
 import { useDashboard } from "@/context/DashboardContext"; 
 import { usePrivacy } from "@/context/PrivacyContext";
+import { useMyCompany } from "@/context/CompanyContext";
 import { fetcher } from "@/api/config";
 import { 
   BarChart, 
@@ -129,6 +130,7 @@ const SortableSection = ({ id, width, children }: { id: string, width: string, c
 
 const Dashboard = () => {
   const { selectedYear } = useYear();
+  const { selectedCompany } = useMyCompany();
   const { preferences, kpiOrder, setKpiOrder, mainSectionOrder, setMainSectionOrder, sectionWidths } = useDashboard(); 
   const { isPrivate } = usePrivacy();
   const [summary, setSummary] = useState<any>(null);
@@ -140,14 +142,14 @@ const Dashboard = () => {
 
   useEffect(() => {
     const loadData = async () => {
+      if (!selectedCompany) return;
       setLoading(true);
       try {
         const [s, m] = await Promise.all([
-          fetcher(`/dashboard/summary?year=${selectedYear}`),
-          fetcher(`/dashboard/monthly?year=${selectedYear}`)
+          fetcher(`/dashboard/summary?year=${selectedYear}&company_id=${selectedCompany.id}`),
+          fetcher(`/dashboard/monthly?year=${selectedYear}&company_id=${selectedCompany.id}`)
         ]);
         
-        // Calcul du bénéfice basé sur l'encaissé réel
         const calculatedProfit = (s.totalRevenue || 0) - ((s.totalPurchasesHT || 0) + (s.totalSalaries || 0) + (s.totalCnssPaid || 0));
         
         setSummary({
@@ -166,9 +168,9 @@ const Dashboard = () => {
         setStatusData([{ name: 'Payée', value: 15 }, { name: 'En attente', value: 7 }, { name: 'Non facturée', value: 3 }]);
       } catch (err) {
         // Mock data réaliste pour la démo
-        const mockRevenue = 95000; // Total encaissé
-        const mockExpenses = 22000 + 15000 + 45000; // Achats + CNSS + Salaires = 82000
-        const mockProfit = mockRevenue - mockExpenses; // 13000
+        const mockRevenue = 95000; 
+        const mockExpenses = 22000 + 15000 + 45000; 
+        const mockProfit = mockRevenue - mockExpenses; 
 
         setSummary({ 
           totalContractsHT: 125000, 
@@ -195,7 +197,7 @@ const Dashboard = () => {
       }
     };
     loadData();
-  }, [selectedYear]);
+  }, [selectedYear, selectedCompany]);
 
   const handleKpiDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -384,7 +386,7 @@ const Dashboard = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold text-slate-900">Tableau de bord</h1>
-        <p className="text-slate-500">Aperçu de la performance pour l'exercice {selectedYear}</p>
+        <p className="text-slate-500">Aperçu de la performance pour l'exercice {selectedYear} - {selectedCompany?.nom}</p>
       </div>
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleKpiDragEnd}>
