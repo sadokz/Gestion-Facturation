@@ -234,13 +234,15 @@ const SortableProjectRow = ({
 const Projects = () => {
   const { selectedYear } = useYear();
   const { selectedCompany } = useMyCompany();
-  const { viewModes, deleteViewMode } = useViewModes();
+  const { getViewModesByCategory, deleteViewMode } = useViewModes();
   const [searchParams, setSearchParams] = useSearchParams();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [visibleColumns, setVisibleColumns] = useState(PROJECT_COLUMNS.map(c => c.id));
+  
+  // Colonnes par défaut correspondant au "Mode HT"
+  const [visibleColumns, setVisibleColumns] = useState(["reference_projet", "nom_projet", "montant_total_ht", "montant_avenant_ht", "total_ht", "facture_ht", "paye_ht", "reste_ht", "statut"]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' | null }>({ key: '', direction: null });
   
   const [expandedProjects, setExpandedProjects] = useState<Set<number>>(new Set());
@@ -253,6 +255,8 @@ const Projects = () => {
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [selectedViewMode, setSelectedViewMode] = useState<ViewMode | null>(null);
+
+  const projectViewModes = getViewModesByCategory("projects");
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
@@ -361,7 +365,7 @@ const Projects = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-64 rounded-xl">
               <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold">Mes Vues</DropdownMenuLabel>
-              {viewModes.map((mode) => (
+              {projectViewModes.map((mode) => (
                 <div key={mode.id} className="flex items-center group px-1">
                   <DropdownMenuItem 
                     className="flex-1 cursor-pointer rounded-lg"
@@ -376,7 +380,7 @@ const Projects = () => {
                     >
                       <Edit size={12} />
                     </button>
-                    {mode.id !== "default" && mode.id !== "finance" && (
+                    {!mode.id.startsWith("p-") && (
                       <button 
                         onClick={(e) => { e.stopPropagation(); deleteViewMode(mode.id); }}
                         className="p-2 text-slate-300 hover:text-rose-500"

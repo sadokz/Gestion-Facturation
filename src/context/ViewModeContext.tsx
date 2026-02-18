@@ -24,7 +24,7 @@ export const ViewModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     
     // Vues par défaut pour chaque catégorie
     return [
-      // Nouveaux modes demandés pour les projets
+      // Modes de vue Projets (uniquement les 5 demandés)
       { id: "p-ht", category: "projects", name: "Mode HT", columns: ["reference_projet", "nom_projet", "montant_total_ht", "montant_avenant_ht", "total_ht", "facture_ht", "paye_ht", "reste_ht", "statut"] },
       { id: "p-ttc", category: "projects", name: "Mode TTC", columns: ["reference_projet", "nom_projet", "total_ttc", "facture_ttc", "paye_ttc", "reste_ttc", "statut"] },
       { id: "p-partial", category: "projects", name: "Partiellement Facturé", columns: ["reference_projet", "nom_projet", "total_ht", "facture_ht", "reste_ht", "statut"] },
@@ -60,7 +60,7 @@ export const ViewModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const deleteViewMode = (id: string) => {
-    // Empêcher la suppression des vues par défaut (celles qui commencent par une lettre et un tiret)
+    // Empêcher la suppression des vues système (commençant par p- ou contenant -default)
     if (id.startsWith("p-") || id.includes("-default")) return;
     setViewModes(prev => prev.filter(m => m.id !== id));
   };
