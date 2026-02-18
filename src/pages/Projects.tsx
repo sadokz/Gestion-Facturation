@@ -358,6 +358,9 @@ const Projects = () => {
   const handleDeleteViewMode = () => {
     if (selectedViewMode) {
       deleteViewMode(selectedViewMode.id);
+      if (activeViewModeName === selectedViewMode.name) {
+        setActiveViewModeName("Vue personnalisée");
+      }
       showSuccess("Mode de vue supprimé");
       setIsViewModeConfirmOpen(false);
     }

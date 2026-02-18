@@ -73,6 +73,7 @@ const Salaries = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isViewModeModalOpen, setIsViewModeModalOpen] = useState(false);
+  const [isViewModeConfirmOpen, setIsViewModeConfirmOpen] = useState(false);
   
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
@@ -136,6 +137,14 @@ const Salaries = () => {
 
   const isVisible = (id: string) => visibleColumns.includes(id);
 
+  const handleDeleteViewMode = () => {
+    if (selectedViewMode) {
+      deleteViewMode(selectedViewMode.id);
+      showSuccess("Mode de vue supprimé");
+      setIsViewModeConfirmOpen(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -169,7 +178,7 @@ const Salaries = () => {
                     </button>
                     {!mode.id.includes("-default") && (
                       <button 
-                        onClick={(e) => { e.stopPropagation(); deleteViewMode(mode.id); }}
+                        onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeConfirmOpen(true); }}
                         className="p-2 text-slate-300 hover:text-rose-500"
                       >
                         <Trash2 size={12} />
@@ -299,6 +308,7 @@ const Salaries = () => {
       <EmployeeModal isOpen={isEmployeeModalOpen} onClose={() => setIsEmployeeModalOpen(false)} onSubmit={() => { showSuccess("Employé enregistré"); setIsEmployeeModalOpen(false); loadEmployees(); }} initialData={selectedEmployee} />
       <SalaryPaymentModal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} onSubmit={() => { showSuccess("Paiement validé"); setIsPaymentModalOpen(false); loadEmployees(); }} initialData={selectedPayment} employeeName={selectedEmployee ? `${selectedEmployee.prenom} ${selectedEmployee.nom}` : ""} />
       <ConfirmDialog isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={() => { showSuccess("Employé supprimé"); setIsConfirmOpen(false); loadEmployees(); }} title="Supprimer l'employé ?" description="Cette action supprimera également tout l'historique de ses salaires." variant="destructive" confirmText="Supprimer" />
+      <ConfirmDialog isOpen={isViewModeConfirmOpen} onClose={() => setIsViewModeConfirmOpen(false)} onConfirm={handleDeleteViewMode} title="Supprimer ce mode de vue ?" description="Cette action est irréversible." variant="destructive" confirmText="Supprimer" />
       
       <ViewModeModal 
         isOpen={isViewModeModalOpen} 

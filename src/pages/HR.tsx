@@ -41,6 +41,7 @@ import { EmployeeLeaveList } from "@/components/hr/EmployeeLeaveList";
 import { ResizableHeader } from "@/components/ui/ResizableHeader";
 import { ColumnToggle } from "@/components/ui/ColumnToggle";
 import { ViewModeModal } from "@/components/ui/ViewModeModal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/utils";
 
 const HR_COLUMNS = [
@@ -63,6 +64,7 @@ const HR = () => {
   
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [isViewModeModalOpen, setIsViewModeModalOpen] = useState(false);
+  const [isViewModeConfirmOpen, setIsViewModeConfirmOpen] = useState(false);
   
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [selectedLeave, setSelectedLeave] = useState<any>(null);
@@ -122,6 +124,14 @@ const HR = () => {
 
   const isVisible = (id: string) => visibleColumns.includes(id);
 
+  const handleDeleteViewMode = () => {
+    if (selectedViewMode) {
+      deleteViewMode(selectedViewMode.id);
+      showSuccess("Mode de vue supprimé");
+      setIsViewModeConfirmOpen(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -155,7 +165,7 @@ const HR = () => {
                     </button>
                     {!mode.id.includes("-default") && (
                       <button 
-                        onClick={(e) => { e.stopPropagation(); deleteViewMode(mode.id); }}
+                        onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeConfirmOpen(true); }}
                         className="p-2 text-slate-300 hover:text-rose-500"
                       >
                         <Trash2 size={12} />
@@ -315,6 +325,16 @@ const HR = () => {
         onSubmit={() => { showSuccess("Absence enregistrée"); setIsLeaveModalOpen(false); loadEmployees(); }} 
         initialData={selectedLeave} 
         employeeName={selectedEmployee ? `${selectedEmployee.prenom} ${selectedEmployee.nom}` : ""} 
+      />
+
+      <ConfirmDialog 
+        isOpen={isViewModeConfirmOpen} 
+        onClose={() => setIsViewModeConfirmOpen(false)} 
+        onConfirm={handleDeleteViewMode} 
+        title="Supprimer ce mode de vue ?" 
+        description="Cette action est irréversible." 
+        variant="destructive" 
+        confirmText="Supprimer" 
       />
 
       <ViewModeModal 

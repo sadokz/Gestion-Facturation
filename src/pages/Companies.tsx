@@ -235,6 +235,7 @@ const Companies = () => {
   const [isRespModalOpen, setIsRespModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isViewModeModalOpen, setIsViewModeModalOpen] = useState(false);
+  const [isViewModeConfirmOpen, setIsViewModeConfirmOpen] = useState(false);
   
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [selectedResp, setSelectedResp] = useState<any>(null);
@@ -334,6 +335,14 @@ const Companies = () => {
 
   const isVisible = (id: string) => visibleColumns.includes(id);
 
+  const handleDeleteViewMode = () => {
+    if (selectedViewMode) {
+      deleteViewMode(selectedViewMode.id);
+      showSuccess("Mode de vue supprimé");
+      setIsViewModeConfirmOpen(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -367,7 +376,7 @@ const Companies = () => {
                     </button>
                     {!mode.id.includes("-default") && (
                       <button 
-                        onClick={(e) => { e.stopPropagation(); deleteViewMode(mode.id); }}
+                        onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeConfirmOpen(true); }}
                         className="p-2 text-slate-300 hover:text-rose-500"
                       >
                         <Trash2 size={12} />
@@ -435,6 +444,7 @@ const Companies = () => {
       <CompanyModal isOpen={isCompanyModalOpen} onClose={() => setIsCompanyModalOpen(false)} onSubmit={() => { showSuccess("Entreprise enregistrée"); setIsCompanyModalOpen(false); loadCompanies(); }} initialData={selectedCompany} />
       <CompanyResponsibleModal isOpen={isRespModalOpen} onClose={() => setIsRespModalOpen(false)} onSubmit={() => { showSuccess("Responsable enregistré"); setIsRespModalOpen(false); loadCompanies(); }} initialData={selectedResp} />
       <ConfirmDialog isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={() => { showSuccess("Entreprise supprimée"); setIsConfirmOpen(false); loadCompanies(); }} title="Supprimer l'entreprise ?" description="Cette action supprimera également tous les responsables liés à cette entreprise." variant="destructive" confirmText="Supprimer" />
+      <ConfirmDialog isOpen={isViewModeConfirmOpen} onClose={() => setIsViewModeConfirmOpen(false)} onConfirm={handleDeleteViewMode} title="Supprimer ce mode de vue ?" description="Cette action est irréversible." variant="destructive" confirmText="Supprimer" />
       
       <ViewModeModal 
         isOpen={isViewModeModalOpen} 

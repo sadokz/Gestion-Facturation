@@ -88,6 +88,7 @@ const ProjectTracking = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isRespConfirmOpen, setIsRespConfirmOpen] = useState(false);
   const [isViewModeModalOpen, setIsViewModeModalOpen] = useState(false);
+  const [isViewModeConfirmOpen, setIsViewModeConfirmOpen] = useState(false);
   
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [selectedEntry, setSelectedEntry] = useState<any>(null);
@@ -180,6 +181,14 @@ const ProjectTracking = () => {
     }
   };
 
+  const handleDeleteViewMode = () => {
+    if (selectedViewMode) {
+      deleteViewMode(selectedViewMode.id);
+      showSuccess("Mode de vue supprimé");
+      setIsViewModeConfirmOpen(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -213,7 +222,7 @@ const ProjectTracking = () => {
                     </button>
                     {!mode.id.includes("-default") && (
                       <button 
-                        onClick={(e) => { e.stopPropagation(); deleteViewMode(mode.id); }}
+                        onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeConfirmOpen(true); }}
                         className="p-2 text-slate-300 hover:text-rose-500"
                       >
                         <Trash2 size={12} />
@@ -509,6 +518,16 @@ const ProjectTracking = () => {
         onConfirm={handleDeleteResp} 
         title="Supprimer ce contact ?" 
         description="Ce contact sera retiré définitivement de l'annuaire des tiers." 
+        variant="destructive" 
+        confirmText="Supprimer" 
+      />
+
+      <ConfirmDialog 
+        isOpen={isViewModeConfirmOpen} 
+        onClose={() => setIsViewModeConfirmOpen(false)} 
+        onConfirm={handleDeleteViewMode} 
+        title="Supprimer ce mode de vue ?" 
+        description="Cette action est irréversible." 
         variant="destructive" 
         confirmText="Supprimer" 
       />

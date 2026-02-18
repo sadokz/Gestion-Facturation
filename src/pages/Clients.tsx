@@ -273,6 +273,7 @@ const Clients = () => {
   const [isRespModalOpen, setIsRespModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isViewModeModalOpen, setIsViewModeModalOpen] = useState(false);
+  const [isViewModeConfirmOpen, setIsViewModeConfirmOpen] = useState(false);
   
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [selectedResp, setSelectedResp] = useState<any>(null);
@@ -377,6 +378,17 @@ const Clients = () => {
 
   const isVisible = (id: string) => visibleColumns.includes(id);
 
+  const handleDeleteViewMode = () => {
+    if (selectedViewMode) {
+      deleteViewMode(selectedViewMode.id);
+      if (activeViewModeName === selectedViewMode.name) {
+        setActiveViewModeName("Vue personnalisée");
+      }
+      showSuccess("Mode de vue supprimé");
+      setIsViewModeConfirmOpen(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -418,7 +430,7 @@ const Clients = () => {
                     </button>
                     {!mode.id.includes("-default") && (
                       <button 
-                        onClick={(e) => { e.stopPropagation(); deleteViewMode(mode.id); }}
+                        onClick={(e) => { e.stopPropagation(); setSelectedViewMode(mode); setIsViewModeConfirmOpen(true); }}
                         className="p-2 text-slate-300 hover:text-rose-500"
                       >
                         <Trash2 size={12} />
@@ -486,6 +498,7 @@ const Clients = () => {
       <ClientModal isOpen={isClientModalOpen} onClose={() => setIsClientModalOpen(false)} onSubmit={() => { showSuccess("Client enregistré"); setIsClientModalOpen(false); loadClients(); }} initialData={selectedClient} />
       <ResponsibleModal isOpen={isRespModalOpen} onClose={() => setIsRespModalOpen(false)} onSubmit={() => { showSuccess("Responsable enregistré"); setIsRespModalOpen(false); loadClients(); }} initialData={selectedResp} />
       <ConfirmDialog isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={() => { showSuccess("Client supprimé"); setIsConfirmOpen(false); loadClients(); }} title="Supprimer le client ?" description="Cette action supprimera également tous les responsables liés." variant="destructive" confirmText="Supprimer" />
+      <ConfirmDialog isOpen={isViewModeConfirmOpen} onClose={() => setIsViewModeConfirmOpen(false)} onConfirm={handleDeleteViewMode} title="Supprimer ce mode de vue ?" description="Cette action est irréversible." variant="destructive" confirmText="Supprimer" />
       
       <ViewModeModal 
         isOpen={isViewModeModalOpen} 
