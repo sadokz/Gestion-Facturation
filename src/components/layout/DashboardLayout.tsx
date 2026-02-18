@@ -63,6 +63,8 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   const [isYearModalOpen, setIsYearModalOpen] = useState(false);
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
 
+  const companyInitial = selectedCompany?.nom?.charAt(0) || "B";
+
   return (
     <div className="flex min-h-screen bg-[#F8FAFC] dark:bg-slate-950 overflow-hidden">
       {/* Sidebar */}
@@ -80,9 +82,11 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
           )}
         >
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/30 shrink-0">
-            B
+            {companyInitial}
           </div>
-          <span className="font-bold text-xl tracking-tight text-slate-800 dark:text-slate-100 whitespace-nowrap">Bureau d'Étude</span>
+          <span className="font-bold text-lg tracking-tight text-slate-800 dark:text-slate-100 truncate">
+            {selectedCompany?.nom || "Bureau d'Étude"}
+          </span>
         </button>
 
         <nav className={cn("flex flex-col gap-2 transition-opacity duration-200 overflow-y-auto pr-2", !isSidebarOpen && "opacity-0")}>
@@ -194,9 +198,11 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                 className="flex items-center gap-3 hover:opacity-80 transition-all outline-none shrink-0 mr-4"
               >
                 <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/30 shrink-0">
-                  B
+                  {companyInitial}
                 </div>
-                <span className="font-bold text-xl tracking-tight text-slate-800 dark:text-slate-100 whitespace-nowrap hidden sm:block">Bureau d'Étude</span>
+                <span className="font-bold text-lg tracking-tight text-slate-800 dark:text-slate-100 whitespace-nowrap hidden sm:block">
+                  {selectedCompany?.nom || "Bureau d'Étude"}
+                </span>
               </button>
             )}
             <GlobalSearch />
@@ -286,7 +292,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
       </main>
       <DashboardCustomizationModal isOpen={isCustomizationModalOpen} onClose={() => setIsCustomizationModalOpen(false)} />
       <YearManagementModal isOpen={isYearModalOpen} onClose={() => setIsYearModalOpen(false)} />
-      <CompanyManagementModal isOpen={isCompanyModalOpen} onClose={() => setIsCompanyModalOpen(false)} />
+      <CompanyManagementModal isOpen={isCompanyModalOpen} onClose={() => setIsCompanyConfirmOpen(false)} />
     </div>
   );
 };
