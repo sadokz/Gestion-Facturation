@@ -146,7 +146,11 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       <DialogContent className="sm:max-w-[750px] rounded-2xl overflow-hidden p-0">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-2xl font-bold text-slate-800">
-            {technicalOnly ? "Suivi Technique" : (initialData ? "Modifier le projet" : "Nouveau projet")}
+            {technicalOnly && initialData 
+              ? `Suivi ${initialData.nom_projet}` 
+              : technicalOnly 
+                ? "Suivi Technique" 
+                : (initialData ? "Modifier le projet" : "Nouveau projet")}
           </DialogTitle>
         </DialogHeader>
         
