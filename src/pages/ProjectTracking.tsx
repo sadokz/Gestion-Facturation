@@ -553,23 +553,23 @@ const ProjectTracking = () => {
                                 <TechnicalClientResponsibles 
                                   clientName={project.client} 
                                   responsibles={project.client_responsibles || []} 
-                                  onManage={() => !isReadOnly && { setSelectedProject(project); setIsSelectionModalOpen(true); }}
-                                  onEdit={(resp) => !isReadOnly && { setSelectedProject(project); setSelectedResp(resp); setIsRespModalOpen(true); }}
-                                  onDelete={(resp) => !isReadOnly && { setSelectedResp(resp); setIsRespConfirmOpen(true); }}
+                                  onManage={() => { if (!isReadOnly) { setSelectedProject(project); setIsSelectionModalOpen(true); } }}
+                                  onEdit={(resp) => { if (!isReadOnly) { setSelectedProject(project); setSelectedResp(resp); setIsRespModalOpen(true); } }}
+                                  onDelete={(resp) => { if (!isReadOnly) { setSelectedResp(resp); setIsRespConfirmOpen(true); } }}
                                   onHide={handleHideResp}
                                 />
                                 <TechnicalEnterpriseResponsibles 
                                   enterpriseName={project.entreprise_travaux} 
                                   responsibles={project.enterprise_responsibles || []} 
-                                  onManage={() => !isReadOnly && { setSelectedProject(project); setIsEnterpriseSelectionModalOpen(true); }}
-                                  onEdit={(resp) => !isReadOnly && { setSelectedProject(project); setSelectedResp(resp); setIsRespModalOpen(true); }}
-                                  onDelete={(resp) => !isReadOnly && { setSelectedResp(resp); setIsRespConfirmOpen(true); }}
+                                  onManage={() => { if (!isReadOnly) { setSelectedProject(project); setIsEnterpriseSelectionModalOpen(true); } }}
+                                  onEdit={(resp) => { if (!isReadOnly) { setSelectedProject(project); setSelectedResp(resp); setIsRespModalOpen(true); } }}
+                                  onDelete={(resp) => { if (!isReadOnly) { setSelectedResp(resp); setIsRespConfirmOpen(true); } }}
                                   onHide={handleHideResp}
                                 />
                                 <TechnicalSubEntriesList 
                                   entries={project.technical_entries || []} 
-                                  onAdd={() => !isReadOnly && { setSelectedProject(project); setSelectedEntry(null); setIsEntryModalOpen(true); }} 
-                                  onEdit={(entry) => !isReadOnly && { setSelectedProject(project); setSelectedEntry(entry); setIsEntryModalOpen(true); }} 
+                                  onAdd={() => { if (!isReadOnly) { setSelectedProject(project); setSelectedEntry(null); setIsEntryModalOpen(true); } }} 
+                                  onEdit={(entry) => { if (!isReadOnly) { setSelectedProject(project); setSelectedEntry(entry); setIsEntryModalOpen(true); } }} 
                                 />
                               </div>
                             </TableCell>

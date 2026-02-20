@@ -315,8 +315,8 @@ const Salaries = () => {
                           <TableCell colSpan={visibleColumns.length + 2} className="p-0">
                             <EmployeeSalariesList 
                               salaries={emp.salaries || []} 
-                              onAdd={() => !isReadOnly && { setSelectedEmployee(emp); setSelectedPayment(null); setIsPaymentModalOpen(true); }} 
-                              onEdit={(sal) => !isReadOnly && { setSelectedEmployee(emp); setSelectedPayment(sal); setIsPaymentModalOpen(true); }} 
+                              onAdd={() => { if (!isReadOnly) { setSelectedEmployee(emp); setSelectedPayment(null); setIsPaymentModalOpen(true); } }} 
+                              onEdit={(sal) => { if (!isReadOnly) { setSelectedEmployee(emp); setSelectedPayment(sal); setIsPaymentModalOpen(true); } }} 
                             />
                           </TableCell>
                         </TableRow>
