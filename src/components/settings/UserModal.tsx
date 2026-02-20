@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, Building2, ShieldCheck, User as UserIcon, Shield } from "lucide-react";
+import { Eye, EyeOff, Building2, ShieldCheck, User as UserIcon, Shield, Lock } from "lucide-react";
 import { useMyCompany } from "@/context/CompanyContext";
 import { useRoles } from "@/context/RoleContext";
 import { cn } from "@/lib/utils";
@@ -321,9 +321,14 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
 
               {/* Permissions modules */}
               <div className="space-y-3 pt-4 border-t pb-6">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                  <ShieldCheck size={14} /> Permissions Modules (Personnalisées)
-                </h4>
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                    <ShieldCheck size={14} /> Permissions du Rôle
+                  </h4>
+                  <div className="flex items-center gap-1 text-[10px] text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded-full">
+                    <Lock size={10} /> Lecture seule
+                  </div>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   {MODULES.map((module) => (
                     <FormField
@@ -331,14 +336,15 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
                       control={form.control}
                       name={`permissions.${module.id}`}
                       render={({ field }) => (
-                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
+                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-3 rounded-xl border border-slate-100 bg-slate-50/50 opacity-80">
                           <FormControl>
                             <Checkbox
                               checked={field.value}
-                              onCheckedChange={field.onChange}
+                              disabled={true}
+                              className="data-[state=checked]:bg-slate-400 data-[state=checked]:border-slate-400"
                             />
                           </FormControl>
-                          <FormLabel className="text-xs font-medium cursor-pointer">
+                          <FormLabel className="text-xs font-medium text-slate-500">
                             {module.label}
                           </FormLabel>
                         </FormItem>
@@ -346,6 +352,9 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
                     />
                   ))}
                 </div>
+                <p className="text-[10px] text-slate-400 italic text-center mt-2">
+                  Les permissions sont définies par le rôle choisi ci-dessus.
+                </p>
               </div>
             </div>
 
