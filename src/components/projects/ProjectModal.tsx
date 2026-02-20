@@ -143,8 +143,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[750px] rounded-2xl overflow-hidden p-0">
-        <DialogHeader className="p-6 pb-0">
+      <DialogContent className="sm:max-w-[750px] rounded-2xl overflow-hidden p-0 flex flex-col max-h-[90vh]">
+        <DialogHeader className="p-6 pb-2 shrink-0">
           <DialogTitle className="text-2xl font-bold text-slate-800">
             {technicalOnly && initialData 
               ? `Suivi ${initialData.nom_projet}` 
@@ -155,10 +155,10 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col max-h-[85vh]">
-            <Tabs defaultValue={technicalOnly ? "technical" : "general"} className="w-full">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
+            <Tabs defaultValue={technicalOnly ? "technical" : "general"} className="flex flex-col flex-1 overflow-hidden">
               {!technicalOnly && (
-                <div className="px-6 border-b">
+                <div className="px-6 border-b shrink-0">
                   <TabsList className="bg-transparent h-12 p-0 gap-6">
                     <TabsTrigger value="general" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent shadow-none px-0">Infos Générales</TabsTrigger>
                     <TabsTrigger value="technical" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent shadow-none px-0">Suivi Technique</TabsTrigger>
@@ -166,9 +166,9 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                 </div>
               )}
 
-              <div className="p-6 overflow-y-auto flex-1">
+              <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
                 {!technicalOnly && (
-                  <TabsContent value="general" className="space-y-4 mt-0">
+                  <TabsContent value="general" className="space-y-4 mt-0 focus-visible:outline-none">
                     <div className="grid grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
@@ -276,7 +276,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                   </TabsContent>
                 )}
 
-                <TabsContent value="technical" className="space-y-4 mt-0">
+                <TabsContent value="technical" className="space-y-4 mt-0 focus-visible:outline-none">
                   <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-6">
                     <FormField
                       control={form.control}
@@ -430,13 +430,13 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                           <FormLabel className="flex items-center gap-2 text-indigo-700 text-[11px]"><UserCog size={12} /> État MO</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
-                              <SelectTrigger className="rounded-xl bg-white h-9">
+                              <SelectTrigger className="rounded-xl bg-white h-9 text-xs">
                                 <SelectValue placeholder="État MO" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                               {approvalOptions.map((opt) => (
-                                <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                                <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -451,13 +451,13 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                           <FormLabel className="flex items-center gap-2 text-indigo-700 text-[11px]"><ShieldCheck size={12} /> État BC</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
-                              <SelectTrigger className="rounded-xl bg-white h-9">
+                              <SelectTrigger className="rounded-xl bg-white h-9 text-xs">
                                 <SelectValue placeholder="État BC" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                               {approvalOptions.map((opt) => (
-                                <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                                <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -472,13 +472,13 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                           <FormLabel className="flex items-center gap-2 text-indigo-700 text-[11px]"><ClipboardList size={12} /> État Interne</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
-                              <SelectTrigger className="rounded-xl bg-white h-9">
+                              <SelectTrigger className="rounded-xl bg-white h-9 text-xs">
                                 <SelectValue placeholder="État Interne" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                               {approvalOptions.map((opt) => (
-                                <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                                <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -511,7 +511,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-6 pt-2">
+                  <div className="grid grid-cols-2 gap-6 pt-2 pb-4">
                     <FormField
                       control={form.control}
                       name="avancement"
@@ -564,7 +564,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
               </div>
             </Tabs>
 
-            <DialogFooter className="p-6 border-t bg-slate-50/50">
+            <DialogFooter className="p-6 border-t bg-slate-50/50 shrink-0">
               <Button type="button" variant="outline" onClick={onClose} className="rounded-xl">Annuler</Button>
               <Button type="submit" className="rounded-xl px-8">Enregistrer</Button>
             </DialogFooter>
