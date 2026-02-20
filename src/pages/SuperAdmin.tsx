@@ -95,7 +95,14 @@ const SuperAdmin = () => {
     if (currentStatus === true) {
       // On désactive l'entité -> Suspendre les utilisateurs liés uniquement à celle-ci
       suspendUsersForCompany(companyId);
-      showSuccess("Entité désactivée et utilisateurs rattachés suspendus.");
+      
+      // Masquer automatiquement l'onglet Paramètres pour cette entité
+      const companyTabs = getTabsForCompany(companyId);
+      if (companyTabs.settings) {
+        toggleTabForCompany(companyId, "settings");
+      }
+      
+      showSuccess("Entité désactivée, utilisateurs suspendus et onglet Paramètres masqué.");
     } else {
       showSuccess("Entité réactivée.");
     }
@@ -138,7 +145,7 @@ const SuperAdmin = () => {
           <div className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl flex gap-2">
             <AlertTriangle size={16} className="text-amber-600 shrink-0" />
             <p className="text-[10px] text-amber-700 leading-tight">
-              La désactivation d'une entité suspend automatiquement tous les utilisateurs qui n'ont accès qu'à celle-ci.
+              La désactivation d'une entité suspend automatiquement tous les utilisateurs qui n'ont accès qu'à celle-ci et masque l'onglet Paramètres.
             </p>
           </div>
         </div>
