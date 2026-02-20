@@ -102,8 +102,6 @@ const SuperAdmin = () => {
   };
 
   const currentConfigTabs = getTabsForCompany(configCompanyId);
-  const configCompany = myCompanies.find(c => c.id === configCompanyId);
-  const isConfigCompanyActive = configCompany?.active !== false;
 
   const TabToggle = ({ id, label, icon: Icon }: { id: keyof NavigationState, label: string, icon: any }) => (
     <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
@@ -254,9 +252,7 @@ const SuperAdmin = () => {
             <TabToggle id="hr" label="RH (Congés)" icon={UserCheck} />
             <TabToggle id="cnss" label="Déclaration CNSS" icon={ShieldCheck} />
             <TabToggle id="accounting" label="Bilan Comptable" icon={Calculator} />
-            {isConfigCompanyActive && (
-              <TabToggle id="settings" label="Paramètres" icon={SettingsIcon} />
-            )}
+            <TabToggle id="settings" label="Paramètres" icon={SettingsIcon} />
           </CardContent>
         </Card>
       </section>
