@@ -220,8 +220,20 @@ const SortableCompanyRow = ({
             <div className="flex flex-col">
               <CompanyResponsiblesList 
                 responsibles={company.responsibles || []} 
-                onAdd={() => !isReadOnly && { setSelectedCompany(company); setSelectedResp(null); setIsRespModalOpen(true); }} 
-                onEdit={(resp) => !isReadOnly && { setSelectedCompany(company); setSelectedResp(resp); setIsRespModalOpen(true); }} 
+                onAdd={() => {
+                  if (!isReadOnly) {
+                    setSelectedCompany(company); 
+                    setSelectedResp(null); 
+                    setIsRespModalOpen(true);
+                  }
+                }} 
+                onEdit={(resp) => {
+                  if (!isReadOnly) {
+                    setSelectedCompany(company); 
+                    setSelectedResp(resp); 
+                    setIsRespModalOpen(true);
+                  }
+                }} 
               />
               <CompanyProjectsList projects={company.projects || []} />
             </div>

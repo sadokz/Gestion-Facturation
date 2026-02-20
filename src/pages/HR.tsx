@@ -133,6 +133,9 @@ const HR = () => {
   const handleDeleteViewMode = () => {
     if (selectedViewMode) {
       deleteViewMode(selectedViewMode.id);
+      if (activeViewModeName === selectedViewMode.name) {
+        setActiveViewModeName("Vue personnalisée");
+      }
       showSuccess("Mode de vue supprimé");
       setIsViewModeConfirmOpen(false);
     }
@@ -309,7 +312,13 @@ const HR = () => {
                               variant="ghost" 
                               size="sm" 
                               className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 font-bold text-xs"
-                              onClick={() => { setSelectedEmployee(emp); setSelectedLeave(null); setIsLeaveModalOpen(true); }}
+                              onClick={() => { 
+                                if (!isReadOnly) {
+                                  setSelectedEmployee(emp); 
+                                  setSelectedLeave(null); 
+                                  setIsLeaveModalOpen(true); 
+                                }
+                              }}
                               disabled={isReadOnly}
                             >
                               Ajouter
@@ -321,8 +330,20 @@ const HR = () => {
                             <TableCell colSpan={visibleColumns.length + 2} className="p-0">
                               <EmployeeLeaveList 
                                 leaves={emp.leaves || []} 
-                                onAdd={() => !isReadOnly && { setSelectedEmployee(emp); setSelectedLeave(null); setIsLeaveModalOpen(true); }} 
-                                onEdit={(leave) => !isReadOnly && { setSelectedEmployee(emp); setSelectedLeave(leave); setIsLeaveModalOpen(true); }} 
+                                onAdd={() => {
+                                  if (!isReadOnly) {
+                                    setSelectedEmployee(emp); 
+                                    setSelectedLeave(null); 
+                                    setIsLeaveModalOpen(true);
+                                  }
+                                }} 
+                                onEdit={(leave) => {
+                                  if (!isReadOnly) {
+                                    setSelectedEmployee(emp); 
+                                    setSelectedLeave(leave); 
+                                    setIsLeaveModalOpen(true);
+                                  }
+                                }} 
                               />
                             </TableCell>
                           </TableRow>

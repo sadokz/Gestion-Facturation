@@ -252,8 +252,20 @@ const SortableClientRow = ({
             <div className="flex flex-col">
               <ClientResponsiblesList 
                 responsibles={client.responsibles || []} 
-                onAdd={() => !isReadOnly && { setSelectedClient(client); setSelectedResp(null); setIsRespModalOpen(true); }} 
-                onEdit={(resp) => !isReadOnly && { setSelectedClient(client); setSelectedResp(resp); setIsRespModalOpen(true); }} 
+                onAdd={() => {
+                  if (!isReadOnly) {
+                    setSelectedClient(client); 
+                    setSelectedResp(null); 
+                    setIsRespModalOpen(true);
+                  }
+                }} 
+                onEdit={(resp) => {
+                  if (!isReadOnly) {
+                    setSelectedClient(client); 
+                    setSelectedResp(resp); 
+                    setIsRespModalOpen(true);
+                  }
+                }} 
               />
               <ClientProjectsList projects={client.projects || []} />
             </div>
