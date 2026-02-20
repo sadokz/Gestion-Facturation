@@ -9,6 +9,7 @@ interface User {
   isSuperAdmin?: boolean;
   allowedCompanies: string[];
   permissions: Record<string, boolean>;
+  statut: string;
 }
 
 interface UserContextType {
@@ -16,6 +17,7 @@ interface UserContextType {
   setCurrentUser: (user: User) => void;
   allUsers: User[];
   setAllUsers: (users: User[]) => void;
+  suspendUsersForCompany: (companyId: string) => void;
 }
 
 const DEFAULT_USERS: User[] = [
@@ -26,7 +28,8 @@ const DEFAULT_USERS: User[] = [
     poste: "Super Administrateur", 
     avatar: "Jack",
     isSuperAdmin: true,
-    allowedCompanies: ["1"], // Sera mis à jour dynamiquement
+    allowedCompanies: ["1"],
+    statut: "Actif",
     permissions: { 
       dashboard: true, projects: true, projectTracking: true, clients: true, 
       companies: true, purchases: true, salaries: true, hr: true, 
@@ -40,6 +43,7 @@ const DEFAULT_USERS: User[] = [
     poste: "Ingénieur Principal", 
     avatar: "Felix",
     allowedCompanies: ["1"],
+    statut: "Actif",
     permissions: { 
       dashboard: true, projects: true, projectTracking: true, clients: true, 
       companies: true, purchases: false, salaries: false, hr: false, 
@@ -53,6 +57,7 @@ const DEFAULT_USERS: User[] = [
     poste: "Secrétaire", 
     avatar: "Sophie",
     allowedCompanies: ["1"],
+    statut: "Actif",
     permissions: { 
       dashboard: true, projects: false, projectTracking: false, clients: true, 
       companies: true, purchases: true, salaries: false, hr: true, 
@@ -82,8 +87,21 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem("current_user_id", currentUser.id.toString());
   }, [currentUser]);
 
+  const suspendUsersForCompany = (companyId: string) => {
+    setAllUsers(prev => prev.map(user => {
+      // On ne suspend jamais un Super Admin
+      if (user.isSuperAdmin) return user;
+      
+      // Si l'utilisateur n'a accès qu'à CETTE entité (longueur 1 et ID correspondant)
+      if (user.allowedCompanies.length === 1 && user.allowedCompanies[0] === companyId) {
+        return { ...user, statut: "Suspendu" };
+      }
+      return user;
+    }));
+  };
+
   return (
-    <UserContext.Provider value={{ currentUser, setCurrentUser, allUsers, setAllUsers }}>
+    <UserContext.Provider value={{ currentUser, setCurrentUser, allUsers, setAllUsers, suspendUsersForCompany }}>
       {children}
     </UserContext.Provider>
   );

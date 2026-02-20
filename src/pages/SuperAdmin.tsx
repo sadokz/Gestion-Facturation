@@ -19,7 +19,9 @@ import {
   Shield,
   ShieldAlert,
   Save,
-  Building2
+  Building2,
+  Power,
+  AlertTriangle
 } from "lucide-react";
 import {
   Select,
@@ -28,7 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { showSuccess } from "@/utils/toast";
+import { showSuccess, showError } from "@/utils/toast";
 import { useNavigation, NavigationState } from "@/context/NavigationContext";
 import { useRoles, Role } from "@/context/RoleContext";
 import { RoleModal } from "@/components/settings/RoleModal";
@@ -37,10 +39,11 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useUser } from "@/context/UserContext";
 import { useMyCompany } from "@/context/CompanyContext";
 import { Navigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 const SuperAdmin = () => {
-  const { currentUser } = useUser();
-  const { myCompanies, selectedCompany: activeCompany } = useMyCompany();
+  const { currentUser, suspendUsersForCompany } = useUser();
+  const { myCompanies, selectedCompany: activeCompany, toggleCompanyStatus } = useMyCompany();
   const { getTabsForCompany, toggleTabForCompany } = useNavigation();
   const { roles, addRole, updateRole, deleteRole } = useRoles();
   
@@ -80,6 +83,24 @@ const SuperAdmin = () => {
     setIsRoleConfirmOpen(false);
   };
 
+  const handleToggleCompany = (companyId: string, currentStatus: boolean) => {
+    // Empêcher de désactiver l'entité sur laquelle on travaille actuellement
+    if (companyId === activeCompany?.id && currentStatus === true) {
+      showError("Vous ne pouvez pas désactiver l'entité sur laquelle vous êtes connecté.");
+      return;
+    }
+
+    toggleCompanyStatus(companyId);
+    
+    if (currentStatus === true) {
+      // On désactive l'entité -> Suspendre les utilisateurs liés uniquement à celle-ci
+      suspendUsersForCompany(companyId);
+      showSuccess("Entité désactivée et utilisateurs rattachés suspendus.");
+    } else {
+      showSuccess("Entité réactivée.");
+    }
+  };
+
   const currentConfigTabs = getTabsForCompany(configCompanyId);
 
   const TabToggle = ({ id, label, icon: Icon }: { id: keyof NavigationState, label: string, icon: any }) => (
@@ -108,6 +129,55 @@ const SuperAdmin = () => {
         </div>
         <p className="text-slate-500">Configuration globale des accès et de l'interface</p>
       </div>
+
+      {/* État des Entités */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="space-y-1">
+          <h3 className="font-bold text-slate-800">État des Entités</h3>
+          <p className="text-sm text-slate-500">Activez ou désactivez l'accès complet à un bureau d'études.</p>
+          <div className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl flex gap-2">
+            <AlertTriangle size={16} className="text-amber-600 shrink-0" />
+            <p className="text-[10px] text-amber-700 leading-tight">
+              La désactivation d'une entité suspend automatiquement tous les utilisateurs qui n'ont accès qu'à celle-ci.
+            </p>
+          </div>
+        </div>
+        <div className="md:col-span-2 space-y-3">
+          {myCompanies.map((company) => (
+            <div 
+              key={company.id} 
+              className={cn(
+                "flex items-center justify-between p-4 bg-white border rounded-2xl transition-all",
+                company.active ? "border-slate-100 shadow-sm" : "border-rose-100 bg-rose-50/30 opacity-80"
+              )}
+            >
+              <div className="flex items-center gap-4">
+                <div className={cn(
+                  "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
+                  company.active ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-600"
+                )}>
+                  <Building2 size={20} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-800">{company.nom}</h4>
+                  <p className="text-[10px] text-slate-400 font-mono uppercase">{company.matricule_fiscale || "Sans matricule"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className={cn("text-[10px] font-bold uppercase", company.active ? "text-emerald-600" : "text-rose-600")}>
+                  {company.active ? "Active" : "Désactivée"}
+                </span>
+                <Switch 
+                  checked={company.active} 
+                  onCheckedChange={() => handleToggleCompany(company.id, company.active)}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <Separator />
 
       {/* Gestion des Rôles */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8">

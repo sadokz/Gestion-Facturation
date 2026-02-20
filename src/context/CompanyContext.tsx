@@ -13,6 +13,7 @@ interface MyCompany {
   email?: string;
   website?: string;
   logo?: string;
+  active: boolean; // Nouvel état
 }
 
 interface CompanyContextType {
@@ -22,6 +23,7 @@ interface CompanyContextType {
   addMyCompany: (company: MyCompany) => void;
   updateMyCompany: (company: MyCompany) => void;
   deleteMyCompany: (id: string) => void;
+  toggleCompanyStatus: (id: string) => void;
 }
 
 const CompanyContext = createContext<CompanyContextType | undefined>(undefined);
@@ -40,7 +42,8 @@ export const CompanyProvider: React.FC<{ children: React.ReactNode }> = ({ child
       adresse: "Avenue Habib Bourguiba, Tunis",
       tel: "71 000 000",
       email: "contact@bureau-etudes.tn",
-      website: "www.bureau-etudes.tn"
+      website: "www.bureau-etudes.tn",
+      active: true
     }];
   });
 
@@ -60,7 +63,7 @@ export const CompanyProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const addMyCompany = (company: MyCompany) => {
-    setMyCompanies(prev => [...prev, company]);
+    setMyCompanies(prev => [...prev, { ...company, active: true }]);
   };
 
   const updateMyCompany = (updated: MyCompany) => {
@@ -79,8 +82,14 @@ export const CompanyProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
+  const toggleCompanyStatus = (id: string) => {
+    setMyCompanies(prev => prev.map(c => 
+      c.id === id ? { ...c, active: !c.active } : c
+    ));
+  };
+
   return (
-    <CompanyContext.Provider value={{ selectedCompany, setSelectedCompany, myCompanies, addMyCompany, updateMyCompany, deleteMyCompany }}>
+    <CompanyContext.Provider value={{ selectedCompany, setSelectedCompany, myCompanies, addMyCompany, updateMyCompany, deleteMyCompany, toggleCompanyStatus }}>
       {children}
     </CompanyContext.Provider>
   );

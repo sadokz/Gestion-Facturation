@@ -82,9 +82,12 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
 
   const companyInitial = selectedCompany?.nom?.charAt(0) || "B";
 
+  // Filtrage des entreprises accessibles :
+  // 1. Super Admin voit tout (même les inactives)
+  // 2. Utilisateur standard ne voit que les actives autorisées
   const accessibleCompanies = currentUser.isSuperAdmin 
     ? myCompanies 
-    : myCompanies.filter(c => currentUser.allowedCompanies?.includes(c.id));
+    : myCompanies.filter(c => c.active && currentUser.allowedCompanies?.includes(c.id));
 
   const isVisible = (tabId: string) => {
     return tabs[tabId as keyof typeof tabs] && currentUser.permissions[tabId];
@@ -92,7 +95,6 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
 
   const handleUserSwitch = (user: any) => {
     setCurrentUser(user);
-    // Redirection automatique vers Suivi Technique lors du changement d'utilisateur
     navigate("/project-tracking");
   };
 
@@ -159,7 +161,6 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             <SidebarItem to="/settings" icon={SettingsIcon} label="Paramètres" active={location.pathname === "/settings"} />
           )}
           
-          {/* Onglet Super Admin - Uniquement pour les super admins */}
           {currentUser.isSuperAdmin && (
             <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
               <SidebarItem 
