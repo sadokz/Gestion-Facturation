@@ -18,21 +18,27 @@ interface UserListProps {
 }
 
 export const UserList: React.FC<UserListProps> = ({ users, onEdit, onDelete, canManage = false }) => {
+  // Sécurité supplémentaire : on s'assure de ne jamais afficher de Super Admin ici
+  const displayUsers = users.filter(u => !u.isSuperAdmin);
+
+  if (displayUsers.length === 0) {
+    return (
+      <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+        <User size={32} className="mx-auto mb-3 text-slate-300" />
+        <p className="text-sm text-slate-400 font-medium">Aucun utilisateur trouvé pour cette entité.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
-      {users.map((user) => (
+      {displayUsers.map((user) => (
         <div 
           key={user.id} 
-          className={cn(
-            "flex items-center justify-between p-4 bg-white border rounded-2xl hover:shadow-sm transition-all group",
-            user.isSuperAdmin ? "border-primary/20 bg-primary/[0.02]" : "border-slate-100"
-          )}
+          className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:shadow-sm transition-all group"
         >
           <div className="flex items-center gap-4">
-            <div className={cn(
-              "w-12 h-12 rounded-full border flex items-center justify-center text-slate-500 shrink-0 overflow-hidden",
-              user.isSuperAdmin ? "bg-primary/10 border-primary/20" : "bg-slate-100 border-slate-200"
-            )}>
+            <div className="w-12 h-12 rounded-full border bg-slate-100 border-slate-200 flex items-center justify-center text-slate-500 shrink-0 overflow-hidden">
               {user.avatar ? (
                 <img 
                   src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.avatar}`} 
@@ -46,9 +52,7 @@ export const UserList: React.FC<UserListProps> = ({ users, onEdit, onDelete, can
             <div>
               <div className="flex items-center gap-2">
                 <h4 className="text-sm font-bold text-slate-800">{user.nom}</h4>
-                {user.isSuperAdmin ? (
-                  <Badge className="bg-primary text-[8px] h-4 px-1.5 font-black uppercase tracking-tighter">Super Admin</Badge>
-                ) : user.poste === "Proprietaire" && (
+                {user.poste === "Proprietaire" && (
                   <ShieldCheck size={14} className="text-amber-500" />
                 )}
               </div>
@@ -60,7 +64,7 @@ export const UserList: React.FC<UserListProps> = ({ users, onEdit, onDelete, can
             <div className="text-right hidden md:flex flex-col items-end gap-1">
               <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase">
                 <Building2 size={12} />
-                {user.isSuperAdmin ? "Toutes les entités" : `${user.allowedCompanies?.length || 0} Entité(s)`}
+                {`${user.allowedCompanies?.length || 0} Entité(s)`}
               </div>
               <Badge variant="outline" className={cn(
                 "text-[9px] h-4 px-1.5",
@@ -85,11 +89,9 @@ export const UserList: React.FC<UserListProps> = ({ users, onEdit, onDelete, can
                   <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => onEdit(user)}>
                     <Edit size={14} /> Modifier
                   </DropdownMenuItem>
-                  {!user.isSuperAdmin && (
-                    <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => onDelete(user)}>
-                      <Trash2 size={14} /> Supprimer
-                    </DropdownMenuItem>
-                  )}
+                  <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => onDelete(user)}>
+                    <Trash2 size={14} /> Supprimer
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}

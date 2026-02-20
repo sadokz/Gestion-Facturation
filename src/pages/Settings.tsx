@@ -105,8 +105,9 @@ const Settings = () => {
     ? myCompanies 
     : myCompanies.filter(c => c.id === selectedCompany?.id);
 
+  // Filtrage strict : on retire les Super Admins de la liste de gestion
   const filteredUsers = allUsers.filter(u => 
-    u.isSuperAdmin || (selectedCompany && u.allowedCompanies?.includes(selectedCompany.id))
+    !u.isSuperAdmin && (selectedCompany && u.allowedCompanies?.includes(selectedCompany.id))
   );
 
   return (
