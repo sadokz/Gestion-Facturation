@@ -3,7 +3,6 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 export interface Role {
   id: string;
   name: string;
-  rank: number; // Plus le nombre est élevé, plus le rôle est puissant
   permissions: Record<string, boolean>;
 }
 
@@ -18,17 +17,6 @@ const DEFAULT_ROLES: Role[] = [
   {
     id: "admin",
     name: "Administrateur",
-    rank: 80,
-    permissions: {
-      dashboard: true, projects: true, projectTracking: true, clients: true,
-      companies: true, purchases: true, salaries: true, hr: true,
-      cnss: true, accounting: true, settings: true
-    }
-  },
-  {
-    id: "manager",
-    name: "Gérant",
-    rank: 70,
     permissions: {
       dashboard: true, projects: true, projectTracking: true, clients: true,
       companies: true, purchases: true, salaries: true, hr: true,
@@ -38,7 +26,6 @@ const DEFAULT_ROLES: Role[] = [
   {
     id: "engineer",
     name: "Ingénieur",
-    rank: 50,
     permissions: {
       dashboard: true, projects: true, projectTracking: true, clients: true,
       companies: true, purchases: false, salaries: false, hr: false,
@@ -48,7 +35,6 @@ const DEFAULT_ROLES: Role[] = [
   {
     id: "secretary",
     name: "Secrétaire",
-    rank: 30,
     permissions: {
       dashboard: true, projects: false, projectTracking: false, clients: true,
       companies: true, purchases: true, salaries: false, hr: true,
