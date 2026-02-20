@@ -4,73 +4,73 @@ Cette application est une solution ERP complète conçue spécifiquement pour le
 
 ---
 
-## 📊 1. Tableau de Bord (Pilotage Stratégique)
-Le centre de pilotage est entièrement personnalisable pour s'adapter aux besoins de chaque profil (Gérant vs Technicien).
-- **Personnalisation par Glisser-Déposer** : Réorganisez l'ordre des indicateurs (KPIs) et des graphiques via une interface intuitive.
-- **Mise en page flexible** : Ajustez la largeur de chaque bloc (25%, 50%, 75% ou 100%) pour prioriser les informations visuelles.
-- **Indicateurs Clés (HT)** : Visualisation en temps réel du Total Contrats, Facturé, Reste à Facturer, Achats, CNSS, Salaires, Chiffre d'affaires encaissé et Bénéfice Réel.
+## 👑 1. Administration Système (Super Admin)
+Le module **Super Admin** est le cœur de contrôle global de l'infrastructure multi-bureaux.
+
+### 🏢 Gestion des Entités (Bureaux d'Études)
+- **Activation / Désactivation** : Le Super Admin peut suspendre l'accès à une entité juridique complète.
+- **Logique de Sécurité Automatique** : 
+    - La désactivation d'une entité **suspend automatiquement** tous les utilisateurs qui n'ont accès qu'à cette structure.
+    - L'onglet **Paramètres** est automatiquement masqué pour l'entité désactivée afin d'éviter toute modification légale.
+- **Personnalisation Visuelle** : Attribution de logos spécifiques par entité, personnalisant instantanément l'interface (Sidebar et Header) pour les collaborateurs de ce bureau.
+
+### 🛠️ Configuration des Modules
+- **Visibilité à la carte** : Le Super Admin définit quels onglets sont visibles pour chaque entité (ex: masquer le module "Comptabilité" pour une filiale de service).
+- **Gestion des Exercices** : Ajout ou suppression globale des années fiscales disponibles dans le sélecteur d'exercice.
+
+### 🎭 Profilage des Rôles Globaux
+- **Modèles de Permissions** : Création de profils types (Gérant, Ingénieur, Comptable) avec des permissions modulaires.
+- **Héritage Strict** : Les utilisateurs héritent des permissions de leur rôle. Cela garantit qu'une modification du rôle "Ingénieur" s'applique instantanément à tous les ingénieurs du système.
+
+---
+
+## 🔐 2. Sécurité & Confidentialité
+L'application repose sur une architecture de sécurité à plusieurs niveaux.
+
+### 👥 Hiérarchie des Accès
+1. **Super Admin** : Contrôle total, gestion des entités, des rôles et de la visibilité des modules.
+2. **Gérant / Administrateur** : Accès complet aux données financières et à la gestion des utilisateurs de son entité.
+3. **Utilisateur Standard** : Accès limité aux modules opérationnels (Projets, Suivi Technique) selon son rôle.
+
+### 👁️ Mode Confidentialité (Mode Invité / Présentation)
+Un bouton "œil" dans l'en-tête permet de basculer instantanément en **Mode Privé** :
+- Toutes les données financières sensibles (montants HT/TTC, salaires, bénéfices) sont remplacées par des astérisques (`*****`).
+- Idéal pour travailler en espace partagé, faire une démonstration technique à un client ou projeter l'écran en réunion sans divulguer la rentabilité du bureau.
+
+---
+
+## 📊 3. Tableau de Bord (Pilotage Stratégique)
+Entièrement personnalisable par chaque utilisateur pour son propre confort.
+- **Interface Drag & Drop** : Réorganisez l'ordre des indicateurs (KPIs) et des graphiques.
+- **Mise en page flexible** : Ajustez la largeur de chaque bloc (25% à 100%) pour prioriser les visuels.
 - **Analyse des Flux** : Graphique comparatif mensuel entre les revenus (encaissés/en attente) et les charges (achats/salaires).
 
 ---
 
-## 🏗️ 2. Projets & Gestion Commerciale
+## 🏗️ 4. Projets & Gestion Commerciale
 Suivi complet du cycle de vie des contrats, de la signature au règlement définitif.
-- **Modes de Vue ("Mes Vues")** : Système exclusif permettant de sauvegarder des configurations de colonnes (ex: "Vue Financière", "Vue Simplifiée"). Ces vues sont persistantes et modifiables.
-- **Gestion des Avenants** : Prise en compte des modifications contractuelles avec calcul automatique du nouveau total HT/TTC.
-- **Suivi de Facturation** : Historique détaillé des factures émises par projet, incluant la gestion des retenues à la source et des modes de paiement.
-- **Tableaux Dynamiques** : Colonnes redimensionnables, triables et réorganisables par simple glisser-déposer.
+- **Modes de Vue ("Mes Vues")** : Système permettant de sauvegarder des configurations de colonnes (ex: "Vue Financière", "Vue Simplifiée").
+- **Gestion des Avenants** : Calcul automatique du nouveau total contractuel HT/TTC après modifications.
+- **Suivi de Facturation** : Historique détaillé incluant les retenues à la source et les modes de paiement.
 
 ---
 
-## 👷 3. Suivi Technique & Coordination
+## 👷 5. Suivi Technique & Coordination
 Outil dédié aux ingénieurs pour la gestion de l'exécution et du suivi de chantier.
-- **Journal d'Interventions** : Enregistrement chronologique des réunions, relevés, envois/réceptions de plans et tâches.
-- **Gestion Documentaire** : Archivage des PV de réunion, décharges et comptes-rendus directement liés aux événements techniques.
-- **Double Avancement** : Suivi distinct de l'avancement des études (interne) et de l'avancement physique des travaux (chantier).
-- **Liaison de Contacts** : Sélection ciblée des responsables chez le client ou l'entreprise de travaux pour chaque projet spécifique.
+- **Journal d'Interventions** : Chronologie des réunions, relevés, envois/réceptions de plans.
+- **Double Avancement** : Suivi distinct de l'avancement des **Études** (interne) et de l'avancement physique des **Travaux** (chantier).
+- **Liaison de Contacts** : Sélection ciblée des responsables chez le client ou l'entreprise de travaux pour chaque projet.
 
 ---
 
-## 👨‍💼 4. Ressources Humaines & Salaires
-Gestion centralisée du capital humain et des coûts salariaux.
+## 👨‍💼 6. Ressources Humaines & Salaires
 - **Dossier Employé** : Centralisation des informations contractuelles, CIN, CNSS et documents numérisés.
-- **Gestion des Absences** : 
-    - Calcul automatique des soldes de congés restants sur la base du droit annuel.
-    - Suivi des arrêts maladie avec archivage des justificatifs.
-    - Workflow de validation (En attente, Validé, Refusé).
+- **Gestion des Absences** : Calcul automatique des soldes de congés et suivi des arrêts maladie avec justificatifs.
 - **Historique des Paiements** : Suivi mensuel incluant le Net, les Primes, les Tickets Resto et les frais de Carburant.
 
 ---
 
-## 🔐 5. Sécurité, Rôles & Permissions
-Le système repose sur une architecture de sécurité stricte pour protéger les données sensibles.
-
-### 👥 Hiérarchie des Rôles
-Les accès sont définis par trois profils types :
-1. **Gérant** : Accès total à tous les modules, gestion financière complète et administration des utilisateurs.
-2. **Responsable Technique** : Focus sur les projets et le suivi technique. Accès restreint aux données financières sensibles (salaires, bénéfices globaux).
-3. **Responsable Direction** : Accès administratif et RH, gestion des achats et des clients, sans modification des paramètres techniques profonds.
-
-### 🛡️ Système de Permissions Héritées
-- **Verrouillage des Permissions** : Les permissions ne sont plus modifiables individuellement par utilisateur. Elles sont strictement héritées du **Rôle** sélectionné pour garantir la cohérence de la politique de sécurité.
-- **Contrôle d'Accès (ACL)** : Seuls les utilisateurs ayant le rang de **Gérant** ou **Super Admin** peuvent accéder au menu de gestion des utilisateurs.
-- **Mode Confidentialité (👁️)** : Un bouton "œil" dans l'en-tête permet de masquer instantanément toutes les données financières (`*****`) sur tous les écrans, idéal pour les présentations ou le travail en espace partagé.
-
----
-
-## 🏢 6. Multi-Entités & Super Administration
-Conçu pour les structures gérant plusieurs bureaux ou filiales.
-- **Gestion Multi-Bureaux** : Basculez instantanément entre différentes entités juridiques.
-- **Logos Personnalisés** : Chaque entité peut uploader son propre logo, qui personnalise alors l'interface (Sidebar et Header).
-- **Configuration Super Admin** : 
-    - Activation/Désactivation des modules par entité (ex: masquer le module "Comptabilité" pour une filiale spécifique).
-    - Gestion globale des exercices fiscaux (ajout/suppression d'années).
-    - Création et modification des profils de Rôles globaux.
-
----
-
 ## 🛠️ 7. Fonctionnalités Transverses (UX/UI)
-- **Recherche Globale (⌘K / Ctrl+K)** : Palette de commande ultra-rapide pour naviguer vers un projet, un client ou un employé sans quitter le clavier.
-- **Export Comptable** : Exportation de toutes les listes (Achats, Ventes) au format CSV.
-- **Interface Adaptative** : Support complet du mode sombre (Dark Mode) et design responsive pour tablettes.
-- **Notifications (Toasts)** : Confirmation visuelle immédiate pour chaque action effectuée.
+- **Recherche Globale (⌘K / Ctrl+K)** : Palette de commande pour naviguer vers un projet, un client ou un employé.
+- **Export Comptable** : Exportation de toutes les listes au format CSV.
+- **Interface Adaptative** : Support complet du mode sombre (Dark Mode) et design responsive.
