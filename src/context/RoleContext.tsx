@@ -15,8 +15,8 @@ interface RoleContextType {
 
 const DEFAULT_ROLES: Role[] = [
   {
-    id: "admin",
-    name: "Administrateur",
+    id: "gerant",
+    name: "Gérant",
     permissions: {
       dashboard: true, projects: true, projectTracking: true, clients: true,
       companies: true, purchases: true, salaries: true, hr: true,
@@ -24,8 +24,8 @@ const DEFAULT_ROLES: Role[] = [
     }
   },
   {
-    id: "engineer",
-    name: "Ingénieur",
+    id: "resp_technique",
+    name: "Responsable Technique",
     permissions: {
       dashboard: true, projects: true, projectTracking: true, clients: true,
       companies: true, purchases: false, salaries: false, hr: false,
@@ -33,8 +33,8 @@ const DEFAULT_ROLES: Role[] = [
     }
   },
   {
-    id: "secretary",
-    name: "Secrétaire",
+    id: "resp_direction",
+    name: "Responsable Direction",
     permissions: {
       dashboard: true, projects: false, projectTracking: false, clients: true,
       companies: true, purchases: true, salaries: false, hr: true,
@@ -48,6 +48,7 @@ const RoleContext = createContext<RoleContextType | undefined>(undefined);
 export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [roles, setRoles] = useState<Role[]>(() => {
     const saved = localStorage.getItem("app_roles");
+    // Si des rôles sont déjà sauvegardés, on les garde, sinon on utilise les nouveaux défauts
     return saved ? JSON.parse(saved) : DEFAULT_ROLES;
   });
 

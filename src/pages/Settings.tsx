@@ -47,7 +47,7 @@ const Settings = () => {
 
   const isSuperAdmin = currentUser.isSuperAdmin;
   
-  // Vérification des droits de gestion des utilisateurs
+  // Vérification des droits de gestion des utilisateurs (Gérant, Administrateur ou Super Admin)
   const canManageUsers = isSuperAdmin || 
                          currentUser.poste === "Gérant" || 
                          currentUser.poste === "Administrateur";
