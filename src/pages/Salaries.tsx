@@ -16,7 +16,9 @@ import {
   Briefcase,
   Banknote,
   Layout,
-  Save
+  Save,
+  Lock,
+  AlertCircle
 } from "lucide-react";
 import { fetcher } from "@/api/config";
 import { useMyCompany } from "@/context/CompanyContext";
@@ -67,6 +69,8 @@ const Salaries = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [expandedEmployees, setExpandedEmployees] = useState<Set<number>>(new Set());
+  
+  const isReadOnly = selectedCompany?.active === false;
   const [visibleColumns, setVisibleColumns] = useState(EMPLOYEE_COLUMNS.map(c => c.id));
   
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
@@ -147,6 +151,17 @@ const Salaries = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {isReadOnly && (
+        <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-center gap-3 text-amber-800 shadow-sm">
+          <AlertCircle size={20} className="shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-bold">Entité désactivée - Mode Lecture Seule</p>
+            <p className="text-xs opacity-80">Cette entreprise est actuellement inactive. Vous pouvez consulter les données mais aucune modification n'est autorisée.</p>
+          </div>
+          <Lock size={18} className="opacity-40" />
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-slate-900">Gestion des Salaires</h1>
@@ -193,7 +208,11 @@ const Salaries = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button onClick={() => { setSelectedEmployee(null); setIsEmployeeModalOpen(true); }} className="rounded-xl shadow-lg shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-700 gap-2 h-11 px-6 text-white">
+          <Button 
+            onClick={() => { setSelectedEmployee(null); setIsEmployeeModalOpen(true); }} 
+            className="rounded-xl shadow-lg shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-700 gap-2 h-11 px-6 text-white"
+            disabled={isReadOnly}
+          >
             <Plus size={18} /> Nouvel Employé
           </Button>
         </div>
@@ -279,8 +298,14 @@ const Salaries = () => {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
-                              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedEmployee(emp); setIsEmployeeModalOpen(true); }}><Edit size={14} /> Modifier Profil</DropdownMenuItem>
-                              <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedEmployee(emp); setIsConfirmOpen(true); }}><Trash2 size={14} /> Supprimer</DropdownMenuItem>
+                              {!isReadOnly ? (
+                                <>
+                                  <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedEmployee(emp); setIsEmployeeModalOpen(true); }}><Edit size={14} /> Modifier Profil</DropdownMenuItem>
+                                  <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedEmployee(emp); setIsConfirmOpen(true); }}><Trash2 size={14} /> Supprimer</DropdownMenuItem>
+                                </>
+                              ) : (
+                                <DropdownMenuItem className="gap-2 text-slate-400 cursor-default"><Lock size={14} /> Lecture seule</DropdownMenuItem>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -290,8 +315,8 @@ const Salaries = () => {
                           <TableCell colSpan={visibleColumns.length + 2} className="p-0">
                             <EmployeeSalariesList 
                               salaries={emp.salaries || []} 
-                              onAdd={() => { setSelectedEmployee(emp); setSelectedPayment(null); setIsPaymentModalOpen(true); }} 
-                              onEdit={(sal) => { setSelectedEmployee(emp); setSelectedPayment(sal); setIsPaymentModalOpen(true); }} 
+                              onAdd={() => !isReadOnly && { setSelectedEmployee(emp); setSelectedPayment(null); setIsPaymentModalOpen(true); }} 
+                              onEdit={(sal) => !isReadOnly && { setSelectedEmployee(emp); setSelectedPayment(sal); setIsPaymentModalOpen(true); }} 
                             />
                           </TableCell>
                         </TableRow>

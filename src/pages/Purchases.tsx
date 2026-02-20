@@ -8,7 +8,9 @@ import {
   Download,
   GripVertical,
   Layout,
-  Save
+  Save,
+  Lock,
+  AlertCircle
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { useMyCompany } from "@/context/CompanyContext";
@@ -78,7 +80,8 @@ const SortablePurchaseRow = ({
   setSelectedPurchase, 
   setIsModalOpen, 
   setIsConfirmOpen,
-  visibleColumns
+  visibleColumns,
+  isReadOnly
 }: any) => {
   const {
     attributes,
@@ -144,8 +147,14 @@ const SortablePurchaseRow = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
-            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedPurchase(purchase); setIsModalOpen(true); }}><Edit size={14} /> Modifier</DropdownMenuItem>
-            <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedPurchase(purchase); setIsConfirmOpen(true); }}><Trash2 size={14} /> Supprimer</DropdownMenuItem>
+            {!isReadOnly ? (
+              <>
+                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedPurchase(purchase); setIsModalOpen(true); }}><Edit size={14} /> Modifier</DropdownMenuItem>
+                <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedPurchase(purchase); setIsConfirmOpen(true); }}><Trash2 size={14} /> Supprimer</DropdownMenuItem>
+              </>
+            ) : (
+              <DropdownMenuItem className="gap-2 text-slate-400 cursor-default"><Lock size={14} /> Lecture seule</DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>
@@ -160,6 +169,8 @@ const Purchases = () => {
   const [purchases, setPurchases] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  
+  const isReadOnly = selectedCompany?.active === false;
   const [visibleColumns, setVisibleColumns] = useState(PURCHASE_COLUMNS.map(c => c.id));
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' | null }>({ key: '', direction: null });
   
@@ -252,6 +263,17 @@ const Purchases = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {isReadOnly && (
+        <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-center gap-3 text-amber-800 shadow-sm">
+          <AlertCircle size={20} className="shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-bold">Entité désactivée - Mode Lecture Seule</p>
+            <p className="text-xs opacity-80">Cette entreprise est actuellement inactive. Vous pouvez consulter les données mais aucune modification n'est autorisée.</p>
+          </div>
+          <Lock size={18} className="opacity-40" />
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-slate-900">Achats & Dépenses</h1>
@@ -299,7 +321,13 @@ const Purchases = () => {
             </DropdownMenuContent>
           </DropdownMenu>
           <Button variant="outline" className="rounded-xl gap-2 h-11 px-4 border-slate-200" onClick={handleExport}><Download size={18} /> Export</Button>
-          <Button onClick={() => { setSelectedPurchase(null); setIsModalOpen(true); }} className="rounded-xl shadow-lg shadow-rose-500/20 bg-rose-600 hover:bg-rose-700 gap-2 h-11 px-6"><Plus size={18} /> Nouvel Achat</Button>
+          <Button 
+            onClick={() => { setSelectedPurchase(null); setIsModalOpen(true); }} 
+            className="rounded-xl shadow-lg shadow-rose-500/20 bg-rose-600 hover:bg-rose-700 gap-2 h-11 px-6"
+            disabled={isReadOnly}
+          >
+            <Plus size={18} /> Nouvel Achat
+          </Button>
         </div>
       </div>
 
@@ -337,7 +365,15 @@ const Purchases = () => {
                   ) : (
                     <SortableContext items={sortedPurchases.map(p => p.id)} strategy={verticalListSortingStrategy}>
                       {sortedPurchases.map((purchase) => (
-                        <SortablePurchaseRow key={purchase.id} purchase={purchase} setSelectedPurchase={setSelectedPurchase} setIsModalOpen={setIsModalOpen} setIsConfirmOpen={setIsConfirmOpen} visibleColumns={visibleColumns} />
+                        <SortablePurchaseRow 
+                          key={purchase.id} 
+                          purchase={purchase} 
+                          setSelectedPurchase={setSelectedPurchase} 
+                          setIsModalOpen={setIsModalOpen} 
+                          setIsConfirmOpen={setIsConfirmOpen} 
+                          visibleColumns={visibleColumns} 
+                          isReadOnly={isReadOnly}
+                        />
                       ))}
                     </SortableContext>
                   )}

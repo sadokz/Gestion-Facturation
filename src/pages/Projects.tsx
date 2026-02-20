@@ -14,7 +14,8 @@ import {
   CheckCircle2,
   Layout,
   Save,
-  Lock
+  Lock,
+  AlertCircle
 } from "lucide-react";
 import { useYear } from "@/context/YearContext";
 import { usePrivacy } from "@/context/PrivacyContext";
@@ -102,7 +103,8 @@ const SortableProjectRow = ({
   setIsDetailOpen,
   setIsModalOpen,
   setIsConfirmOpen,
-  visibleColumns
+  visibleColumns,
+  isReadOnly
 }: any) => {
   const { isPrivate } = usePrivacy();
   const {
@@ -184,12 +186,19 @@ const SortableProjectRow = ({
           <TableCell className="text-center">
             <Tooltip>
               <TooltipTrigger asChild>
-                <button onClick={(e) => { e.stopPropagation(); setSelectedProject(project); setIsModalOpen(true); }} className={cn("flex flex-col items-center justify-center w-10 h-10 rounded-xl border transition-all mx-auto", project.file_contrat ? "bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100" : "bg-slate-50 border-slate-200 text-slate-400 hover:border-primary/30 hover:text-primary")}>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); if(!isReadOnly) { setSelectedProject(project); setIsModalOpen(true); } }} 
+                  className={cn(
+                    "flex flex-col items-center justify-center w-10 h-10 rounded-xl border transition-all mx-auto", 
+                    project.file_contrat ? "bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100" : "bg-slate-50 border-slate-200 text-slate-400 hover:border-primary/30 hover:text-primary",
+                    isReadOnly && "cursor-default opacity-70"
+                  )}
+                >
                   {project.file_contrat ? <CheckCircle2 size={18} /> : <UploadCloud size={18} />}
                   <span className="text-[7px] font-bold uppercase mt-0.5">Contrat</span>
                 </button>
               </TooltipTrigger>
-              <TooltipContent><p className="text-xs">{project.file_contrat ? "Voir/Modifier le contrat" : "Téléverser le contrat"}</p></TooltipContent>
+              <TooltipContent><p className="text-xs">{project.file_contrat ? "Voir le contrat" : "Aucun contrat"}</p></TooltipContent>
             </Tooltip>
           </TableCell>
         )}
@@ -214,8 +223,12 @@ const SortableProjectRow = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
               <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsDetailOpen(true); }}><Eye size={14} /> Analyse complète</DropdownMenuItem>
-              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}><Edit size={14} /> Modifier Projet</DropdownMenuItem>
-              <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}><Trash2 size={14} /> Supprimer</DropdownMenuItem>
+              {!isReadOnly && (
+                <>
+                  <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}><Edit size={14} /> Modifier Projet</DropdownMenuItem>
+                  <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedProject(project); setIsConfirmOpen(true); }}><Trash2 size={14} /> Supprimer</DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </TableCell>
@@ -223,7 +236,11 @@ const SortableProjectRow = ({
       {expandedProjects.has(project.id) && (
         <TableRow className="hover:bg-transparent border-none">
           <TableCell colSpan={visibleColumns.length + 2} className="p-0">
-            <ProjectInvoicesList invoices={invoices} onAddInvoice={() => handleAddInvoiceClick(project)} onEditInvoice={(inv) => handleEditInvoiceClick(project, inv)} />
+            <ProjectInvoicesList 
+              invoices={invoices} 
+              onAddInvoice={() => !isReadOnly && handleAddInvoiceClick(project)} 
+              onEditInvoice={(inv) => !isReadOnly && handleEditInvoiceClick(project, inv)} 
+            />
           </TableCell>
         </TableRow>
       )}
@@ -241,6 +258,7 @@ const Projects = () => {
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [statusFilter, setStatusFilter] = useState("all");
   
+  const isReadOnly = selectedCompany?.active === false;
   const projectViewModes = getViewModesByCategory("projects");
   
   const [activeViewModeName, setActiveViewModeName] = useState("Mode HT");
@@ -368,6 +386,17 @@ const Projects = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {isReadOnly && (
+        <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-center gap-3 text-amber-800 shadow-sm">
+          <AlertCircle size={20} className="shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-bold">Entité désactivée - Mode Lecture Seule</p>
+            <p className="text-xs opacity-80">Cette entreprise est actuellement inactive. Vous pouvez consulter les données mais aucune modification n'est autorisée.</p>
+          </div>
+          <Lock size={18} className="opacity-40" />
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-3">
@@ -431,7 +460,11 @@ const Projects = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button onClick={() => { setSelectedProject(null); setIsModalOpen(true); }} className="rounded-xl shadow-lg shadow-primary/20 gap-2 h-11 px-6">
+          <Button 
+            onClick={() => { setSelectedProject(null); setIsModalOpen(true); }} 
+            className="rounded-xl shadow-lg shadow-primary/20 gap-2 h-11 px-6"
+            disabled={isReadOnly}
+          >
             <Plus size={18} /> Nouveau Projet
           </Button>
         </div>
@@ -489,7 +522,21 @@ const Projects = () => {
                   ) : (
                     <SortableContext items={sortedProjects.map(p => p.id)} strategy={verticalListSortingStrategy}>
                       {sortedProjects.map((project) => (
-                        <SortableProjectRow key={project.id} project={project} expandedProjects={expandedProjects} toggleExpand={toggleExpand} getStatusBadge={getStatusBadge} handleAddInvoiceClick={handleAddInvoiceClick} handleEditInvoiceClick={handleEditInvoiceClick} setSelectedProject={setSelectedProject} setIsDetailOpen={setIsDetailOpen} setIsModalOpen={setIsModalOpen} setIsConfirmOpen={setIsConfirmOpen} visibleColumns={visibleColumns} />
+                        <SortableProjectRow 
+                          key={project.id} 
+                          project={project} 
+                          expandedProjects={expandedProjects} 
+                          toggleExpand={toggleExpand} 
+                          getStatusBadge={getStatusBadge} 
+                          handleAddInvoiceClick={handleAddInvoiceClick} 
+                          handleEditInvoiceClick={handleEditInvoiceClick} 
+                          setSelectedProject={setSelectedProject} 
+                          setIsDetailOpen={setIsDetailOpen} 
+                          setIsModalOpen={setIsModalOpen} 
+                          setIsConfirmOpen={setIsConfirmOpen} 
+                          visibleColumns={visibleColumns} 
+                          isReadOnly={isReadOnly}
+                        />
                       ))}
                     </SortableContext>
                   )}

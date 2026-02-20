@@ -17,10 +17,13 @@ import {
   Map as MapIcon,
   ExternalLink,
   Layout,
-  Save
+  Save,
+  Lock,
+  AlertCircle
 } from "lucide-react";
 import { fetcher } from "@/api/config";
 import { useViewModes, ViewMode } from "@/context/ViewModeContext";
+import { useMyCompany } from "@/context/CompanyContext";
 import {
   Table,
   TableBody,
@@ -88,7 +91,8 @@ const SortableCompanyRow = ({
   setIsConfirmOpen,
   setSelectedResp,
   setIsRespModalOpen,
-  visibleColumns
+  visibleColumns,
+  isReadOnly
 }: any) => {
   const {
     attributes,
@@ -198,8 +202,14 @@ const SortableCompanyRow = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl">
-              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedCompany(company); setIsCompanyModalOpen(true); }}><Edit size={14} /> Modifier Entreprise</DropdownMenuItem>
-              <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedCompany(company); setIsConfirmOpen(true); }}><Trash2 size={14} /> Supprimer</DropdownMenuItem>
+              {!isReadOnly ? (
+                <>
+                  <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => { setSelectedCompany(company); setIsCompanyModalOpen(true); }}><Edit size={14} /> Modifier Entreprise</DropdownMenuItem>
+                  <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => { setSelectedCompany(company); setIsConfirmOpen(true); }}><Trash2 size={14} /> Supprimer</DropdownMenuItem>
+                </>
+              ) : (
+                <DropdownMenuItem className="gap-2 text-slate-400 cursor-default"><Lock size={14} /> Lecture seule</DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </TableCell>
@@ -210,8 +220,8 @@ const SortableCompanyRow = ({
             <div className="flex flex-col">
               <CompanyResponsiblesList 
                 responsibles={company.responsibles || []} 
-                onAdd={() => { setSelectedCompany(company); setSelectedResp(null); setIsRespModalOpen(true); }} 
-                onEdit={(resp) => { setSelectedCompany(company); setSelectedResp(resp); setIsRespModalOpen(true); }} 
+                onAdd={() => !isReadOnly && { setSelectedCompany(company); setSelectedResp(null); setIsRespModalOpen(true); }} 
+                onEdit={(resp) => !isReadOnly && { setSelectedCompany(company); setSelectedResp(resp); setIsRespModalOpen(true); }} 
               />
               <CompanyProjectsList projects={company.projects || []} />
             </div>
@@ -223,11 +233,14 @@ const SortableCompanyRow = ({
 };
 
 const Companies = () => {
+  const { selectedCompany: activeCompany } = useMyCompany();
   const { getViewModesByCategory, deleteViewMode } = useViewModes();
   const [companies, setCompanies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [expandedCompanies, setExpandedCompanies] = useState<Set<number>>(new Set());
+  
+  const isReadOnly = activeCompany?.active === false;
   const [visibleColumns, setVisibleColumns] = useState(COMPANY_COLUMNS.map(c => c.id));
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' | null }>({ key: '', direction: null });
   
@@ -345,6 +358,17 @@ const Companies = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {isReadOnly && (
+        <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-center gap-3 text-amber-800 shadow-sm">
+          <AlertCircle size={20} className="shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-bold">Entité désactivée - Mode Lecture Seule</p>
+            <p className="text-xs opacity-80">Cette entreprise est actuellement inactive. Vous pouvez consulter les données mais aucune modification n'est autorisée.</p>
+          </div>
+          <Lock size={18} className="opacity-40" />
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-slate-900">Annuaire Entreprises</h1>
@@ -391,7 +415,11 @@ const Companies = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button onClick={() => { setSelectedCompany(null); setIsCompanyModalOpen(true); }} className="rounded-xl shadow-lg shadow-amber-500/20 bg-amber-600 hover:bg-amber-700 gap-2 h-11 px-6 text-white">
+          <Button 
+            onClick={() => { setSelectedCompany(null); setIsCompanyModalOpen(true); }} 
+            className="rounded-xl shadow-lg shadow-amber-500/20 bg-amber-600 hover:bg-amber-700 gap-2 h-11 px-6 text-white"
+            disabled={isReadOnly}
+          >
             <Plus size={18} /> Nouvelle Entreprise
           </Button>
         </div>
@@ -430,7 +458,19 @@ const Companies = () => {
                   ) : (
                     <SortableContext items={sortedCompanies.map(c => c.id)} strategy={verticalListSortingStrategy}>
                       {sortedCompanies.map((company) => (
-                        <SortableCompanyRow key={company.id} company={company} expandedCompanies={expandedCompanies} toggleExpand={toggleExpand} setSelectedCompany={setSelectedCompany} setIsCompanyModalOpen={setIsCompanyModalOpen} setIsConfirmOpen={setIsConfirmOpen} setSelectedResp={setSelectedResp} setIsRespModalOpen={setIsRespModalOpen} visibleColumns={visibleColumns} />
+                        <SortableCompanyRow 
+                          key={company.id} 
+                          company={company} 
+                          expandedCompanies={expandedCompanies} 
+                          toggleExpand={toggleExpand} 
+                          setSelectedCompany={setSelectedCompany} 
+                          setIsCompanyModalOpen={setIsCompanyModalOpen} 
+                          setIsConfirmOpen={setIsConfirmOpen} 
+                          setSelectedResp={setSelectedResp} 
+                          setIsRespModalOpen={setIsRespModalOpen} 
+                          visibleColumns={visibleColumns} 
+                          isReadOnly={isReadOnly}
+                        />
                       ))}
                     </SortableContext>
                   )}

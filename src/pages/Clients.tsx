@@ -18,10 +18,12 @@ import {
   Fingerprint,
   Layout,
   Save,
-  Lock
+  Lock,
+  AlertCircle
 } from "lucide-react";
 import { fetcher } from "@/api/config";
 import { useViewModes, ViewMode } from "@/context/ViewModeContext";
+import { useMyCompany } from "@/context/CompanyContext";
 import {
   Table,
   TableBody,
@@ -39,8 +41,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { showSuccess, showError } from "@/utils/toast";
 import { ClientModal } from "@/components/clients/ClientModal";
 import { ResponsibleModal } from "@/components/clients/ResponsibleModal";
@@ -91,7 +93,8 @@ const SortableClientRow = ({
   setIsConfirmOpen,
   setSelectedResp,
   setIsRespModalOpen,
-  visibleColumns
+  visibleColumns,
+  isReadOnly
 }: any) => {
   const navigate = useNavigate();
   const {
@@ -208,14 +211,18 @@ const SortableClientRow = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="rounded-xl border-slate-200 shadow-xl w-64">
               <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold px-3 py-2">Actions</DropdownMenuLabel>
-              <DropdownMenuItem className="gap-2 cursor-pointer mx-1 rounded-lg" onClick={() => { setSelectedClient(client); setIsClientModalOpen(true); }}>
-                <Edit size={14} /> Modifier Client
-              </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2 cursor-pointer mx-1 rounded-lg text-rose-600 focus:text-rose-600" onClick={() => { setSelectedClient(client); setIsConfirmOpen(true); }}>
-                <Trash2 size={14} /> Supprimer
-              </DropdownMenuItem>
+              {!isReadOnly && (
+                <>
+                  <DropdownMenuItem className="gap-2 cursor-pointer mx-1 rounded-lg" onClick={() => { setSelectedClient(client); setIsClientModalOpen(true); }}>
+                    <Edit size={14} /> Modifier Client
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="gap-2 cursor-pointer mx-1 rounded-lg text-rose-600 focus:text-rose-600" onClick={() => { setSelectedClient(client); setIsConfirmOpen(true); }}>
+                    <Trash2 size={14} /> Supprimer
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="my-1" />
+                </>
+              )}
               
-              <DropdownMenuSeparator className="my-1" />
               <DropdownMenuLabel className="text-[10px] uppercase text-slate-400 font-bold px-3 py-2">Projets associés ({projectCount})</DropdownMenuLabel>
               <div className="max-h-[200px] overflow-y-auto py-1">
                 {client.projects && client.projects.length > 0 ? (
@@ -245,8 +252,8 @@ const SortableClientRow = ({
             <div className="flex flex-col">
               <ClientResponsiblesList 
                 responsibles={client.responsibles || []} 
-                onAdd={() => { setSelectedClient(client); setSelectedResp(null); setIsRespModalOpen(true); }} 
-                onEdit={(resp) => { setSelectedClient(client); setSelectedResp(resp); setIsRespModalOpen(true); }} 
+                onAdd={() => !isReadOnly && { setSelectedClient(client); setSelectedResp(null); setIsRespModalOpen(true); }} 
+                onEdit={(resp) => !isReadOnly && { setSelectedClient(client); setSelectedResp(resp); setIsRespModalOpen(true); }} 
               />
               <ClientProjectsList projects={client.projects || []} />
             </div>
@@ -258,12 +265,14 @@ const SortableClientRow = ({
 };
 
 const Clients = () => {
+  const { selectedCompany } = useMyCompany();
   const { getViewModesByCategory, deleteViewMode } = useViewModes();
   const [clients, setClients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [expandedClients, setExpandedClients] = useState<Set<number>>(new Set());
   
+  const isReadOnly = selectedCompany?.active === false;
   const clientViewModes = getViewModesByCategory("clients");
   const [activeViewModeName, setActiveViewModeName] = useState("Vue Standard");
   const [visibleColumns, setVisibleColumns] = useState(CLIENT_COLUMNS.map(c => c.id));
@@ -392,6 +401,17 @@ const Clients = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {isReadOnly && (
+        <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-center gap-3 text-amber-800 shadow-sm">
+          <AlertCircle size={20} className="shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-bold">Entité désactivée - Mode Lecture Seule</p>
+            <p className="text-xs opacity-80">Cette entreprise est actuellement inactive. Vous pouvez consulter les données mais aucune modification n'est autorisée.</p>
+          </div>
+          <Lock size={18} className="opacity-40" />
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-3">
@@ -457,7 +477,11 @@ const Clients = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button onClick={() => { setSelectedClient(null); setIsClientModalOpen(true); }} className="rounded-xl shadow-lg shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 gap-2 h-11 px-6">
+          <Button 
+            onClick={() => { setSelectedClient(null); setIsClientModalOpen(true); }} 
+            className="rounded-xl shadow-lg shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 gap-2 h-11 px-6"
+            disabled={isReadOnly}
+          >
             <Plus size={18} /> Nouveau Client
           </Button>
         </div>
@@ -496,7 +520,19 @@ const Clients = () => {
                   ) : (
                     <SortableContext items={sortedClients.map(c => c.id)} strategy={verticalListSortingStrategy}>
                       {sortedClients.map((client) => (
-                        <SortableClientRow key={client.id} client={client} expandedClients={expandedClients} toggleExpand={toggleExpand} setSelectedClient={setSelectedClient} setIsClientModalOpen={setIsClientModalOpen} setIsConfirmOpen={setIsConfirmOpen} setSelectedResp={setSelectedResp} setIsRespModalOpen={setIsRespModalOpen} visibleColumns={visibleColumns} />
+                        <SortableClientRow 
+                          key={client.id} 
+                          client={client} 
+                          expandedClients={expandedClients} 
+                          toggleExpand={toggleExpand} 
+                          setSelectedClient={setSelectedClient} 
+                          setIsClientModalOpen={setIsClientModalOpen} 
+                          setIsConfirmOpen={setIsConfirmOpen} 
+                          setSelectedResp={setSelectedResp} 
+                          setIsRespModalOpen={setIsRespModalOpen} 
+                          visibleColumns={visibleColumns} 
+                          isReadOnly={isReadOnly}
+                        />
                       ))}
                     </SortableContext>
                   )}

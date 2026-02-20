@@ -12,10 +12,13 @@ import {
   Layout,
   Save,
   Edit,
-  Trash2
+  Trash2,
+  Lock,
+  AlertCircle
 } from "lucide-react";
 import { fetcher } from "@/api/config";
 import { useYear } from "@/context/YearContext";
+import { useMyCompany } from "@/context/CompanyContext";
 import { useViewModes, ViewMode } from "@/context/ViewModeContext";
 import {
   Table,
@@ -55,11 +58,14 @@ const HR_COLUMNS = [
 
 const HR = () => {
   const { selectedYear } = useYear();
+  const { selectedCompany } = useMyCompany();
   const { getViewModesByCategory, deleteViewMode } = useViewModes();
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [expandedEmployees, setExpandedEmployees] = useState<Set<number>>(new Set());
+  
+  const isReadOnly = selectedCompany?.active === false;
   const [visibleColumns, setVisibleColumns] = useState(HR_COLUMNS.map(c => c.id));
   
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
@@ -134,6 +140,17 @@ const HR = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {isReadOnly && (
+        <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-center gap-3 text-amber-800 shadow-sm">
+          <AlertCircle size={20} className="shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-bold">Entité désactivée - Mode Lecture Seule</p>
+            <p className="text-xs opacity-80">Cette entreprise est actuellement inactive. Vous pouvez consulter les données mais aucune modification n'est autorisée.</p>
+          </div>
+          <Lock size={18} className="opacity-40" />
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-slate-900">Ressources Humaines</h1>
@@ -293,6 +310,7 @@ const HR = () => {
                               size="sm" 
                               className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 font-bold text-xs"
                               onClick={() => { setSelectedEmployee(emp); setSelectedLeave(null); setIsLeaveModalOpen(true); }}
+                              disabled={isReadOnly}
                             >
                               Ajouter
                             </Button>
@@ -303,8 +321,8 @@ const HR = () => {
                             <TableCell colSpan={visibleColumns.length + 2} className="p-0">
                               <EmployeeLeaveList 
                                 leaves={emp.leaves || []} 
-                                onAdd={() => { setSelectedEmployee(emp); setSelectedLeave(null); setIsLeaveModalOpen(true); }} 
-                                onEdit={(leave) => { setSelectedEmployee(emp); setSelectedLeave(leave); setIsLeaveModalOpen(true); }} 
+                                onAdd={() => !isReadOnly && { setSelectedEmployee(emp); setSelectedLeave(null); setIsLeaveModalOpen(true); }} 
+                                onEdit={(leave) => !isReadOnly && { setSelectedEmployee(emp); setSelectedLeave(leave); setIsLeaveModalOpen(true); }} 
                               />
                             </TableCell>
                           </TableRow>
