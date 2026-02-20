@@ -31,6 +31,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, Building2, ShieldCheck, User as UserIcon, Shield, Lock } from "lucide-react";
 import { useMyCompany } from "@/context/CompanyContext";
 import { useRoles } from "@/context/RoleContext";
+import { useUser } from "@/context/UserContext";
 import { cn } from "@/lib/utils";
 
 const AVATAR_SEEDS = ["Felix", "Aneka", "Max", "Jack", "Luna", "Oliver", "Milo", "Sophie"];
@@ -71,6 +72,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
   const [showPassword, setShowPassword] = React.useState(false);
   const { myCompanies } = useMyCompany();
   const { roles } = useRoles();
+  const { currentUser } = useUser();
 
   const form = useForm({
     resolver: zodResolver(userSchema),
@@ -85,6 +87,13 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
       permissions: MODULES.reduce((acc, mod) => ({ ...acc, [mod.id]: false }), {}),
     },
   });
+
+  // Déterminer le rang de l'utilisateur actuel
+  const currentUserRole = roles.find(r => r.name === currentUser.poste) || { rank: currentUser.isSuperAdmin ? 100 : 0 };
+  const currentUserRank = currentUser.isSuperAdmin ? 100 : currentUserRole.rank;
+
+  // Filtrer les rôles que l'utilisateur peut attribuer
+  const availableRoles = roles.filter(role => role.rank <= currentUserRank);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -218,7 +227,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
                         <SelectValue placeholder="Choisir un rôle type..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {roles.map(role => (
+                        {availableRoles.map(role => (
                           <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
                         ))}
                       </SelectContent>
@@ -231,7 +240,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
                       <FormItem>
                         <FormLabel>Poste affiché</FormLabel>
                         <FormControl>
-                          <Input placeholder="Ingénieur, Technicien..." {...field} className="rounded-xl bg-white" />
+                          <Input placeholder="Ingénieur, Technicien..." {...field} className="rounded-xl bg-white" readOnly />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
