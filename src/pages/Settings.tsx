@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Navigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,11 +44,6 @@ const Settings = () => {
     id: "", nom: "", matricule_fiscale: "", rne: "", gerant: "", comptable: "", 
     adresse: "", tel: "", fax: "", email: "", website: "", logo: "" 
   });
-
-  // Protection de route : Si l'entité est désactivée, on redirige vers l'accueil
-  if (selectedCompany?.active === false) {
-    return <Navigate to="/" replace />;
-  }
 
   const isSuperAdmin = currentUser.isSuperAdmin;
   

@@ -157,8 +157,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
           {isVisible("accounting") && (
             <SidebarItem to="/accounting" icon={Calculator} label="Bilan Comptable" active={location.pathname === "/accounting"} />
           )}
-          {/* Masquage automatique si l'entité est désactivée */}
-          {isVisible("settings") && selectedCompany?.active !== false && (
+          {isVisible("settings") && (
             <SidebarItem to="/settings" icon={SettingsIcon} label="Paramètres" active={location.pathname === "/settings"} />
           )}
           
