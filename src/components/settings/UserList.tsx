@@ -14,9 +14,10 @@ interface UserListProps {
   users: any[];
   onEdit: (user: any) => void;
   onDelete: (user: any) => void;
+  canManage?: boolean;
 }
 
-export const UserList: React.FC<UserListProps> = ({ users, onEdit, onDelete }) => {
+export const UserList: React.FC<UserListProps> = ({ users, onEdit, onDelete, canManage = false }) => {
   return (
     <div className="space-y-3">
       {users.map((user) => (
@@ -73,23 +74,25 @@ export const UserList: React.FC<UserListProps> = ({ users, onEdit, onDelete }) =
               <p className="text-xs font-bold text-slate-700">{user.poste}</p>
             </div>
             
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                  <MoreHorizontal size={16} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="rounded-xl">
-                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => onEdit(user)}>
-                  <Edit size={14} /> Modifier
-                </DropdownMenuItem>
-                {!user.isSuperAdmin && (
-                  <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => onDelete(user)}>
-                    <Trash2 size={14} /> Supprimer
+            {canManage && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                    <MoreHorizontal size={16} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="rounded-xl">
+                  <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => onEdit(user)}>
+                    <Edit size={14} /> Modifier
                   </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  {!user.isSuperAdmin && (
+                    <DropdownMenuItem className="gap-2 cursor-pointer text-rose-600 focus:text-rose-600" onClick={() => onDelete(user)}>
+                      <Trash2 size={14} /> Supprimer
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       ))}

@@ -18,7 +18,8 @@ import {
   UploadCloud,
   ImageIcon,
   UserPlus,
-  Building
+  Building,
+  Lock
 } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 import { useMyCompany } from "@/context/CompanyContext";
@@ -45,6 +46,11 @@ const Settings = () => {
   });
 
   const isSuperAdmin = currentUser.isSuperAdmin;
+  
+  // Vérification des droits de gestion des utilisateurs
+  const canManageUsers = isSuperAdmin || 
+                         currentUser.poste === "Gérant" || 
+                         currentUser.poste === "Administrateur";
 
   const handleAddUser = (data: any) => {
     if (selectedUser) {
@@ -312,16 +318,29 @@ const Settings = () => {
         <div className="space-y-1">
           <h3 className="font-bold text-slate-800">Gestion des Utilisateurs</h3>
           <p className="text-sm text-slate-500">Gérez les accès pour l'entité : <span className="font-bold text-primary">{selectedCompany?.nom}</span>.</p>
+          {!canManageUsers && (
+            <div className="flex items-center gap-2 mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl text-amber-700 text-xs font-medium">
+              <Lock size={14} />
+              Modification réservée aux administrateurs
+            </div>
+          )}
         </div>
         <div className="md:col-span-2 space-y-4">
-          <div className="flex justify-end">
-            <Button onClick={() => { setSelectedUser(null); setIsUserModalOpen(true); }} className="rounded-xl gap-2">
-              <UserPlus size={18} /> Nouvel Utilisateur
-            </Button>
-          </div>
+          {canManageUsers && (
+            <div className="flex justify-end">
+              <Button onClick={() => { setSelectedUser(null); setIsUserModalOpen(true); }} className="rounded-xl gap-2">
+                <UserPlus size={18} /> Nouvel Utilisateur
+              </Button>
+            </div>
+          )}
           <Card className="border-none shadow-md">
             <CardContent className="p-6">
-              <UserList users={filteredUsers} onEdit={(user) => { setSelectedUser(user); setIsUserModalOpen(true); }} onDelete={(user) => { setSelectedUser(user); setIsConfirmOpen(true); }} />
+              <UserList 
+                users={filteredUsers} 
+                onEdit={(user) => { setSelectedUser(user); setIsUserModalOpen(true); }} 
+                onDelete={(user) => { setSelectedUser(user); setIsConfirmOpen(true); }} 
+                canManage={canManageUsers}
+              />
             </CardContent>
           </Card>
         </div>
