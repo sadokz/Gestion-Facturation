@@ -138,7 +138,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     "Travaux en Cours", 
     "Travaux Achevés", 
     "Réceptionné Provisoirement", 
-    "Réceptionné Définitivement"
+    "Réceptionné Définitivement",
+    "Bloqué"
   ];
 
   return (

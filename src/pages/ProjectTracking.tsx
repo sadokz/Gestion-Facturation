@@ -220,6 +220,7 @@ const ProjectTracking = () => {
       case "Travaux Achevés": return <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100">Travaux Achevés</Badge>;
       case "Réceptionné Provisoirement": return <Badge className="bg-teal-50 text-teal-600 border-teal-100">Réceptionné Provisoirement</Badge>;
       case "Réceptionné Définitivement": return <Badge className="bg-green-50 text-green-600 border-green-100">Réceptionné Définitivement</Badge>;
+      case "Bloqué": return <Badge className="bg-rose-50 text-rose-600 border-rose-100">Bloqué</Badge>;
       default: return <Badge variant="outline">{etat || "-"}</Badge>;
     }
   };
