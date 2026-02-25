@@ -132,6 +132,7 @@ const SuperAdmin = () => {
         <p className="text-slate-500">Configuration globale des accès et de l'interface</p>
       </div>
 
+      {/* État des Entités */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
           <h3 className="font-bold text-slate-800">État des Entités</h3>
@@ -174,6 +175,37 @@ const SuperAdmin = () => {
 
       <Separator />
 
+      {/* Gestion des Rôles */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="space-y-1">
+          <h3 className="font-bold text-slate-800">Gestion des Rôles</h3>
+          <p className="text-sm text-slate-500">Définissez des modèles de permissions réutilisables pour vos utilisateurs.</p>
+        </div>
+        <div className="md:col-span-2 space-y-4">
+          <div className="flex justify-end">
+            <Button 
+              onClick={() => { setSelectedRole(null); setIsRoleModalOpen(true); }} 
+              className="rounded-xl gap-2"
+              variant="outline"
+            >
+              <Plus size={18} /> Nouveau Rôle
+            </Button>
+          </div>
+          <Card className="border-none shadow-md">
+            <CardContent className="p-6">
+              <RoleList 
+                roles={roles} 
+                onEdit={(role) => { setSelectedRole(role); setIsRoleModalOpen(true); }} 
+                onDelete={(role) => { setSelectedRole(role); setIsRoleConfirmOpen(true); }} 
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <Separator />
+
+      {/* Visibilité des Modules */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-4">
           <div className="space-y-1">
