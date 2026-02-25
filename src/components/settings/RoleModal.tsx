@@ -29,6 +29,7 @@ const roleSchema = z.object({
 
 const MODULES = [
   { id: "dashboard", label: "Tableau de bord" },
+  { id: "technicalDashboard", label: "Dashboard Technique" },
   { id: "projects", label: "Projets & Ventes" },
   { id: "projectTracking", label: "Suivi Technique" },
   { id: "clients", label: "Clients" },

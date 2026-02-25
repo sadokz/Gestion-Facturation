@@ -18,7 +18,7 @@ const DEFAULT_ROLES: Role[] = [
     id: "gerant",
     name: "Gérant",
     permissions: {
-      dashboard: true, projects: true, projectTracking: true, clients: true,
+      dashboard: true, technicalDashboard: true, projects: true, projectTracking: true, clients: true,
       companies: true, purchases: true, salaries: true, hr: true,
       cnss: true, accounting: true, settings: true
     }
@@ -27,7 +27,7 @@ const DEFAULT_ROLES: Role[] = [
     id: "resp_technique",
     name: "Responsable Technique",
     permissions: {
-      dashboard: true, projects: true, projectTracking: true, clients: true,
+      dashboard: true, technicalDashboard: true, projects: true, projectTracking: true, clients: true,
       companies: true, purchases: false, salaries: false, hr: false,
       cnss: false, accounting: false, settings: false
     }
@@ -36,7 +36,7 @@ const DEFAULT_ROLES: Role[] = [
     id: "resp_direction",
     name: "Responsable Direction",
     permissions: {
-      dashboard: true, projects: false, projectTracking: false, clients: true,
+      dashboard: true, technicalDashboard: false, projects: false, projectTracking: false, clients: true,
       companies: true, purchases: true, salaries: false, hr: true,
       cnss: false, accounting: false, settings: false
     }
@@ -48,7 +48,6 @@ const RoleContext = createContext<RoleContextType | undefined>(undefined);
 export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [roles, setRoles] = useState<Role[]>(() => {
     const saved = localStorage.getItem("app_roles");
-    // Si des rôles sont déjà sauvegardés, on les garde, sinon on utilise les nouveaux défauts
     return saved ? JSON.parse(saved) : DEFAULT_ROLES;
   });
 
