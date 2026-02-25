@@ -98,12 +98,29 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [allUsers, setAllUsers] = useState<User[]>(() => {
     const saved = localStorage.getItem("app_users");
-    return saved ? JSON.parse(saved) : DEFAULT_USERS;
+    if (!saved) return DEFAULT_USERS;
+    
+    try {
+      const users = JSON.parse(saved);
+      // Migration : s'assurer que le super-admin a toujours le dashboard technique
+      return users.map((u: User) => {
+        if (u.isSuperAdmin) {
+          return {
+            ...u,
+            permissions: { ...u.permissions, technicalDashboard: true }
+          };
+        }
+        return u;
+      });
+    } catch {
+      return DEFAULT_USERS;
+    }
   });
 
   const [currentUser, setCurrentUser] = useState<User>(() => {
     const savedId = localStorage.getItem("current_user_id");
-    return allUsers.find(u => u.id.toString() === savedId) || allUsers[0];
+    const found = allUsers.find(u => u.id.toString() === savedId);
+    return found || allUsers[0];
   });
 
   useEffect(() => {
@@ -116,10 +133,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const suspendUsersForCompany = (companyId: string) => {
     setAllUsers(prev => prev.map(user => {
-      // On ne suspend jamais un Super Admin
       if (user.isSuperAdmin) return user;
-      
-      // Si l'utilisateur n'a accès qu'à CETTE entité (longueur 1 et ID correspondant)
       if (user.allowedCompanies.length === 1 && user.allowedCompanies[0] === companyId) {
         return { ...user, statut: "Suspendu" };
       }
@@ -128,31 +142,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <NavigationProviderWrapper>
-      <UserContext.Provider value={{ currentUser, setCurrentUser, allUsers, setAllUsers, suspendUsersForCompany }}>
-        {children}
-      </UserContext.Provider>
-    </NavigationProviderWrapper>
+    <UserContext.Provider value={{ currentUser, setCurrentUser, allUsers, setAllUsers, suspendUsersForCompany }}>
+      {children}
+    </UserContext.Provider>
   );
-};
-
-// Petit hack pour forcer la mise à jour des permissions locales si nécessaire
-const NavigationProviderWrapper = ({ children }: { children: React.ReactNode }) => {
-  useEffect(() => {
-    const savedUsers = localStorage.getItem("app_users");
-    if (savedUsers) {
-      const users = JSON.parse(savedUsers);
-      const updated = users.map((u: any) => ({
-        ...u,
-        permissions: {
-          ...u.permissions,
-          technicalDashboard: u.permissions.technicalDashboard ?? (u.isSuperAdmin || u.poste.includes("Ingénieur"))
-        }
-      }));
-      localStorage.setItem("app_users", JSON.stringify(updated));
-    }
-  }, []);
-  return <>{children}</>;
 };
 
 export const useUser = () => {
