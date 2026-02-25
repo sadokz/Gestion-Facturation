@@ -28,7 +28,8 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Building2, ShieldCheck } from "lucide-react";
+import { useMyCompany } from "@/context/CompanyContext";
 
 const userSchema = z.object({
   nom: z.string().min(1, "Le nom est requis"),
@@ -36,6 +37,7 @@ const userSchema = z.object({
   password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
   poste: z.string().min(1, "Le poste est requis"),
   statut: z.string().default("Actif"),
+  allowedCompanies: z.array(z.string()).min(1, "Sélectionnez au moins une entité"),
   permissions: z.record(z.boolean()).default({
     dashboard: true,
     technicalDashboard: true,
@@ -76,6 +78,7 @@ const MODULES = [
 
 export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, initialData }) => {
   const [showPassword, setShowPassword] = React.useState(false);
+  const { myCompanies } = useMyCompany();
 
   const form = useForm({
     resolver: zodResolver(userSchema),
@@ -85,6 +88,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
       password: "",
       poste: "Ingénieur",
       statut: "Actif",
+      allowedCompanies: [],
       permissions: {
         dashboard: true,
         technicalDashboard: true,
@@ -110,6 +114,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
         password: "",
         poste: "Ingénieur", 
         statut: "Actif",
+        allowedCompanies: [],
         permissions: {
           dashboard: true,
           technicalDashboard: true,
@@ -130,7 +135,7 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] rounded-2xl overflow-hidden flex flex-col h-[85vh] p-0">
+      <DialogContent className="sm:max-w-[550px] rounded-2xl overflow-hidden flex flex-col h-[85vh] p-0">
         <DialogHeader className="p-6 pb-2">
           <DialogTitle className="text-xl font-bold text-slate-800">
             {initialData ? "Modifier l'utilisateur" : "Nouvel utilisateur"}
@@ -140,8 +145,10 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col overflow-hidden">
             <ScrollArea className="flex-1 px-6">
-              <div className="space-y-6 py-4">
+              <div className="space-y-8 py-4">
+                {/* Informations de base */}
                 <div className="space-y-4">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Informations de compte</h4>
                   <FormField
                     control={form.control}
                     name="nom"
@@ -247,8 +254,57 @@ export const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit,
                   </div>
                 </div>
 
+                {/* Accès aux Entités */}
                 <div className="space-y-3 pt-4 border-t">
-                  <h4 className="text-sm font-bold text-slate-800">Accès aux modules</h4>
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                    <Building2 size={14} /> Accès aux Entités (Bureaux d'études)
+                  </h4>
+                  <div className="grid grid-cols-1 gap-2">
+                    {myCompanies.map((company) => (
+                      <FormField
+                        key={company.id}
+                        control={form.control}
+                        name="allowedCompanies"
+                        render={({ field }) => {
+                          return (
+                            <FormItem
+                              key={company.id}
+                              className="flex flex-row items-center space-x-3 space-y-0 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors"
+                            >
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value?.includes(company.id)}
+                                  onCheckedChange={(checked) => {
+                                    return checked
+                                      ? field.onChange([...field.value, company.id])
+                                      : field.onChange(
+                                          field.value?.filter(
+                                            (value) => value !== company.id
+                                          )
+                                        )
+                                  }}
+                                />
+                              </FormControl>
+                              <FormLabel className="text-sm font-bold text-slate-700 cursor-pointer flex-1">
+                                {company.nom}
+                                <span className="block text-[10px] text-slate-400 font-mono font-normal uppercase">
+                                  {company.matricule_fiscale || "Sans matricule"}
+                                </span>
+                              </FormLabel>
+                            </FormItem>
+                          )
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <FormMessage />
+                </div>
+
+                {/* Accès aux modules */}
+                <div className="space-y-3 pt-4 border-t">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                    <ShieldCheck size={14} /> Accès aux modules
+                  </h4>
                   <div className="grid grid-cols-2 gap-3">
                     {MODULES.map((module) => (
                       <FormField
