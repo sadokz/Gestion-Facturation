@@ -11,10 +11,10 @@ Le centre de pilotage de votre activité financière.
 
 ---
 
-## 👷 2. Dashboard Technique (Nouveau)
+## 👷 2. Dashboard Technique
 Outil de pilotage opérationnel pour les chefs de projets et la direction technique.
 - **Vue d'ensemble** : Nombre de projets en phase Études, Travaux, Terminés ou Bloqués.
-- **Suivi des Blocages** : Identification prioritaire des projets dont le statut technique est "Bloqué".
+- **Suivi des Blocages** : Identification prioritaire des projets dont le statut technique est "Bloqué" (affichés en rouge pour une action immédiate).
 - **Responsabilité** : Affichage direct du responsable interne et de la date de dernière mise à jour pour chaque projet.
 - **Progression** : Visualisation rapide de l'avancement (Études ou Travaux selon la phase).
 
@@ -29,6 +29,7 @@ Gestion du cycle de vie des contrats et suivi rigoureux des paiements.
 
 ## 👷 4. Suivi Technique Détaillé
 Coordination technique et suivi de l'avancement physique des chantiers.
+- **États Globaux** : Suivi précis via des états normalisés (Étude en cours, Travaux en cours, Réceptionné, et **Bloqué**).
 - **Intervenants** : Gestion des contacts chez le client, l'architecte et les entreprises de travaux.
 - **Journal d'Interventions** : Historique des réunions, relevés et envois de documents.
 
