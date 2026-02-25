@@ -14,6 +14,7 @@ import { ViewModeProvider } from "./context/ViewModeContext";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { ThemeProvider } from "./components/theme-provider";
 import Dashboard from "./pages/Dashboard";
+import TechnicalDashboard from "./pages/TechnicalDashboard";
 import Projects from "./pages/Projects";
 import ProjectTracking from "./pages/ProjectTracking";
 import Clients from "./pages/Clients";
@@ -47,6 +48,7 @@ const App = () => (
                           <DashboardLayout>
                             <Routes>
                               <Route path="/" element={<Dashboard />} />
+                              <Route path="/technical-dashboard" element={<TechnicalDashboard />} />
                               <Route path="/projects" element={<Projects />} />
                               <Route path="/project-tracking" element={<ProjectTracking />} />
                               <Route path="/clients" element={<Clients />} />

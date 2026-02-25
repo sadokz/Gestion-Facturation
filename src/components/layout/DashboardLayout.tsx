@@ -20,7 +20,8 @@ import {
   LogOut,
   User as UserIcon,
   ChevronDown,
-  ShieldAlert
+  ShieldAlert,
+  Activity
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useYear } from "@/context/YearContext";
@@ -82,9 +83,6 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
 
   const companyInitial = selectedCompany?.nom?.charAt(0) || "B";
 
-  // Filtrage des entreprises accessibles :
-  // 1. Super Admin voit tout (même les inactives)
-  // 2. Utilisateur standard ne voit que les actives autorisées
   const accessibleCompanies = currentUser.isSuperAdmin 
     ? myCompanies 
     : myCompanies.filter(c => c.active && currentUser.allowedCompanies?.includes(c.id));
@@ -129,6 +127,9 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
         <nav className={cn("flex flex-col gap-2 transition-opacity duration-200 overflow-y-auto pr-2", !isSidebarOpen && "opacity-0")}>
           {isVisible("dashboard") && (
             <SidebarItem to="/" icon={LayoutDashboard} label="Tableau de bord" active={location.pathname === "/"} />
+          )}
+          {isVisible("technicalDashboard") && (
+            <SidebarItem to="/technical-dashboard" icon={Activity} label="Dashboard Technique" active={location.pathname === "/technical-dashboard"} />
           )}
           {isVisible("projects") && (
             <SidebarItem to="/projects" icon={Briefcase} label="Projets & Ventes" active={location.pathname.startsWith("/projects")} />

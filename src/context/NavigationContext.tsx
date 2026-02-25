@@ -3,6 +3,7 @@ import { useMyCompany } from "./CompanyContext";
 
 export interface NavigationState {
   dashboard: boolean;
+  technicalDashboard: boolean;
   projects: boolean;
   projectTracking: boolean;
   clients: boolean;
@@ -17,6 +18,7 @@ export interface NavigationState {
 
 export const DEFAULT_TABS: NavigationState = {
   dashboard: true,
+  technicalDashboard: true,
   projects: true,
   projectTracking: true,
   clients: true,

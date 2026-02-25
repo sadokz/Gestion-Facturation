@@ -21,7 +21,8 @@ import {
   Save,
   Building2,
   Power,
-  AlertTriangle
+  AlertTriangle,
+  Activity
 } from "lucide-react";
 import {
   Select,
@@ -51,7 +52,6 @@ const SuperAdmin = () => {
   const [isRoleConfirmOpen, setIsRoleConfirmOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
-  // État local pour l'entité en cours de configuration (indépendant de l'entité active)
   const [configCompanyId, setConfigCompanyId] = useState<string>(activeCompany?.id || myCompanies[0]?.id || "");
 
   useEffect(() => {
@@ -84,7 +84,6 @@ const SuperAdmin = () => {
   };
 
   const handleToggleCompany = (companyId: string, currentStatus: boolean) => {
-    // Empêcher de désactiver l'entité sur laquelle on travaille actuellement
     if (companyId === activeCompany?.id && currentStatus === true) {
       showError("Vous ne pouvez pas désactiver l'entité sur laquelle vous êtes connecté.");
       return;
@@ -93,16 +92,12 @@ const SuperAdmin = () => {
     toggleCompanyStatus(companyId);
     
     if (currentStatus === true) {
-      // On désactive l'entité -> Suspendre les utilisateurs liés uniquement à celle-ci
       suspendUsersForCompany(companyId);
-      
-      // Masquer automatiquement l'onglet Paramètres pour cette entité
       const companyTabs = getTabsForCompany(companyId);
       if (companyTabs.settings) {
         toggleTabForCompany(companyId, "settings");
       }
-      
-      showSuccess("Entité désactivée, utilisateurs suspendus et onglet Paramètres masqué.");
+      showSuccess("Entité désactivée.");
     } else {
       showSuccess("Entité réactivée.");
     }
@@ -137,17 +132,10 @@ const SuperAdmin = () => {
         <p className="text-slate-500">Configuration globale des accès et de l'interface</p>
       </div>
 
-      {/* État des Entités */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
           <h3 className="font-bold text-slate-800">État des Entités</h3>
           <p className="text-sm text-slate-500">Activez ou désactivez l'accès complet à un bureau d'études.</p>
-          <div className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl flex gap-2">
-            <AlertTriangle size={16} className="text-amber-600 shrink-0" />
-            <p className="text-[10px] text-amber-700 leading-tight">
-              La désactivation d'une entité suspend automatiquement tous les utilisateurs qui n'ont accès qu'à celle-ci et masque l'onglet Paramètres.
-            </p>
-          </div>
         </div>
         <div className="md:col-span-2 space-y-3">
           {myCompanies.map((company) => (
@@ -186,37 +174,6 @@ const SuperAdmin = () => {
 
       <Separator />
 
-      {/* Gestion des Rôles */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="space-y-1">
-          <h3 className="font-bold text-slate-800">Gestion des Rôles</h3>
-          <p className="text-sm text-slate-500">Définissez des profils types et leurs permissions par défaut pour tout le système.</p>
-        </div>
-        <div className="md:col-span-2 space-y-4">
-          <div className="flex justify-end">
-            <Button 
-              variant="outline" 
-              onClick={() => { setSelectedRole(null); setIsRoleModalOpen(true); }} 
-              className="rounded-xl gap-2 border-primary/20 text-primary hover:bg-primary/5"
-            >
-              <Shield size={18} /> Nouveau Rôle
-            </Button>
-          </div>
-          <Card className="border-none shadow-md">
-            <CardContent className="p-6">
-              <RoleList 
-                roles={roles} 
-                onEdit={(role) => { setSelectedRole(role); setIsRoleModalOpen(true); }} 
-                onDelete={(role) => { setSelectedRole(role); setIsRoleConfirmOpen(true); }} 
-              />
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      <Separator />
-
-      {/* Visibilité des Modules */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-4">
           <div className="space-y-1">
@@ -241,15 +198,13 @@ const SuperAdmin = () => {
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-[10px] text-amber-600 font-medium italic">
-              * Cette sélection n'affecte pas votre entité de travail actuelle.
-            </p>
           </div>
         </div>
 
         <Card className="md:col-span-2 border-none shadow-md">
           <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <TabToggle id="dashboard" label="Tableau de bord" icon={LayoutDashboard} />
+            <TabToggle id="technicalDashboard" label="Dashboard Technique" icon={Activity} />
             <TabToggle id="projects" label="Projets & Ventes" icon={Briefcase} />
             <TabToggle id="projectTracking" label="Suivi Technique" icon={ClipboardCheck} />
             <TabToggle id="clients" label="Clients" icon={UsersIcon} />
@@ -271,7 +226,7 @@ const SuperAdmin = () => {
       </div>
 
       <RoleModal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)} onSubmit={handleAddRole} initialData={selectedRole} />
-      <ConfirmDialog isOpen={isRoleConfirmOpen} onClose={() => setIsRoleConfirmOpen(false)} onConfirm={handleDeleteRole} title="Supprimer ce rôle ?" description="Les utilisateurs ayant ce rôle conserveront leurs permissions actuelles mais le profil type sera supprimé." variant="destructive" confirmText="Supprimer" />
+      <ConfirmDialog isOpen={isRoleConfirmOpen} onClose={() => setIsRoleConfirmOpen(false)} onConfirm={handleDeleteRole} title="Supprimer ce rôle ?" description="Les utilisateurs ayant ce rôle conserveront leurs permissions actuelles." variant="destructive" confirmText="Supprimer" />
     </div>
   );
 };
