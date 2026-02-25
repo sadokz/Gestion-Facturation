@@ -31,9 +31,18 @@ const DEFAULT_USERS: User[] = [
     allowedCompanies: ["1"],
     statut: "Actif",
     permissions: { 
-      dashboard: true, projects: true, projectTracking: true, clients: true, 
-      companies: true, purchases: true, salaries: true, hr: true, 
-      cnss: true, accounting: true, settings: true 
+      dashboard: true, 
+      technicalDashboard: true,
+      projects: true, 
+      projectTracking: true, 
+      clients: true, 
+      companies: true, 
+      purchases: true, 
+      salaries: true, 
+      hr: true, 
+      cnss: true, 
+      accounting: true, 
+      settings: true 
     }
   },
   { 
@@ -45,9 +54,18 @@ const DEFAULT_USERS: User[] = [
     allowedCompanies: ["1"],
     statut: "Actif",
     permissions: { 
-      dashboard: true, projects: true, projectTracking: true, clients: true, 
-      companies: true, purchases: false, salaries: false, hr: false, 
-      cnss: false, accounting: false, settings: false 
+      dashboard: true, 
+      technicalDashboard: true,
+      projects: true, 
+      projectTracking: true, 
+      clients: true, 
+      companies: true, 
+      purchases: false, 
+      salaries: false, 
+      hr: false, 
+      cnss: false, 
+      accounting: false, 
+      settings: false 
     }
   },
   { 
@@ -59,9 +77,18 @@ const DEFAULT_USERS: User[] = [
     allowedCompanies: ["1"],
     statut: "Actif",
     permissions: { 
-      dashboard: true, projects: false, projectTracking: false, clients: true, 
-      companies: true, purchases: true, salaries: false, hr: true, 
-      cnss: false, accounting: false, settings: false 
+      dashboard: true, 
+      technicalDashboard: false,
+      projects: false, 
+      projectTracking: false, 
+      clients: true, 
+      companies: true, 
+      purchases: true, 
+      salaries: false, 
+      hr: true, 
+      cnss: false, 
+      accounting: false, 
+      settings: false 
     }
   }
 ];
@@ -101,10 +128,31 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <UserContext.Provider value={{ currentUser, setCurrentUser, allUsers, setAllUsers, suspendUsersForCompany }}>
-      {children}
-    </UserContext.Provider>
+    <NavigationProviderWrapper>
+      <UserContext.Provider value={{ currentUser, setCurrentUser, allUsers, setAllUsers, suspendUsersForCompany }}>
+        {children}
+      </UserContext.Provider>
+    </NavigationProviderWrapper>
   );
+};
+
+// Petit hack pour forcer la mise à jour des permissions locales si nécessaire
+const NavigationProviderWrapper = ({ children }: { children: React.ReactNode }) => {
+  useEffect(() => {
+    const savedUsers = localStorage.getItem("app_users");
+    if (savedUsers) {
+      const users = JSON.parse(savedUsers);
+      const updated = users.map((u: any) => ({
+        ...u,
+        permissions: {
+          ...u.permissions,
+          technicalDashboard: u.permissions.technicalDashboard ?? (u.isSuperAdmin || u.poste.includes("Ingénieur"))
+        }
+      }));
+      localStorage.setItem("app_users", JSON.stringify(updated));
+    }
+  }, []);
+  return <>{children}</>;
 };
 
 export const useUser = () => {
