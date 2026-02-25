@@ -47,7 +47,6 @@ const Settings = () => {
 
   const isSuperAdmin = currentUser.isSuperAdmin;
   
-  // Vérification des droits de gestion des utilisateurs (Gérant, Administrateur ou Super Admin)
   const canManageUsers = isSuperAdmin || 
                          currentUser.poste === "Gérant" || 
                          currentUser.poste === "Administrateur";
@@ -81,7 +80,7 @@ const Settings = () => {
 
   const saveCompany = () => {
     if (editingCompanyId === "new") {
-      addMyCompany({ ...companyForm, id: Date.now().toString() });
+      addMyCompany({ ...companyForm, id: Date.now().toString(), active: true });
       showSuccess("Nouvelle entité ajoutée");
     } else {
       updateMyCompany(companyForm);
@@ -105,9 +104,86 @@ const Settings = () => {
     ? myCompanies 
     : myCompanies.filter(c => c.id === selectedCompany?.id);
 
-  // Filtrage strict : on retire les Super Admins de la liste de gestion
   const filteredUsers = allUsers.filter(u => 
     !u.isSuperAdmin && (selectedCompany && u.allowedCompanies?.includes(selectedCompany.id))
+  );
+
+  const renderCompanyForm = () => (
+    <div className="p-6 space-y-6">
+      <div className="flex items-center gap-6">
+        <div className="relative group">
+          <div className="w-24 h-24 bg-slate-100 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center overflow-hidden">
+            {companyForm.logo ? (
+              <img src={companyForm.logo} alt="Logo preview" className="w-full h-full object-contain" />
+            ) : (
+              <>
+                <ImageIcon size={24} className="text-slate-400" />
+                <span className="text-[10px] font-bold text-slate-400 mt-1">LOGO</span>
+              </>
+            )}
+          </div>
+          <label htmlFor="logo-upload" className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-2xl">
+            <UploadCloud size={24} className="text-white" />
+            <input id="logo-upload" type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
+          </label>
+        </div>
+        <div className="flex-1 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Nom de l'entité</Label>
+              <Input value={companyForm.nom} onChange={(e) => setCompanyForm({...companyForm, nom: e.target.value})} className="rounded-xl" />
+            </div>
+            <div className="space-y-2">
+              <Label>RNE</Label>
+              <Input value={companyForm.rne} onChange={(e) => setCompanyForm({...companyForm, rne: e.target.value})} className="rounded-xl" placeholder="Registre National des Entreprises" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Matricule Fiscal</Label>
+          <Input value={companyForm.matricule_fiscale} onChange={(e) => setCompanyForm({...companyForm, matricule_fiscale: e.target.value})} className="rounded-xl" />
+        </div>
+        <div className="space-y-2">
+          <Label>Gérant</Label>
+          <Input value={companyForm.gerant} onChange={(e) => setCompanyForm({...companyForm, gerant: e.target.value})} className="rounded-xl" />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Comptable / Cabinet</Label>
+          <Input value={companyForm.comptable} onChange={(e) => setCompanyForm({...companyForm, comptable: e.target.value})} className="rounded-xl" />
+        </div>
+        <div className="space-y-2">
+          <Label>Site Web</Label>
+          <Input value={companyForm.website} onChange={(e) => setCompanyForm({...companyForm, website: e.target.value})} className="rounded-xl" placeholder="www.exemple.tn" />
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <Label>Téléphone</Label>
+          <Input value={companyForm.tel} onChange={(e) => setCompanyForm({...companyForm, tel: e.target.value})} className="rounded-xl" />
+        </div>
+        <div className="space-y-2">
+          <Label>Fax</Label>
+          <Input value={companyForm.fax} onChange={(e) => setCompanyForm({...companyForm, fax: e.target.value})} className="rounded-xl" />
+        </div>
+        <div className="space-y-2">
+          <Label>Email</Label>
+          <Input value={companyForm.email} onChange={(e) => setCompanyForm({...companyForm, email: e.target.value})} className="rounded-xl" />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label>Adresse Siège</Label>
+        <Input value={companyForm.adresse} onChange={(e) => setCompanyForm({...companyForm, adresse: e.target.value})} className="rounded-xl" />
+      </div>
+      <div className="flex justify-end gap-2 pt-2">
+        <Button variant="ghost" onClick={() => setEditingCompanyId(null)} className="rounded-xl">Annuler</Button>
+        <Button onClick={saveCompany} className="rounded-xl px-6">Enregistrer</Button>
+      </div>
+    </div>
   );
 
   return (
@@ -148,6 +224,14 @@ const Settings = () => {
           )}
 
           <div className="space-y-4">
+            {editingCompanyId === "new" && (
+              <Card className="border-none shadow-md ring-2 ring-primary/20 overflow-hidden">
+                <CardContent className="p-0">
+                  {renderCompanyForm()}
+                </CardContent>
+              </Card>
+            )}
+
             {companiesToShow.map((company) => (
               <Card key={company.id} className={cn(
                 "border-none shadow-md transition-all overflow-hidden",
@@ -155,81 +239,7 @@ const Settings = () => {
               )}>
                 <CardContent className="p-0">
                   {editingCompanyId === company.id ? (
-                    <div className="p-6 space-y-6">
-                      <div className="flex items-center gap-6">
-                        <div className="relative group">
-                          <div className="w-24 h-24 bg-slate-100 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center overflow-hidden">
-                            {companyForm.logo ? (
-                              <img src={companyForm.logo} alt="Logo preview" className="w-full h-full object-contain" />
-                            ) : (
-                              <>
-                                <ImageIcon size={24} className="text-slate-400" />
-                                <span className="text-[10px] font-bold text-slate-400 mt-1">LOGO</span>
-                              </>
-                            )}
-                          </div>
-                          <label htmlFor="logo-upload" className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-2xl">
-                            <UploadCloud size={24} className="text-white" />
-                            <input id="logo-upload" type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
-                          </label>
-                        </div>
-                        <div className="flex-1 space-y-4">
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label>Nom de l'entité</Label>
-                              <Input value={companyForm.nom} onChange={(e) => setCompanyForm({...companyForm, nom: e.target.value})} className="rounded-xl" />
-                            </div>
-                            <div className="space-y-2">
-                              <Label>RNE</Label>
-                              <Input value={companyForm.rne} onChange={(e) => setCompanyForm({...companyForm, rne: e.target.value})} className="rounded-xl" placeholder="Registre National des Entreprises" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Matricule Fiscal</Label>
-                          <Input value={companyForm.matricule_fiscale} onChange={(e) => setCompanyForm({...companyForm, matricule_fiscale: e.target.value})} className="rounded-xl" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Gérant</Label>
-                          <Input value={companyForm.gerant} onChange={(e) => setCompanyForm({...companyForm, gerant: e.target.value})} className="rounded-xl" />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Comptable / Cabinet</Label>
-                          <Input value={companyForm.comptable} onChange={(e) => setCompanyForm({...companyForm, comptable: e.target.value})} className="rounded-xl" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Site Web</Label>
-                          <Input value={companyForm.website} onChange={(e) => setCompanyForm({...companyForm, website: e.target.value})} className="rounded-xl" placeholder="www.exemple.tn" />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                          <Label>Téléphone</Label>
-                          <Input value={companyForm.tel} onChange={(e) => setCompanyForm({...companyForm, tel: e.target.value})} className="rounded-xl" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Fax</Label>
-                          <Input value={companyForm.fax} onChange={(e) => setCompanyForm({...companyForm, fax: e.target.value})} className="rounded-xl" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Email</Label>
-                          <Input value={companyForm.email} onChange={(e) => setCompanyForm({...companyForm, email: e.target.value})} className="rounded-xl" />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Adresse Siège</Label>
-                        <Input value={companyForm.adresse} onChange={(e) => setCompanyForm({...companyForm, adresse: e.target.value})} className="rounded-xl" />
-                      </div>
-                      <div className="flex justify-end gap-2 pt-2">
-                        <Button variant="ghost" onClick={() => setEditingCompanyId(null)} className="rounded-xl">Annuler</Button>
-                        <Button onClick={saveCompany} className="rounded-xl px-6">Enregistrer</Button>
-                      </div>
-                    </div>
+                    renderCompanyForm()
                   ) : (
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-6">
