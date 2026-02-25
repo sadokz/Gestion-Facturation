@@ -51,5 +51,8 @@ Gestion du capital humain et suivi des absences (congés, maladies).
 ---
 
 ## ⚙️ 8. Paramètres & Sécurité
-- **Gestion des Utilisateurs** : Création de comptes et contrôle granulaire des accès aux modules.
-- **Administration Système** : Activation/Désactivation des entités juridiques et configuration de l'interface.
+- **Gestion Multi-Entités** : Possibilité de gérer plusieurs bureaux d'études ou entités juridiques au sein d'une même interface.
+- **Contrôle d'Accès Granulaire** : 
+    - **Permissions par Module** : Activation/Désactivation des onglets (Finances, RH, Technique) par utilisateur.
+    - **Accès aux Entités** : Restriction de l'accès des utilisateurs à un ou plusieurs bureaux d'études spécifiques.
+- **Administration Système** : Activation/Désactivation globale des entités et configuration des rôles types.
