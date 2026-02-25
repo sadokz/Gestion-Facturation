@@ -9,7 +9,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import { Briefcase, ShoppingCart, LayoutDashboard, Search, Users, Building2, Banknote, ClipboardCheck, FileText, User, ShieldAlert } from "lucide-react";
+import { Briefcase, ShoppingCart, LayoutDashboard, Search, Users, Building2, Banknote, ClipboardCheck, FileText, User, ShieldAlert, Activity } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 
 export const GlobalSearch = () => {
@@ -108,6 +108,10 @@ export const GlobalSearch = () => {
             <CommandItem onSelect={() => runCommand(() => navigate("/"))}>
               <LayoutDashboard className="mr-2 h-4 w-4" />
               <span>Tableau de bord</span>
+            </CommandItem>
+            <CommandItem onSelect={() => runCommand(() => navigate("/technical-dashboard"))}>
+              <Activity className="mr-2 h-4 w-4" />
+              <span>Dashboard Technique</span>
             </CommandItem>
             <CommandItem onSelect={() => runCommand(() => navigate("/projects"))}>
               <Briefcase className="mr-2 h-4 w-4" />
