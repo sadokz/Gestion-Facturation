@@ -9,9 +9,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, UserPlus, Users } from "lucide-react";
+import { Search, Plus, UserPlus, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { fetcher } from "@/api/config";
 
 interface ContactSelectionModalProps {
   isOpen: boolean;
@@ -141,3 +141,5 @@ export const ContactSelectionModal: React.FC<ContactSelectionModalProps> = ({
     </Dialog>
   );
 };
+
+import { cn } from "@/lib/utils";

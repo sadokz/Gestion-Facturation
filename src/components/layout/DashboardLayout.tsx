@@ -28,7 +28,6 @@ import { useYear } from "@/context/YearContext";
 import { useNavigation } from "@/context/NavigationContext";
 import { useMyCompany } from "@/context/CompanyContext";
 import { useUser } from "@/context/UserContext";
-import { useSession } from "@/context/SessionContext";
 import {
   Select,
   SelectContent,
@@ -75,8 +74,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   const { selectedYear, setSelectedYear, availableYears } = useYear();
   const { selectedCompany, setSelectedCompany, myCompanies } = useMyCompany();
   const { tabs } = useNavigation();
-  const { currentUser } = useUser();
-  const { profile, signOut } = useSession();
+  const { currentUser, setCurrentUser, allUsers } = useUser();
   
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isCustomizationModalOpen, setIsCustomizationModalOpen] = useState(false);
@@ -93,9 +91,9 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
     return tabs[tabId as keyof typeof tabs] && currentUser.permissions[tabId];
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/login");
+  const handleUserSwitch = (user: any) => {
+    setCurrentUser(user);
+    navigate("/project-tracking");
   };
 
   return (
@@ -291,21 +289,48 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 p-1 pr-3 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all outline-none group">
                   <div className="w-9 h-9 rounded-full bg-white dark:bg-slate-900 border-2 border-white dark:border-slate-700 shadow-sm overflow-hidden shrink-0">
-                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.nom || currentUser.nom}`} alt="User" />
+                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.avatar}`} alt={currentUser.nom} />
                   </div>
                   <div className="hidden md:flex flex-col items-start text-left">
-                    <span className="text-xs font-bold text-slate-700 dark:text-slate-200 leading-tight">{profile?.nom || currentUser.nom}</span>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">{profile?.role || currentUser.poste}</span>
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-200 leading-tight">{currentUser.nom}</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">{currentUser.poste}</span>
                   </div>
                   <ChevronDown size={14} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64 rounded-2xl p-2 shadow-2xl border-slate-200 dark:border-slate-800">
                 <DropdownMenuLabel className="px-3 py-2">
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Mon Compte</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Changer d'utilisateur</p>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="mx-2" />
-                <DropdownMenuItem className="flex items-center gap-2 p-3 rounded-xl cursor-pointer text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20" onClick={handleSignOut}>
+                <div className="max-h-[300px] overflow-y-auto py-1">
+                  {allUsers.map((user) => (
+                    <DropdownMenuItem 
+                      key={user.id} 
+                      className={cn(
+                        "flex items-center gap-3 p-2 rounded-xl cursor-pointer transition-colors mb-1",
+                        currentUser.id === user.id ? "bg-primary/5 border border-primary/10" : "hover:bg-slate-50 dark:hover:bg-slate-800"
+                      )}
+                      onClick={() => handleUserSwitch(user)}
+                    >
+                      <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
+                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.avatar}`} alt={user.nom} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">{user.nom}</p>
+                          {user.isSuperAdmin && <ShieldCheck size={12} className="text-primary shrink-0" />}
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{user.poste}</p>
+                      </div>
+                      {currentUser.id === user.id && (
+                        <Badge className="h-4 px-1.5 text-[8px] bg-primary text-white">Actif</Badge>
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </div>
+                <DropdownMenuSeparator className="mx-2" />
+                <DropdownMenuItem className="flex items-center gap-2 p-3 rounded-xl cursor-pointer text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20">
                   <LogOut size={16} />
                   <span className="text-sm font-bold">Déconnexion</span>
                 </DropdownMenuItem>
