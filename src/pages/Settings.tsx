@@ -27,6 +27,7 @@ import { useUser } from "@/context/UserContext";
 import { UserModal } from "@/components/settings/UserModal";
 import { UserList } from "@/components/settings/UserList";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { DataTransferSection } from "@/components/settings/DataTransferSection";
 import { cn } from "@/lib/utils";
 
 const Settings = () => {
@@ -356,6 +357,11 @@ const Settings = () => {
           </Card>
         </div>
       </section>
+
+      <Separator />
+
+      {/* Gestion des Données (Export/Import) */}
+      <DataTransferSection />
 
       <div className="flex justify-end gap-4 pt-4">
         <Button onClick={() => showSuccess("Paramètres enregistrés")} className="rounded-xl px-8 gap-2">
