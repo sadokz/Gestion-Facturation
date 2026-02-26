@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -68,10 +66,8 @@ export const CompanyResponsibleModal: React.FC<CompanyResponsibleModalProps> = (
       const loadTiers = async () => {
         try {
           const data = await fetcher("/tiers");
-          // On filtre pour ne garder que les entreprises dans ce modal spécifique
           setTiers(data.filter((t: any) => t.type === "Entreprise"));
         } catch (err) {
-          // Données de secours si l'API n'est pas disponible
           setTiers([
             { id: 3, nom: "SOTETRA", type: "Entreprise" },
             { id: 4, nom: "STP Sfax", type: "Entreprise" }
